@@ -26,9 +26,8 @@ def sim(input, player = Player()):
 
     for command in commands_args:
         command_function = player_commands[command[0]]
-        dict_args = parsers.dictize_args(command[1], player_command_arguments[command_function], player_arg_aliases)
+        dict_args, updates = parsers.dictize_args(command[1], player_command_arguments[command_function])
 
-        # print(dict_args)
         command_function(player, dict_args)
     
     return (player)
