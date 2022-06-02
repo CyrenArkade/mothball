@@ -208,12 +208,12 @@ def reset_position(player, args):
     player.z = 0
 
 @player_command(name='b')
-def reset_position(player, args):
+def mm_to_blocks(player, args):
     player.x += 0.6
     player.z += 0.6
 
 @player_command(name='mm')
-def reset_position(player, args):
+def blocks_to_mm(player, args):
     player.x -= 0.6
     player.z -= 0.6
 
