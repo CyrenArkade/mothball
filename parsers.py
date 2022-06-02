@@ -68,7 +68,7 @@ def argumentatize_command(command):
     command_name = command[:divider].lower()
     args.append(command[start:-1].strip())
 
-    if ('repeat', 'rep', 'r').contains(command_name):
+    if command_name in ('repeat', 'rep', 'r'):
         commands = separate_commands(args[0])
         comamnds_args = [single for command in commands for single in argumentatize_command(command)] * int(args[1])
     else:
@@ -90,10 +90,10 @@ def dictize_args(command_args, positional_args):
         elif not positional_index >= len(positional_args): # if arg is positional
             arg_name = positional_args[positional_index]
             arg_name = dealias_arg_name(arg_name)
-            if match(r'^mb\(.*\)$') or match(r'^mathbot\(.*\)$'):
+            if match(r'^mb\(.*\)$', arg_name) or match(r'^mathbot\(.*\)$', arg_name):
                 arg_val = None
-                update = lambda x: out.update({arg_name: convert(x)}) # CHANGE THIS
-                mathbot_updates.append(update)
+                #update = lambda x: out.update({arg_name: convert(x)}) # CHANGE THIS
+                #mathbot_updates.append(update)
                 pass
             else:
                 arg_val = convert(arg)
