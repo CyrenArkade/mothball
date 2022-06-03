@@ -2,10 +2,10 @@ import discord
 from discord.ext import commands
 import commandmanager as cmdmgr
 import parsers
-import movement
 from player import Player
 import json
-import asyncio
+import subprocess
+import shlex
 
 intents = discord.Intents.default()
 intents.messages = True
@@ -14,6 +14,7 @@ bot = commands.Bot(command_prefix=';', intents=intents)
 player_commands = cmdmgr.get_player_commands()
 player_command_arguments = cmdmgr.get_player_command_args()
 player_arg_aliases = cmdmgr.get_player_arg_aliases()
+params = {}
 
 msg_links = {}
 
@@ -49,6 +50,21 @@ async def on_message_edit(before, after):
     newcmd = after.content[3:]
     botmsg = await after.channel.fetch_message(msg_links[after.id])
     await botmsg.edit(content=sim(newcmd))
+
+@bot.command()
+async def gitpull(ctx, *, text):
+    if ctx.author.id not in params['admins']:
+        return
+    
+    task = subprocess.run(['git', 'pull'], shell=True, capture_output=True)
+    await ctx.send(task.stdout)
+
+@bot.command()
+async def restart(ctx):
+    if ctx.author.id not in params['admins']:
+        return
+    
+    task = subprocess.run(['pm2', 'restart', 'bot'], shell=True, capture_output=True)
 
 with open('params.json', 'r') as input:
     params = json.load(input)
