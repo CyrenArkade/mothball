@@ -18,7 +18,10 @@ params = {}
 
 msg_links = {}
 
-def sim(input, player = Player()):
+def sim(input, player = None):
+
+    if not player:
+        player = Player()
 
     commands = parsers.separate_commands(input)
     print('Step one:', commands)
