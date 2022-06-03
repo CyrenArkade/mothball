@@ -5,7 +5,7 @@ import parsers
 from player import Player
 import json
 import subprocess
-import shlex
+import movement
 
 intents = discord.Intents.default()
 intents.messages = True
