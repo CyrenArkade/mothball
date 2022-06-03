@@ -1,13 +1,14 @@
 class Player:
-    x = 0
-    z = 0
-    vx = 0
-    vz = 0
-    prev_slip = None
-    ground_slip = 0.6
-    eff_mult = 1
-    default_facing = 0
-    inertia_threshold = 0.005
+    def __init__(self):
+        self.x = 0
+        self.z = 0
+        self.vx = 0
+        self.vz = 0
+        self.prev_slip = None
+        self.ground_slip = 0.6
+        self.eff_mult = 1
+        self.default_facing = 0
+        self.inertia_threshold = 0.005
 
     def __str__(self) -> str:
         zstr = str(round(self.z, 6))
