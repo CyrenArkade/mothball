@@ -39,5 +39,7 @@ Most movement functions have the positonal args `duration, direction`, which def
 | eff_mult       | effmult, eff, e | Determines the player's effect multiplier     |
 | sprintjumptick | sprintjump      | Determines if the player is sprintjumping     |
 
+Adding arguments to functions clearly not designed for them will produce unpredictable and impossible results.
+
 ### The repeat function
 The repeat function lets you repeat a function or a series of functions multiple times. An example: `repeat(sprintjump(12), 2)`
