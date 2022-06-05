@@ -7,6 +7,7 @@ import json
 import subprocess
 import movement
 import shlex
+import time
 
 intents = discord.Intents.default()
 intents.messages = True
@@ -60,16 +61,16 @@ async def gitpull(ctx):
     if ctx.author.id not in params['admins']:
         return
     
-    task = subprocess.run(['pm2', 'restart', 'bot'], shell=True, capture_output=True)
-    ctx.send(task.stdout())
+    task = subprocess.run(['pm2', 'restart', 'bot'], shell=True, capture_output=True, text=True, stderr=subprocess.STDOUT)
+    await ctx.send(task.stdout)
 
 @bot.command()
 async def cmd(ctx, *, text):
     if ctx.author.id not in params['admins']:
         return
     
-    task = subprocess.run(shlex.split(text), shell=True, capture_output=True)
-    ctx.send(task.stdout())
+    task = subprocess.run(shlex.split(text), shell=True, capture_output=True, text=True, stderr=subprocess.STDOUT)
+    await ctx.send(task.stdout)
     
 
 @bot.command()
@@ -77,12 +78,12 @@ async def restart(ctx):
     if ctx.author.id not in params.get('admins', {}):
         return
     
-    task = subprocess.run(['pm2', 'restart', 'bot'], shell=True, capture_output=True)
-    ctx.send(task.stdout())
+    task = subprocess.run(['pm2', 'restart', 'bot'], shell=True, capture_output=True, text=True, stderr=subprocess.STDOUT)
+    await ctx.send(task.stdout)
 
 @bot.command()
 async def help(ctx):
-    ctx.send('Read the readme!\nhttps://github.com/CyrenArkade/mothball')
+    await ctx.send('Read the readme!\nhttps://github.com/CyrenArkade/mothball')
 
 with open('params.json', 'r') as input:
     params = json.load(input)
