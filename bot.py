@@ -61,7 +61,7 @@ async def gitpull(ctx):
     if ctx.author.id not in params['admins']:
         return
     
-    task = subprocess.run(['pm2', 'restart', 'bot'], shell=True, capture_output=True, text=True, stderr=subprocess.STDOUT)
+    task = subprocess.run(['pm2', 'restart', 'bot'], shell=True, text=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     await ctx.send(task.stdout)
 
 @bot.command()
@@ -69,7 +69,7 @@ async def cmd(ctx, *, text):
     if ctx.author.id not in params['admins']:
         return
     
-    task = subprocess.run(shlex.split(text), shell=True, capture_output=True, text=True, stderr=subprocess.STDOUT)
+    task = subprocess.run(shlex.split(text), shell=True, text=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     await ctx.send(task.stdout)
     
 
@@ -78,7 +78,7 @@ async def restart(ctx):
     if ctx.author.id not in params.get('admins', {}):
         return
     
-    task = subprocess.run(['pm2', 'restart', 'bot'], shell=True, capture_output=True, text=True, stderr=subprocess.STDOUT)
+    task = subprocess.run(['pm2', 'restart', 'bot'], shell=True, text=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     await ctx.send(task.stdout)
 
 @bot.command()
