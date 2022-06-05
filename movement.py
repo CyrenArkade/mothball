@@ -202,6 +202,11 @@ def sneakjump45(player, args):
     args.setdefault('mov_mult', 0.294 * math.sqrt(2))
     jump(player, args)
 
+@player_command(aliases=['st'], arguments=['duration'])
+def stop(player, args):
+    args.setdefault('mov_mult', 0)
+    basic_move(player, args)
+
 @player_command(name='|')
 def reset_position(player, args):
     player.x = 0
