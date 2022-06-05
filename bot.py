@@ -24,11 +24,8 @@ def sim(input, player = None):
         player = Player()
 
     commands = parsers.separate_commands(input)
-    print('Step one:', commands)
 
     commands_args = [single for command in commands for single in parsers.argumentatize_command(command)]
-    print('Step two:', commands_args)
-         
 
     for command in commands_args:
         command_function = player_commands[command[0]]
