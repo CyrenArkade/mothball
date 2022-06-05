@@ -10,7 +10,7 @@ import shlex
 
 intents = discord.Intents.default()
 intents.messages = True
-bot = commands.Bot(command_prefix=';', intents=intents)
+bot = commands.Bot(command_prefix=';', intents=intents, help_command=None)
 
 player_commands = cmdmgr.get_player_commands()
 player_command_arguments = cmdmgr.get_player_command_args()
