@@ -85,10 +85,15 @@ async def py(ctx, *, text):
     if text.startswith('```'): text = text[3:]
     if text.startswith('py'): text = text[2:]
     if text.endswith('```'): text = text[:-3]
+    if text.startswith('`'): text = text[3:]
+    if text.startswith('`'): text = text[3:]
+
+    text = f'async def __ex(): ' + ''.join(f'\n {l}' for l in text.split('\n'))
 
     f = StringIO()
     with redirect_stdout(f):
         exec(text)
+        await locals()['__ex']()
     await ctx.send(f.getvalue())
 
 @bot.command()

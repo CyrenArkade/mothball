@@ -247,6 +247,6 @@ def setslip(player, args):
     player.ground_slip = args['slip']
 
 @player_command(aliases = ['eff'], arguments=['eff_mult'])
-def sefeff(player, args):
+def seteff(player, args):
     args.setdefault('eff_mult', 1)
-    player.ground_slip = args['eff_mult']
+    player.eff_mult = args['eff_mult']
