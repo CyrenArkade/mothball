@@ -151,16 +151,20 @@ def walkjump(player, args):
 
 @player_command(aliases=['lwj'], arguments=['duration', 'facing'])
 def lwalkjump(player, args):
-    args.setdefault('mov_mult', 0.98)
+    args.setdefault('mov_mult', 1)
     args.update({'facing': args.get('facing', player.default_facing) - 45})
-    update = lambda: args.update({'facing': args['facing'] + 45})
+    def update():
+        args.update({'facing': args['facing'] + 45})
+        args.update({'mov_mult': args.get('mov_mult') * 0.98})
     jump(player, args, apply = update)
 
 @player_command(aliases=['rwj'], arguments=['duration', 'facing'])
 def rwalkjump(player, args):
-    args.setdefault('mov_mult', 0.98)
+    args.setdefault('mov_mult', 1)
     args.update({'facing': args.get('facing', player.default_facing) + 45})
-    update = lambda: args.update({'facing': args['facing'] - 45})
+    def update():
+        args.update({'facing': args['facing'] - 45})
+        args.update({'mov_mult': args.get('mov_mult') * 0.98})
     jump(player, args, apply = update)
 
 @player_command(aliases=['sj'], arguments=['duration', 'facing'])

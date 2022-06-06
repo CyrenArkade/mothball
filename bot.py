@@ -1,3 +1,4 @@
+import asyncio
 import discord
 from discord.ext import commands
 import commandmanager as cmdmgr
@@ -8,6 +9,7 @@ import subprocess
 import movement
 from io import StringIO
 from contextlib import redirect_stdout
+import re
 
 intents = discord.Intents.default()
 intents.messages = True
@@ -99,6 +101,46 @@ async def py(ctx, *, text):
 @bot.command()
 async def help(ctx):
     await ctx.send('Read the readme!\n<https://github.com/CyrenArkade/mothball>')
+
+@bot.event
+async def on_message(msg):
+    if not re.search(r'\[(\'.*?\'(, )?)*?\]', msg.content) or msg.author.id != 982688359069659146:
+        return
+    
+    await msg.add_reaction('🔍')
+
+    def check(reaction, user):
+        return reaction.message.id == msg.id and str(reaction.emoji) == '🔍'
+
+    try:
+        await bot.wait_for('reaction_add', timeout=60, check=check)
+
+        out = ';s '
+        for match in re.findall(r'\'.*?\'', msg.content):
+            match = match[1:-1]
+
+            if 'stop' in match:
+                out += 'stop'
+            elif 'sneak' in match:
+                out += 'sn'
+            elif 'walk' in match:
+                out += 'w'
+            elif 'sprint' in match:
+                out += 's'
+            
+            if '45' in match:
+                out += '45'
+            
+            if 'back' in match:
+                out += '(-1)'
+            
+            out += ' '
+        
+        await msg.channel.send(out)
+    except asyncio.TimeoutError:
+        await msg.remove_reaction('🔍')
+
+
 
 with open('params.json', 'r') as input:
     params = json.load(input)
