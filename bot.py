@@ -20,7 +20,7 @@ params = {}
 
 msg_links = {}
 
-def sim(input, player = None):
+def sim(input, player = None, recordhistory = False):
 
     if not player:
         player = Player()
@@ -35,11 +35,19 @@ def sim(input, player = None):
 
         command_function(player, dict_args)
     
-    return (player)
+    if recordhistory:
+        return player.history_string()
+    else:
+        return player
 
 @bot.command(name="s")
 async def simulate(ctx, *, text):
     msg = await ctx.send(sim(text))
+    msg_links.update({ctx.message.id: msg.id})
+
+@bot.command(name='h')
+async def history(ctx, *, text):
+    msg = await ctx.send(sim(text, recordhistory = True))
     msg_links.update({ctx.message.id: msg.id})
 
 @bot.event
@@ -82,11 +90,8 @@ async def py(ctx, *, text):
     if ctx.author.id not in params['admins']:
         return
     
-    if text.startswith('```'): text = text[3:]
+    text.strip('`')
     if text.startswith('py'): text = text[2:]
-    if text.endswith('```'): text = text[:-3]
-    if text.startswith('`'): text = text[3:]
-    if text.startswith('`'): text = text[3:]
 
     text = f'async def __ex(): ' + ''.join(f'\n {l}' for l in text.split('\n'))
 

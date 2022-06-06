@@ -48,6 +48,7 @@ def move(player, args):
             player.vz += 0.2 * math.cos(math.radians(facing))
 
     player.prev_slip = slip
+    player.log()
 
 
 def basic_move(player, args):
