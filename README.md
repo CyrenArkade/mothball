@@ -8,7 +8,7 @@ Functions must be separated by spaces. They consist of the function name, option
 Movement names are generally of the format `[sneak, walk, sprint]`​`[air, jump]`​`[45]`. Only the first component is required.
 These can be shortened down to `[sn, w, s]`​`[a, j]`​`[45]`.
 
-Exceptions include the strafe sprintjump variants, which are prefixed with `[l, r]`.
+Exceptions include stop/stopair and the strafe sprintjump variants, which are prefixed with `[l, r]`.
 
 A table of more exotic functions:
 
@@ -19,7 +19,7 @@ A table of more exotic functions:
 | mm       |           |           | Subtracts 0.6 from the player's x/z positions |
 | setv     | v         | vx, vz    | Sets the player's x and z velocities          |
 | setvx    | vx        | vx        | Sets the player's x velocity                  |
-| setvy    | vz        | vz        | Sets the player's z velocity                  |
+| setvz    | vz        | vz        | Sets the player's z velocity                  |
 | setslip  | slip      | slip      | Sets the player's default ground slipperiness |
 | seteff   | eff       | eff_mult  | Sets the player's default effect multiplier   |
 
