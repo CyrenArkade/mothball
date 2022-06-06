@@ -11,6 +11,11 @@ def move(player, args):
     if player.prev_slip is None:
         player.prev_slip = slip
     
+    if 'slowness' in args or 'speed' in args:
+        args.setdefault('slowness', 0)
+        args.setdefault('speed', 0)
+        args['eff_mult'] = max(0, (1 + 0.2 * args['speed']) * (1 - (0.15 * args['slowness'])))
+    
     airborne = args.get('airborne', False)
     facing = args.get('facing', player.default_facing)
     direction = args.get('direction', facing)
@@ -144,6 +149,20 @@ def walkjump(player, args):
     args.setdefault('mov_mult', 0.98)
     jump(player, args)
 
+@player_command(aliases=['lwj'], arguments=['duration', 'facing'])
+def lwalkjump(player, args):
+    args.setdefault('mov_mult', 0.98)
+    args.update({'facing': args.get('facing', player.default_facing) - 45})
+    update = lambda: args.update({'facing': args['facing'] + 45})
+    jump(player, args, apply = update)
+
+@player_command(aliases=['rwj'], arguments=['duration', 'facing'])
+def rwalkjump(player, args):
+    args.setdefault('mov_mult', 0.98)
+    args.update({'facing': args.get('facing', player.default_facing) + 45})
+    update = lambda: args.update({'facing': args['facing'] - 45})
+    jump(player, args, apply = update)
+
 @player_command(aliases=['sj'], arguments=['duration', 'facing'])
 def sprintjump(player, args):
     args.setdefault('mov_mult', 1.274)
@@ -174,6 +193,20 @@ def rsprintjump(player, args):
 def walkjump45(player, args):
     args.setdefault('mov_mult', 1)
     jump(player, args)
+
+@player_command(aliases=['lwj45'], arguments=['duration', 'facing'])
+def lwalkjump45(player, args):
+    args.setdefault('mov_mult', 1)
+    args.update({'facing': args.get('facing', player.default_facing) - 45})
+    update = lambda: args.update({'facing': args['facing'] + 45})
+    jump(player, args, apply = update)
+
+@player_command(aliases=['rwj45'], arguments=['duration', 'facing'])
+def rwalkjump45(player, args):
+    args.setdefault('mov_mult', 1)
+    args.update({'facing': args.get('facing', player.default_facing) + 45})
+    update = lambda: args.update({'facing': args['facing'] - 45})
+    jump(player, args, apply = update)
 
 @player_command(aliases=['sj45'], arguments=['duration', 'facing'])
 def sprintjump45(player, args):
@@ -253,5 +286,5 @@ def seteff(player, args):
     if 'slowness' in args or 'speed' in args:
         args.setdefault('slowness', 0)
         args.setdefault('speed', 0)
-        args['eff_mult'] = max(0, (1 + 0.2 * args['speed']) + (1 - (0.15 * args['slowness'])))
+        args['eff_mult'] = max(0, (1 + 0.2 * args['speed']) * (1 - (0.15 * args['slowness'])))
     player.eff_mult = args['eff_mult']
