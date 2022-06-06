@@ -62,7 +62,7 @@ async def gitpull(ctx):
         return
     
     task = subprocess.run('git pull', shell=True, text=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    await ctx.send(task.stdout)
+    await ctx.send(f'```{task.stdout}```')
 
 @bot.command()
 async def cmd(ctx, *, text):
@@ -70,7 +70,7 @@ async def cmd(ctx, *, text):
         return
     
     task = subprocess.run(text , shell=True, text=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    await ctx.send(task.stdout)
+    await ctx.send(f'```{task.stdout}```')
     
 @bot.command()
 async def restart(ctx):
@@ -78,7 +78,7 @@ async def restart(ctx):
         return
     
     task = subprocess.run('pm2 restart bot', shell=True, text=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    await ctx.send(task.stdout)
+    await ctx.send(f'```{task.stdout}```')
 
 @bot.command()
 async def py(ctx, *, text):
