@@ -140,7 +140,7 @@ async def cocasse(msg):
             
             out += ' '
         
-        out += '\n' + str(sim(out[3:]))
+        out += '\n' + str(sim(out))
         await msg.channel.send(out)
     except asyncio.TimeoutError:
         pass
