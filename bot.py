@@ -62,16 +62,9 @@ async def on_message_edit(before, after):
     await botmsg.edit(content=sim(newcmd))
 
 @bot.command()
-async def gitpull(ctx):
-    if ctx.author.id not in params['admins']:
-        return
-    
-    task = subprocess.run('git pull', shell=True, text=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    await ctx.send(f'```{task.stdout}```')
-
-@bot.command()
 async def cmd(ctx, *, text):
     if ctx.author.id not in params['admins']:
+        ctx.message.add_reaction('🤡')
         return
     
     task = subprocess.run(text , shell=True, text=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -80,6 +73,7 @@ async def cmd(ctx, *, text):
 @bot.command()
 async def restart(ctx):
     if ctx.author.id not in params.get('admins', {}):
+        ctx.message.add_reaction('🤡')
         return
     
     task = subprocess.run('pm2 restart bot', shell=True, text=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -88,6 +82,7 @@ async def restart(ctx):
 @bot.command()
 async def py(ctx, *, text):
     if ctx.author.id not in params['admins']:
+        ctx.message.add_reaction('🤡')
         return
     
     text.strip('`')
