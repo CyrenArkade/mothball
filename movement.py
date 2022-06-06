@@ -250,4 +250,8 @@ def setslip(player, args):
 @player_command(aliases = ['eff'], arguments=['eff_mult'])
 def seteff(player, args):
     args.setdefault('eff_mult', 1)
+    if 'slowness' in args or 'speed' in args:
+        args.setdefault('slowness', 0)
+        args.setdefault('speed', 0)
+        args['eff_mult'] = max(0, (1 + 0.2 * args['speed']) + (1 - (0.15 * args['slowness'])))
     player.eff_mult = args['eff_mult']

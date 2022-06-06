@@ -41,5 +41,7 @@ def get_player_arg_aliases():
     add_alias('mov_mult', ['movmult', 'mov', 'm'])
     add_alias('eff_mult', ['effmult', 'eff', 'e'])
     add_alias('sprintjump_tick', ['sprintjump'])
+    add_alias('slowness', ['slow', 'sl'])
+    add_alias('speed', ['sp', 'spd'])
 
     return all_aliases
