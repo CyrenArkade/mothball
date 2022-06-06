@@ -104,9 +104,13 @@ async def help(ctx):
 
 @bot.event
 async def on_message(msg):
-    if not re.search(r'\[(\'.*?\'(, )?)*?\]', msg.content) or msg.author.id != 982688359069659146:
-        return
+    if re.search(r'\[(\'.*?\'(, )?)*?\]', msg.content) and msg.author.id == 982688359069659146:
+        cocasse(msg)
     
+    await bot.process_commands(msg)
+    
+
+async def cocasse(msg):
     await msg.add_reaction('🔍')
 
     def check(reaction, user):
@@ -140,8 +144,6 @@ async def on_message(msg):
         await msg.channel.send(out)
     except asyncio.TimeoutError:
         await msg.remove_reaction('🔍')
-
-
 
 with open('params.json', 'r') as input:
     params = json.load(input)
