@@ -110,12 +110,12 @@ async def on_message(msg):
     await msg.add_reaction('🔍')
 
     def check(reaction, user):
-        return reaction.message.id == msg.id and str(reaction.emoji) == '🔍'
+        return reaction.message.id == msg.id and str(reaction.emoji) == '🔍' and not user.bot
 
     try:
         await bot.wait_for('reaction_add', timeout=60, check=check)
 
-        out = ';s '
+        out = ''
         for match in re.findall(r'\'.*?\'', msg.content):
             match = match[1:-1]
 
@@ -136,6 +136,7 @@ async def on_message(msg):
             
             out += ' '
         
+        out += '\n' + str(sim(out[3:]))
         await msg.channel.send(out)
     except asyncio.TimeoutError:
         await msg.remove_reaction('🔍')
