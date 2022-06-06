@@ -29,9 +29,6 @@ def sim(input, player = None):
 
     commands_args = [single for command in commands for single in parsers.argumentatize_command(command)]
 
-    if len(commands_args) > 100000:
-        return
-
     for command in commands_args:
         command_function = player_commands[command[0]]
         dict_args, updates = parsers.dictize_args(command[1], player_command_arguments[command_function])
