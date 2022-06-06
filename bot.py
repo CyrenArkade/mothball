@@ -6,6 +6,8 @@ from player import Player
 import json
 import subprocess
 import movement
+from io import StringIO
+from contextlib import redirect_stdout
 
 intents = discord.Intents.default()
 intents.messages = True
@@ -26,6 +28,9 @@ def sim(input, player = None):
     commands = parsers.separate_commands(input)
 
     commands_args = [single for command in commands for single in parsers.argumentatize_command(command)]
+
+    if len(commands_args) > 100000:
+        return
 
     for command in commands_args:
         command_function = player_commands[command[0]]
@@ -67,7 +72,6 @@ async def cmd(ctx, *, text):
     task = subprocess.run(text , shell=True, text=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     await ctx.send(task.stdout)
     
-
 @bot.command()
 async def restart(ctx):
     if ctx.author.id not in params.get('admins', {}):
@@ -75,6 +79,20 @@ async def restart(ctx):
     
     task = subprocess.run('pm2 restart bot', shell=True, text=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     await ctx.send(task.stdout)
+
+@bot.command()
+async def py(ctx, *, text):
+    if ctx.author.id not in params['admins']:
+        return
+    
+    if text.startswith('```'): text = text[3:]
+    if text.startswith('py'): text = text[2:]
+    if text.endswith('```'): text = text[:-3]
+
+    f = StringIO()
+    with redirect_stdout(f):
+        exec(text)
+    await ctx.send(f.getvalue())
 
 @bot.command()
 async def help(ctx):
