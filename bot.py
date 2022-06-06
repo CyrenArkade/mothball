@@ -85,7 +85,7 @@ async def py(ctx, *, text):
         await ctx.message.add_reaction('🤡')
         return
     
-    text.strip('`')
+    text = text.strip('`')
     if text.startswith('py'): text = text[2:]
 
     text = f'async def __ex(): ' + ''.join(f'\n {l}' for l in text.split('\n'))
