@@ -56,8 +56,6 @@ async def history(ctx, *, text):
 async def on_message_edit(before, after):
     if after.id not in msg_links:
         return
-    if not after.content.startswith(';s '):
-        return
     
     newcmd = after.content[3:]
     botmsg = await after.channel.fetch_message(msg_links[after.id])
