@@ -22,6 +22,7 @@ def move(player, args):
     mov_mult = args.get('mov_mult', 1)
     eff_mult = args.get('eff_mult', player.eff_mult)
     sprintjumptick = args.get('sprintjumptick', False)
+    angles = args.get('angles', player.angles)
 
     if args.get('duration', 0) < 0:
         facing += 180
@@ -43,17 +44,34 @@ def move(player, args):
 
     # Applies acceleration
     if airborne:
-        player.vx += 0.02 * mov_mult * math.sin(math.radians(direction))
-        player.vz += 0.02 * mov_mult * math.cos(math.radians(direction))
+        player.vx += 0.02 * mov_mult * mcsin(direction, angles)
+        player.vz += 0.02 * mov_mult * mccos(direction, angles)
     else:
-        player.vx += 0.1 * mov_mult * eff_mult * (0.6 / slip) ** 3 * math.sin(math.radians(direction))
-        player.vz += 0.1 * mov_mult * eff_mult * (0.6 / slip) ** 3 * math.cos(math.radians(direction))
+        player.vx += 0.1 * mov_mult * eff_mult * (0.6 / slip) ** 3 * mcsin(direction, angles)
+        player.vz += 0.1 * mov_mult * eff_mult * (0.6 / slip) ** 3 * mccos(direction, angles)
+        
         if sprintjumptick:
-            player.vx += 0.2 * math.sin(math.radians(facing))
-            player.vz += 0.2 * math.cos(math.radians(facing))
+            player.vx += 0.2 * mcsin(facing, angles)
+            player.vz += 0.2 * mccos(facing, angles)
 
     player.prev_slip = slip
     player.log()
+
+def mcsin(deg, angles):
+    if angles == -1:
+        return math.sin(math.radians(deg))
+
+    rad = math.radians(deg)
+    index = int(1 / (2 * math.pi) * angles * rad) & (angles - 1)
+    return math.sin(index * math.pi * 2.0 / angles)
+
+def mccos(deg, angles):
+    if angles == -1:
+        return math.cos(math.radians(deg))
+
+    rad = math.radians(deg)
+    index = int(1 / (2 * math.pi) * angles * rad + angles / 4) & (angles - 1)
+    return math.sin(index * math.pi * 2.0 / angles)
 
 
 def basic_move(player, args):
@@ -292,3 +310,8 @@ def seteff(player, args):
         args.setdefault('speed', 0)
         args['eff_mult'] = max(0, (1 + 0.2 * args['speed']) * (1 - (0.15 * args['slowness'])))
     player.eff_mult = args['eff_mult']
+
+@player_command(aliases = ['angle'], arguments=['angles'])
+def angles(player, args):
+    args.setdefault('angles', -1)
+    player.angles = args['angles']

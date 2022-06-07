@@ -7,6 +7,7 @@ class Player:
         self.prev_slip = None
         self.ground_slip = 0.6
         self.eff_mult = 1
+        self.angles = -1
         self.default_facing = 0
         self.inertia_threshold = 0.005
 
