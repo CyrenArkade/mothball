@@ -28,6 +28,9 @@ def move(player, args):
         facing += 180
         direction += 180
     
+    facing *= -1
+    direction *= -1
+    
     # Moves the player
     player.x += player.vx
     player.z += player.vz
