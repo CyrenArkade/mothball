@@ -1,6 +1,6 @@
 from re import match
 from ast import arg, literal_eval
-import commandmanager as cmdmgr
+import cogs.movement.commandmanager as cmdmgr
 
 def separate_commands(text):
     

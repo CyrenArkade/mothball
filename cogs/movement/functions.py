@@ -1,5 +1,5 @@
 import math
-from commandmanager import player_command
+from cogs.movement.commandmanager import player_command
 
 # Valid arguments: direction, facing, slip, airborne, mov_mult, eff_mult, sprintjumptick
 def move(player, args):

@@ -25,6 +25,9 @@ class Player:
     def log(self):
         self.history.append((self.x, self.z, self.vx, self.vz))
     
+    def clearlog(self):
+        self.history = []
+    
     def history_string(self):
         history = ''
         for tick in self.history:
