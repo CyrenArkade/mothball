@@ -33,9 +33,9 @@ def move(player, args):
     player.z += player.vz
 
     # Inertia threshold
-    if abs(player.vx * slip * 0.91) < player.inertia_threshold:
+    if abs(player.vx * player.prev_slip * 0.91) < player.inertia_threshold:
         player.vx = 0
-    if abs(player.vz * slip * 0.91) < player.inertia_threshold:
+    if abs(player.vz * player.prev_slip * 0.91) < player.inertia_threshold:
         player.vz = 0
     
     # Updates momentum
