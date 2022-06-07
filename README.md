@@ -2,7 +2,8 @@
 A Discord bot for simulating Minecraft movement.
 
 ## Commands
-`;s`​`functions list` Simulates the provided functions and displays the final result
+`;s`​`functions list` Simulates the provided functions and displays the final result.
+
 `;h`​`functions list` Simulates the provided functions and displays tick by tick results.
 
 ## Function Syntax
