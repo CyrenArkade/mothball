@@ -269,6 +269,11 @@ def stopair(player, args):
     args.setdefault('airborne', True)
     basic_move(player, args)
 
+@player_command(aliases=['stj'], arguments=['duration'])
+def stopjump(player, args):
+    args.setdefault('mov_mult', 0)
+    jump(player, args)
+
 @player_command(name='|')
 def reset_position(player, args):
     player.x = 0
