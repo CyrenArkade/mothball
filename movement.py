@@ -28,9 +28,6 @@ def move(player, args):
         facing += 180
         direction += 180
     
-    facing *= -1
-    direction *= -1
-    
     # Moves the player
     player.x += player.vx
     player.z += player.vz
@@ -47,14 +44,14 @@ def move(player, args):
 
     # Applies acceleration
     if airborne:
-        player.vx += 0.02 * mov_mult * mcsin(direction, angles)
+        player.vx += 0.02 * mov_mult * -mcsin(direction, angles)
         player.vz += 0.02 * mov_mult * mccos(direction, angles)
     else:
-        player.vx += 0.1 * mov_mult * eff_mult * (0.6 / slip) ** 3 * mcsin(direction, angles)
+        player.vx += 0.1 * mov_mult * eff_mult * (0.6 / slip) ** 3 * -mcsin(direction, angles)
         player.vz += 0.1 * mov_mult * eff_mult * (0.6 / slip) ** 3 * mccos(direction, angles)
         
         if sprintjumptick:
-            player.vx += 0.2 * mcsin(facing, angles)
+            player.vx += 0.2 * -mcsin(facing, angles)
             player.vz += 0.2 * mccos(facing, angles)
 
     player.prev_slip = slip
