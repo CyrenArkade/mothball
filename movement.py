@@ -297,6 +297,19 @@ def setvx(player, args):
 def setvz(player, args):
     player.vz = args.get('vz', 0)
 
+@player_command(aliases = ['pos'], arguments=['x', 'z'])
+def setpos(player, args):
+    player.x = args.get('x', 0)
+    player.z = args.get('z', 0)
+
+@player_command(aliases = ['posx', 'x'], arguments=['x'])
+def setposx(player, args):
+    player.x = args.get('x', 0)
+
+@player_command(aliases = ['posz', 'z'], arguments=['z'])
+def setposz(player, args):
+    player.z = args.get('z', 0)
+
 @player_command(aliases = ['slip'], arguments=['slip'])
 def setslip(player, args):
     args.setdefault('slip', 0.6)
