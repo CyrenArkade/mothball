@@ -2,9 +2,9 @@
 A Discord bot for simulating Minecraft movement.
 
 ## Commands
-`;s`​`functions list` Simulates the provided functions and displays the final result.
+`;s`​`functions` Simulates the provided functions and displays the final result.
 
-`;h`​`functions list` Simulates the provided functions and displays tick by tick results.
+`;h`​`functions` Simulates the provided functions and displays tick by tick results.
 
 ## Function Syntax
 Functions must be separated by spaces. They consist of the function name, optionally followed by arguments in parenthesis. Args must be separated by commas.
