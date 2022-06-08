@@ -25,7 +25,7 @@ class Player:
     def log(self):
         self.history.append((self.x, self.z, self.vx, self.vz))
     
-    def clearlog(self):
+    def clearlogs(self):
         self.history = []
     
     def history_string(self):
@@ -34,3 +34,19 @@ class Player:
             history += (f'x/z:({round(tick[0], 6)}, {round(tick[1], 6)})'.ljust(27))
             history += f'vx/vz:({round(tick[2], 6)}, {round(tick[3], 6)})\n'
         return '```' + history + '```'
+
+    def softcopy(self):
+        other = Player()
+
+        other.x = self.x
+        other.z = self.z
+        other.vx = self.vx
+        other.vz = self.vz
+        other.prev_slip = self.prev_slip
+        other.ground_slip = self.ground_slip
+        other.eff_mult = self.eff_mult
+        other.angles = self.angles
+        other.default_facing = self.default_facing
+        other.inertia_threshold = self.inertia_threshold
+
+        return other

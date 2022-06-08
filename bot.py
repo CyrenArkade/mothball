@@ -50,7 +50,8 @@ async def cocasse(msg):
             
             out += ' '
         
-        out += '\n' + str(sim(out))
+        movement = bot.get_cog('Movement')
+        out += '\n' + str(movement.sim(out))
         await msg.channel.send(out)
     except asyncio.TimeoutError:
         pass

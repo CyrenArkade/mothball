@@ -31,16 +31,16 @@ def move(player, args):
     # Moves the player
     player.x += player.vx
     player.z += player.vz
-
-    # Inertia threshold
-    if abs(player.vx * player.prev_slip * 0.91) < player.inertia_threshold:
-        player.vx = 0
-    if abs(player.vz * player.prev_slip * 0.91) < player.inertia_threshold:
-        player.vz = 0
     
     # Updates momentum
     player.vx = player.vx * player.prev_slip * 0.91
     player.vz = player.vz * player.prev_slip * 0.91
+
+    # Inertia threshold
+    if abs(player.vx) < player.inertia_threshold:
+        player.vx = 0
+    if abs(player.vz) < player.inertia_threshold:
+        player.vz = 0
 
     # Applies acceleration
     if airborne:
@@ -333,3 +333,8 @@ def seteff(player, args):
 def angles(player, args):
     args.setdefault('angles', -1)
     player.angles = args['angles']
+
+@player_command(arguments=['inertia'])
+def inertia(player, args):
+    args.setdefault('inertia', 0.005)
+    player.inertia_threshold = args['inertia']
