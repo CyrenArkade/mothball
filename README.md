@@ -14,10 +14,10 @@ A Discord bot for simulating Minecraft movement.
 Functions must be separated by spaces. They consist of the function name, optionally followed by arguments in parenthesis. Args must be separated by commas.
 
 ### Functions
-Movement names are generally of the format `[sneak, walk, sprint]`​`[air, jump]`​`[45]`. Only the first component is required.
+Movement names are generally of the format `[stop, sneak, walk, sprint]`​`[air, jump]`​`[45]`. Only the first component is required.
 These can be shortened down to `[sn, w, s]`​`[a, j]`​`[45]`.
 
-Exceptions include stop/stopair and the strafe sprintjump variants, which are prefixed with `[l, r]`.
+Exceptions include the strafe sprintjump variants, which are prefixed with `[l, r]`.
 
 A table of more exotic functions:
 
