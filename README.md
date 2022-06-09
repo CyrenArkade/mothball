@@ -2,35 +2,40 @@
 A Discord bot for simulating Minecraft movement.
 
 ## Commands
-`;s`​`functions` Simulates the provided functions and displays the final result.
+`;[simulate | sim | s]`​`functions` Simulates the provided functions and displays the final result.
 
-`;h`​`functions` Simulates the provided functions and displays tick by tick results.
+`;[history | h]`​`functions` Simulates the provided functions and displays tick by tick results.
+
+`;[then | t]`​`functions` Continues simulation from the reply and displays the final result.
+
+`;[thenh | th]`​`functions` Continues simulation from the reply and displays tick by tick results.
 
 ## Function Syntax
 Functions must be separated by spaces. They consist of the function name, optionally followed by arguments in parenthesis. Args must be separated by commas.
 
 ### Functions
-Movement names are generally of the format `[sneak, walk, sprint]`​`[air, jump]`​`[45]`. Only the first component is required.
-These can be shortened down to `[sn, w, s]`​`[a, j]`​`[45]`.
+Movement names are generally of the format `[stop, sneak, walk, sprint]`​`[air, jump]`​`[45]`. Only the first component is required.
+These can be shortened down to `[st, sn, w, s]`​`[a, j]`​`[45]`.
 
-Exceptions include stop/stopair and the strafe sprintjump variants, which are prefixed with `[l, r]`.
+Exceptions include the strafe sprintjump variants, which are prefixed with `[l, r]`.
 
 A table of more exotic functions:
 
-| Function | Alias(es) | Arguments                 | Result                                                                                           |
-|----------|-----------|---------------------------|--------------------------------------------------------------------------------------------------|
-| \|       |           |                           | Resets the player's position                                                                     |
-| b        |           |                           | Adds 0.6 to the player's x/z positions                                                           |
-| mm       |           |                           | Subtracts 0.6 from the player's x/z positions                                                    |
-| setv     | v         | vx, vz                    | Sets the player's x and z velocities                                                             |
-| setvx    | vx        | vx                        | Sets the player's x velocity                                                                     |
-| setvz    | vz        | vz                        | Sets the player's z velocity                                                                     |
-| setpos   | pos       | x, z                      | Sets the player's x and z positions                                                              |
-| setposx  | posx, x   | x                         | Sets the player's x position                                                                     |
-| setposz  | posz, z   | z                         | Sets the player's z position                                                                     |
-| setslip  | slip      | slip                      | Sets the player's default ground slipperiness                                                    |
-| seteff   | eff       | eff_mult, speed, slowness | Sets the player's default effect multiplier. Will calculate effmult if speed/slowness are given. |
-| angles   | angle     | angles                    | Sets the player's default number of significant angles                                           |
+| Function  | Alias(es) | Arguments                 | Result                                                                                           |
+|-----------|-----------|---------------------------|--------------------------------------------------------------------------------------------------|
+| \|        |           |                           | Resets the player's position                                                                     |
+| b         |           |                           | Adds 0.6 to the player's x/z positions                                                           |
+| mm        |           |                           | Subtracts 0.6 from the player's x/z positions                                                    |
+| setv      | v         | vx, vz                    | Sets the player's x and z velocities                                                             |
+| setvx     | vx        | vx                        | Sets the player's x velocity                                                                     |
+| setvz     | vz        | vz                        | Sets the player's z velocity                                                                     |
+| setpos    | pos       | x, z                      | Sets the player's x and z positions                                                              |
+| setposx   | posx, x   | x                         | Sets the player's x position                                                                     |
+| setposz   | posz, z   | z                         | Sets the player's z position                                                                     |
+| setslip   | slip      | slip                      | Sets the player's default ground slipperiness                                                    |
+| seteff    | eff       | eff_mult, speed, slowness | Sets the player's default effect multiplier. Will calculate effmult if speed/slowness are given. |
+| angles    | angle     | angles                    | Sets the player's default number of significant angles                                           |
+| inertia   |           | inertia                   | Sets the player's inertia threshold                                                              |
 
 ### Arguments
 Positional arguments are defined by their positions to one another. Keyworded arguments are given by `argument`​`=`​`value`.
