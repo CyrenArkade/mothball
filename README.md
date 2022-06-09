@@ -15,7 +15,7 @@ Functions must be separated by spaces. They consist of the function name, option
 
 ### Functions
 Movement names are generally of the format `[stop, sneak, walk, sprint]`​`[air, jump]`​`[45]`. Only the first component is required.
-These can be shortened down to `[sn, w, s]`​`[a, j]`​`[45]`.
+These can be shortened down to `[st, sn, w, s]`​`[a, j]`​`[45]`.
 
 Exceptions include the strafe sprintjump variants, which are prefixed with `[l, r]`.
 
