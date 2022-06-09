@@ -338,3 +338,8 @@ def angles(player, args):
 def inertia(player, args):
     args.setdefault('inertia', 0.005)
     player.inertia_threshold = args['inertia']
+
+@player_command(arguments=['precision'])
+def precision(player, args):
+    args.setdefault('precision', 6)
+    player.printprecision = args['precision']
