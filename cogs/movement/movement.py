@@ -53,12 +53,11 @@ class Movement(commands.Cog):
         player.clearlogs()
         
         if edit:
-            edit = await ctx.channel.fetch_message(edit)
-            await edit.edit(content=results)
-            self.msg_links[ctx.id].player = player.softcopy()
+            await edit.botmsg.edit(content=results)
+            self.msg_links[edit.msgid].player = player.softcopy()
         else:
-            msg = await ctx.channel.send(results)
-            node = SimNode(msg.id, player)
+            botmsg = await ctx.channel.send(results)
+            node = SimNode(ctx.message.id, botmsg, player)
             self.msg_links.update({ctx.message.id: node})
             if continuation:
                 parent.children.append(ctx.message.id)
@@ -94,20 +93,20 @@ class Movement(commands.Cog):
         if after.id not in self.msg_links:
             return
         
-        await self.editdown(after, after.id)
+        await self.editdown(after.channel, after)
     
-    async def editdown(self, ctx, msg):
-        msg = await ctx.channel.fetch_message(msg)
+    async def editdown(self, channel, msg):
         text = msg.content
         history = any(text.startswith(cmd) for cmd in (';history ', ';his ', ';h ', ';thenh ', ';th '))
         text = text[text.index(' ') + 1:]
 
         if msg.reference:
-            continuance = msg.reference.message_id
+            continuation = msg.reference.message_id
         else:
-            continuance = None
+            continuation = None
 
-        await self.genericsim(ctx, text, history = history, edit = self.msg_links[msg.id].msgid, continuation = continuance)
+        await self.genericsim(None, text, history = history, edit = self.msg_links[msg.id], continuation = continuation)
 
-        for child in self.msg_links[msg.id].children:
-            await self.editdown(ctx, child)
+        for childid in self.msg_links[msg.id].children:
+            child = await channel.fetch_message(childid)
+            await self.editdown(channel, child)
