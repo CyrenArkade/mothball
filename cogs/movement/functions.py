@@ -343,3 +343,8 @@ def inertia(player, args):
 def precision(player, args):
     args.setdefault('precision', 6)
     player.printprecision = args['precision']
+
+@player_command(aliases = ['f'], arguments=['facing'])
+def facing(player, args):
+    args.setdefault('facing', 0)
+    player.default_facing = args['facing']

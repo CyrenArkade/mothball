@@ -59,6 +59,7 @@ async def cocasse(msg):
 if __name__ == '__main__':
     with open('params.json', 'r') as input:
         params = json.load(input)
+    bot.params = params
 
     bot.load_extension('cogs.admin.admin')
     bot.load_extension('cogs.movement.movement')

@@ -11,8 +11,7 @@ def setup(bot):
 class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        with open('params.json', 'r') as input:
-            self.params = json.load(input)
+        self.params = bot.params
     
     @commands.command()
     async def cmd(self, ctx, *, text):
