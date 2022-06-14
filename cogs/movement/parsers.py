@@ -74,9 +74,6 @@ def argumentatize_command(command):
     else:
         comamnds_args = [(command_name, args)]
 
-    if len(comamnds_args) > 100000:
-        return []
-
     return comamnds_args
 
 def dictize_args(command_args, positional_args):

@@ -6,8 +6,11 @@ from cogs.movement.player import Player
 import cogs.movement.parsers as parsers
 import cogs.movement.functions as functions
 from cogs.movement.simnode import SimNode
+import asyncio
+from concurrent.futures import ProcessPoolExecutor
 
 def setup(bot):
+    bot.executor = ProcessPoolExecutor()
     bot.add_cog(Movement(bot))
 
 class Movement(commands.Cog):
@@ -43,7 +46,15 @@ class Movement(commands.Cog):
         else:
             player = Player()
         
-        self.sim(input, player=player)
+        try:
+            task = asyncio.to_thread(self.sim, input, player)
+            player = await asyncio.wait_for(task, timeout=self.bot.params['sim_timeout'])
+        except asyncio.TimeoutError:
+            if edit:
+                await edit.botmsg.edit('Simulation timed out.')
+            else:
+                await ctx.send('Simulation timed out.')
+            return
 
         if history:
             results = player.history_string()
@@ -105,7 +116,7 @@ class Movement(commands.Cog):
         else:
             continuation = None
 
-        await self.genericsim(None, text, history = history, edit = self.msg_links[msg.id], continuation = continuation)
+        await self.genericsim(channel, text, history = history, edit = self.msg_links[msg.id], continuation = continuation)
 
         for childid in self.msg_links[msg.id].children:
             child = await channel.fetch_message(childid)
