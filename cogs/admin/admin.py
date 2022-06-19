@@ -24,11 +24,11 @@ class Admin(commands.Cog):
         
     @commands.command()
     async def restart(self, ctx):
-        if ctx.author.id not in self.params.get('admins', {}):
+        if ctx.author.id not in self.params['admins']:
             await ctx.message.add_reaction('🤡')
             return
         
-        task = subprocess.run('pm2 restart bot', shell=True, text=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        task = subprocess.run('pm2 restart mothball' , shell=True, text=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         await ctx.send(f'```{task.stdout}```')
 
     @commands.command()

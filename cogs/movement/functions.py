@@ -24,9 +24,10 @@ def move(player, args):
     sprintjumptick = args.get('sprintjumptick', False)
     angles = args.get('angles', player.angles)
 
-    if args.get('duration', 0) < 0:
+    if args.get('duration', 0) < 0 or 'reverse' in args:
         facing += 180
         direction += 180
+    
     
     # Moves the player
     player.x += player.vx
@@ -329,9 +330,9 @@ def seteff(player, args):
         args['eff_mult'] = max(0, (1 + 0.2 * args['speed']) * (1 - (0.15 * args['slowness'])))
     player.eff_mult = args['eff_mult']
 
-@player_command(aliases = ['angle'], arguments=['angles'])
+@player_command(aliases = ['angle', 'a'], arguments=['angles'])
 def angles(player, args):
-    args.setdefault('angles', -1)
+    args.setdefault('angles', 65536)
     player.angles = args['angles']
 
 @player_command(arguments=['inertia'])

@@ -18,7 +18,7 @@ def separate_commands(text):
         char = text[i]
 
         if state == 0:
-            if match(r'[\w_\|]', char):
+            if match(r'[\w_\|-]', char):
                 start = i
                 state = 1
 
@@ -26,7 +26,7 @@ def separate_commands(text):
             if char == '(':
                 depth = 1
                 state = 2
-            elif not match(r'[\w_\|]', char):
+            elif not match(r'[\w_\|-]', char):
                 player_commands.append(text[start:i])
                 state = 0
 
@@ -50,7 +50,7 @@ def argumentatize_command(command):
     try:
         divider = command.index('(')
     except ValueError:
-        return [(command.lower(), [])]
+        return [[command.lower(), []]]
 
     args = []
     start = divider + 1
@@ -72,7 +72,7 @@ def argumentatize_command(command):
         commands = separate_commands(args[0])
         comamnds_args = [single for command in commands for single in argumentatize_command(command)] * int(args[1])
     else:
-        comamnds_args = [(command_name, args)]
+        comamnds_args = [[command_name, args]]
 
     return comamnds_args
 

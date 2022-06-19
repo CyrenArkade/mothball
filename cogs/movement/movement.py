@@ -32,8 +32,15 @@ class Movement(commands.Cog):
         commands_args = [single for command in commands for single in parsers.argumentatize_command(command)]
 
         for command in commands_args:
+            reverse = command[0].startswith('-')
+            if reverse:
+                command[0] = command[0][1:]
+            
             command_function = self.player_commands[command[0]]
+
             dict_args, updates = parsers.dictize_args(command[1], self.player_command_arguments[command_function])
+            if reverse:
+                dict_args.update({'reverse': True})
 
             command_function(player, dict_args)
         
@@ -51,7 +58,7 @@ class Movement(commands.Cog):
             player = await asyncio.wait_for(task, timeout=self.bot.params['sim_timeout'])
         except asyncio.TimeoutError:
             if edit:
-                await edit.botmsg.edit('Simulation timed out.')
+                await edit.botmsg.edit(content='Simulation timed out.')
             else:
                 await ctx.send('Simulation timed out.')
             return
