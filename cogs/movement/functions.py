@@ -282,13 +282,27 @@ def reset_position(player, args):
 
 @player_command(name='b')
 def mm_to_blocks(player, args):
-    if player.x != 0: player.x += 0.6
-    if player.z != 0: player.z += 0.6
+    if player.x > 0:
+        player.x += 0.6
+    elif player.x < 0:
+        player.x -= 0.6
+
+    if player.z > 0:
+        player.z += 0.6
+    elif player.z < 0:
+        player.z -= 0.6
 
 @player_command(name='mm')
 def blocks_to_mm(player, args):
-    if player.x != 0: player.x -= 0.6
-    if player.z != 0: player.z -= 0.6
+    if player.x > 0:
+        player.x -= 0.6
+    elif player.x < 0:
+        player.x += 0.6
+
+    if player.z > 0:
+        player.z -= 0.6
+    elif player.z < 0:
+        player.z += 0.6
 
 @player_command(aliases = ['v'], arguments=['vx', 'vz'])
 def setv(player, args):
