@@ -24,6 +24,8 @@ def move(player, args):
     sprintjumptick = args.get('sprintjumptick', False)
     angles = args.get('angles', player.angles)
 
+    facing += player.facing_offset
+    direction += player.facing_offset
     if args.get('duration', 0) < 0 or 'reverse' in args:
         facing += 180
         direction += 180
@@ -359,7 +361,12 @@ def precision(player, args):
     args.setdefault('precision', 6)
     player.printprecision = args['precision']
 
-@player_command(aliases = ['f'], arguments=['facing'])
+@player_command(aliases = ['face', 'f'], arguments=['facing'])
 def facing(player, args):
     args.setdefault('facing', 0)
     player.default_facing = args['facing']
+
+@player_command(aliases = ['offfacing', 'offface', 'ofacing', 'oface', 'of'], arguments=['facing'])
+def offsetfacing(player, args):
+    args.setdefault('facing', 0)
+    player.facing_offset = args['facing']

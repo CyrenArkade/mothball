@@ -9,6 +9,7 @@ class Player:
         self.eff_mult = 1
         self.angles = -1
         self.default_facing = 0
+        self.facing_offset = 0
         self.inertia_threshold = 0.005
 
         self.history = []
@@ -48,6 +49,7 @@ class Player:
         other.eff_mult = self.eff_mult
         other.angles = self.angles
         other.default_facing = self.default_facing
+        other.facing_offset = self.facing_offset
         other.inertia_threshold = self.inertia_threshold
 
         return other
