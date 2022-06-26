@@ -21,21 +21,24 @@ Exceptions include the strafe sprintjump variants, which are prefixed with `[l, 
 
 A table of more exotic functions:
 
-| Function  | Alias(es) | Arguments                 | Result                                                                                           |
-|-----------|-----------|---------------------------|--------------------------------------------------------------------------------------------------|
-| \|        |           |                           | Resets the player's position                                                                     |
-| b         |           |                           | Adds 0.6 to the player's x/z positions                                                           |
-| mm        |           |                           | Subtracts 0.6 from the player's x/z positions                                                    |
-| setv      | v         | vx, vz                    | Sets the player's x and z velocities                                                             |
-| setvx     | vx        | vx                        | Sets the player's x velocity                                                                     |
-| setvz     | vz        | vz                        | Sets the player's z velocity                                                                     |
-| setpos    | pos       | x, z                      | Sets the player's x and z positions                                                              |
-| setposx   | posx, x   | x                         | Sets the player's x position                                                                     |
-| setposz   | posz, z   | z                         | Sets the player's z position                                                                     |
-| setslip   | slip      | slip                      | Sets the player's default ground slipperiness                                                    |
-| seteff    | eff       | eff_mult, speed, slowness | Sets the player's default effect multiplier. Will calculate effmult if speed/slowness are given. |
-| angles    | angle     | angles                    | Sets the player's default number of significant angles                                           |
-| inertia   |           | inertia                   | Sets the player's inertia threshold                                                              |
+| Function     | Alias(es) | Arguments                 | Result                                                                                           |
+|--------------|-----------|---------------------------|--------------------------------------------------------------------------------------------------|
+| \|           |           |                           | Resets the player's position                                                                     |
+| b            |           |                           | Adds 0.6 to the player's x/z positions                                                           |
+| mm           |           |                           | Subtracts 0.6 from the player's x/z positions                                                    |
+| setv         | v         | vx, vz                    | Sets the player's x and z velocities                                                             |
+| setvx        | vx        | vx                        | Sets the player's x velocity                                                                     |
+| setvz        | vz        | vz                        | Sets the player's z velocity                                                                     |
+| setpos       | pos       | x, z                      | Sets the player's x and z positions                                                              |
+| setposx      | posx, x   | x                         | Sets the player's x position                                                                     |
+| setposz      | posz, z   | z                         | Sets the player's z position                                                                     |
+| setslip      | slip      | slip                      | Sets the player's default ground slipperiness                                                    |
+| seteff       | eff       | eff_mult, speed, slowness | Sets the player's default effect multiplier. Will calculate effmult if speed/slowness are given. |
+| angles       | angle     | angles                    | Sets the player's default number of significant angles                                           |
+| precision    | pre       | precision                 | Sets the number of decimals in the output                                                        |
+| inertia      |           | inertia                   | Sets the player's inertia threshold                                                              |
+| facing       | face, f   | facing                    | Sets the player's default facing                                                                 |
+| offsetfacing | oface, of | facing                    | Offsets the player's facing                                                                      |
 
 ### Arguments
 Positional arguments are defined by their positions to one another. Keyworded arguments are given by `argument`​`=`​`value`.
