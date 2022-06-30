@@ -1,11 +1,9 @@
 import discord
 from discord.ext import commands
 import subprocess
-from io import StringIO
+from io import BytesIO, StringIO
 from contextlib import redirect_stdout
-import json
 import io
-import os
 import traceback
 import textwrap
 
@@ -67,51 +65,41 @@ class Admin(commands.Cog):
         body = self.cleanup_code(code)
         stdout = io.StringIO()
 
-        os.chdir(os.getcwd())
-        if not os.path.exists('%s/scripts' % os.getcwd()):
-            os.makedirs('%s/scripts' % os.getcwd())
-        with open('%s/scripts/temp.txt' % os.getcwd(), 'w') as temp:
-            temp.write(body)
-
-        to_compile = 'async def func():\n{}'.format(textwrap.indent(body, "  "))
+        to_compile = f'async def func():\n{textwrap.indent(body, "  ")}'
 
         try:
             exec(to_compile, env)
         except Exception as e:
-            return await ctx.send('```\n{}: {}\n```'.format(e.__class__.__name__, e))
+            return await ctx.send(f'```\n{e.__class__.__name__}: {e}```')
 
         func = env['func']
         try:
             with redirect_stdout(stdout):
                 ret = await func()
         except Exception as e:
-            value = stdout.getvalue()
-            await ctx.send('```\n{}{}\n```'.format(value, traceback.format_exc()))
+            out = stdout.getvalue()
+            await ctx.send(f'```\n{out}{traceback.format_exc()}```')
         else:
-            value = stdout.getvalue()
+            out = stdout.getvalue()
 
             result = None
             if ret is None:
-                if value:
-                    result = '```\n{}\n```'.format(value)
+                if out:
+                    result = f'```\n{out}```'
                 else:
                     try:
-                        result = '```\n{}\n```'.format(repr(eval(body, env)))
+                        result = f'```\n{repr(eval(body, env))}\n```'
                     except:
                         pass
             else:
                 self._last_result = ret
-                result = '```\n{}{}\n```'.format(value, ret)
+                result = f'```\n{out}{ret}\n```'
 
             if result:
                 if len(str(result)) > 1950:
-                   with open("tmp/py_output.txt", "w") as f:
-                       f.write(str(result.strip("```")))
-                   with open("tmp/py_output.txt", "rb") as f:
-                       py_output = discord.File(f, "py_output.txt")
-                       await ctx.send(content="Uploaded output to file since output was too long.", file=py_output)
-                       os.remove("tmp/py_output.txt")
-                       return
+                    buffer = BytesIO(str(result.strip("```")).encode("utf8"))
+                    await ctx.send(content="Uploaded output to file since output was too long.", file=discord.File(fp=buffer, filename='output.txt'))
+                    return
 
                 else:
                     await ctx.send(result)
