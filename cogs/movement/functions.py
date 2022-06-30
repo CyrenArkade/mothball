@@ -23,6 +23,7 @@ def move(player, args):
     eff_mult = args.get('eff_mult', player.eff_mult)
     sprintjumptick = args.get('sprintjumptick', False)
     angles = args.get('angles', player.angles)
+    soulsand = args.get('soulsand', player.soulsand)
 
     facing += player.facing_offset
     direction += player.facing_offset
@@ -56,6 +57,10 @@ def move(player, args):
         if sprintjumptick:
             player.vx += 0.2 * -mcsin(facing, angles)
             player.vz += 0.2 * mccos(facing, angles)
+    
+    #Soulsand
+    player.vx *= 0.4 ** soulsand
+    player.vz *= 0.4 ** soulsand
 
     player.prev_slip = slip
     player.log()
@@ -370,3 +375,8 @@ def facing(player, args):
 def offsetfacing(player, args):
     args.setdefault('facing', 0)
     player.facing_offset = args['facing']
+
+@player_command(aliases = ['ssand', 'ss'], arguments=['soulsand'])
+def soulsand(player, args):
+    args.setdefault('soulsand', 1)
+    player.soulsand = args['soulsand']

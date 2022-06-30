@@ -11,6 +11,7 @@ class Player:
         self.default_facing = 0
         self.facing_offset = 0
         self.inertia_threshold = 0.005
+        self.soulsand = 0
 
         self.history = []
         self.printprecision = 6
@@ -51,5 +52,6 @@ class Player:
         other.default_facing = self.default_facing
         other.facing_offset = self.facing_offset
         other.inertia_threshold = self.inertia_threshold
+        other.soulsand = self.soulsand
 
         return other
