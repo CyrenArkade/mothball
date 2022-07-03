@@ -3,7 +3,6 @@ from discord.ext import commands
 import subprocess
 from io import BytesIO, StringIO
 from contextlib import redirect_stdout
-import io
 import traceback
 import textwrap
 
@@ -63,7 +62,7 @@ class Admin(commands.Cog):
 
     async def interpreter(self, env, code, ctx):
         body = self.cleanup_code(code)
-        stdout = io.StringIO()
+        stdout = StringIO()
 
         to_compile = f'async def func():\n{textwrap.indent(body, "  ")}'
 
@@ -104,7 +103,7 @@ class Admin(commands.Cog):
                 else:
                     await ctx.send(result)
             else:
-                await ctx.send("```\n```")
+                await ctx.message.add_reaction('\U0001f44d')
     
     @cmd.error
     @restart.error
