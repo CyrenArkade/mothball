@@ -61,10 +61,13 @@ class Admin(commands.Cog):
         await self.interpreter(env, msg, ctx)
 
     async def interpreter(self, env, code, ctx):
-        body = self.cleanup_code(code)
+        
+        code = code.strip('`')
+        if code.startswith('py'): code = code[2:]
+
         stdout = StringIO()
 
-        to_compile = f'async def func():\n{textwrap.indent(body, "  ")}'
+        to_compile = f'async def func():\n{textwrap.indent(code, "  ")}'
 
         try:
             exec(to_compile, env)
@@ -87,7 +90,7 @@ class Admin(commands.Cog):
                     result = f'```\n{out}```'
                 else:
                     try:
-                        result = f'```\n{repr(eval(body, env))}\n```'
+                        result = f'```\n{repr(eval(code, env))}\n```'
                     except:
                         pass
             else:
