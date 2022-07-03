@@ -13,6 +13,7 @@ class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.params = bot.params
+        self._last_result = None
     
     async def cog_check(self, ctx):
         return ctx.author.id in self.params['admins']
