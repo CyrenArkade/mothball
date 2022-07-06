@@ -27,9 +27,9 @@ def move(player, args):
 
     facing += player.facing_offset
     direction += player.facing_offset
+
     if args.get('duration', 0) < 0 or 'reverse' in args:
-        facing += 180
-        direction += 180
+        mov_mult  *= -1
     
     
     # Moves the player
@@ -245,7 +245,7 @@ def sprintjump45(player, args):
     update = lambda: args.update({'mov_mult': args.get('mov_mult') / 0.98})
     jump(player, args, apply = update)
 
-@player_command(aliases=['lsj45'], arguments=['duration', 'direction'])
+@player_command(aliases=['lsj45'], arguments=['duration', 'facing'])
 def lsprintjump45(player, args):
     args.setdefault('mov_mult', 1.3)
     args.setdefault('sprintjumptick', True)
@@ -253,7 +253,7 @@ def lsprintjump45(player, args):
     args.setdefault('facing', args.get('direction') + 45)
     jump(player, args)
 
-@player_command(aliases=['rsj45'], arguments=['duration', 'direction'])
+@player_command(aliases=['rsj45'], arguments=['duration', 'facing'])
 def rsprintjump45(player, args):
     args.setdefault('mov_mult', 1.3)
     args.setdefault('sprintjumptick', True)

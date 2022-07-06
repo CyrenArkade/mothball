@@ -8,8 +8,7 @@ import re
 def prefix(bot, msg):
     return bot.params['prefix']
 
-intents = discord.Intents.default()
-intents.messages = True
+intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=prefix, intents=intents, help_command=None)
 
 @bot.command()

@@ -56,17 +56,16 @@ class Movement(commands.Cog):
         try:
             task = asyncio.to_thread(self.sim, input, player)
             player = await asyncio.wait_for(task, timeout=self.bot.params['sim_timeout'])
-        except asyncio.TimeoutError:
-            if edit:
-                await edit.botmsg.edit(content='Simulation timed out.')
-            else:
-                await ctx.send('Simulation timed out.')
-            return
 
-        if history:
-            results = player.history_string()
-        else:
-            results = str(player)
+            if history:
+                results = player.history_string()
+            else:
+                results = str(player)
+
+        except asyncio.TimeoutError:
+            results = 'Simulation timed out.'
+        except:
+            results = 'Something went wrong.'
         
         player.clearlogs()
         
