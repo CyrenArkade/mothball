@@ -14,6 +14,7 @@ class Mothball(commands.Bot):
                 channel = await self.fetch_channel(info['channel'])
                 msg = await channel.fetch_message(info['msg'])
                 await msg.edit(content='Restarting...   Restarted!')
+            os.remove('restart.json')
         
         await self.load_extension('cogs.admin')
         await self.load_extension('cogs.movement.movement')
