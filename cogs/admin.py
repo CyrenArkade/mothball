@@ -5,9 +5,10 @@ from io import BytesIO, StringIO
 from contextlib import redirect_stdout
 import traceback
 import textwrap
+import json
 
-def setup(bot):
-    bot.add_cog(Admin(bot))
+async def setup(bot):
+    await bot.add_cog(Admin(bot))
 
 class Admin(commands.Cog):
     def __init__(self, bot):
@@ -19,33 +20,27 @@ class Admin(commands.Cog):
         return ctx.author.id in self.params['admins']
     
     @commands.command()
-    async def cmd(self, ctx, *, text):
+    async def cmd(self, ctx: commands.Context, *, text: str):
         
         task = subprocess.run(text , shell=True, text=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         await ctx.send(f'```{task.stdout}```')
         
     @commands.command()
-    async def restart(self, ctx):
+    async def restart(self, ctx: commands.Context, text: str = ''):
         
-        task = subprocess.run('pm2 restart mothball' , shell=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        await ctx.send(f'```{task.stdout}```')
+        if text == 'u':
+            await ctx.send('Running `git pull`...')
+            task = subprocess.run(text , shell=True, text=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            await ctx.send(f'```{task.stdout}```')
+
+        msg = await ctx.send('Restarting...')
+        with open('restart.json', 'w') as restart:
+            restart.write(json.dumps({'channel': msg.channel.id, 'msg': msg.id}))
+        
+        self.bot.close()
 
     @commands.command()
-    async def py(self, ctx, *, text):
-        
-        text = text.strip('`')
-        if text.startswith('py'): text = text[2:]
-
-        text = f'async def __ex(): ' + ''.join(f'\n {l}' for l in text.split('\n'))
-
-        f = StringIO()
-        with redirect_stdout(f):
-            exec(text)
-            await locals()['__ex']()
-        await ctx.send(f.getvalue())
-
-    @commands.group(pass_context=True, invoke_without_command=True)
-    async def py2(self, ctx, *, msg):
+    async def py(self, ctx: commands.Context, *, text: str):
 
         env = {
             'bot': self.bot,
@@ -59,9 +54,9 @@ class Admin(commands.Cog):
         }
         env.update(globals())
 
-        await self.interpreter(env, msg, ctx)
+        await self.interpreter(env, text, ctx)
 
-    async def interpreter(self, env, code, ctx):
+    async def interpreter(self, env, code: str, ctx: commands.Context):
         
         code = code.strip('`')
         if code.startswith('py'): code = code[2:]
@@ -112,6 +107,6 @@ class Admin(commands.Cog):
     @cmd.error
     @restart.error
     @py.error
-    async def admin_error(self, ctx, error):
+    async def admin_error(self, ctx: commands.Context, error):
         if isinstance(error, commands.CheckFailure):
             await ctx.message.add_reaction('🤡')

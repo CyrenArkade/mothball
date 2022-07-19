@@ -9,9 +9,8 @@ from cogs.movement.simnode import SimNode
 import asyncio
 from concurrent.futures import ProcessPoolExecutor
 
-def setup(bot):
-    bot.executor = ProcessPoolExecutor()
-    bot.add_cog(Movement(bot))
+async def setup(bot):
+    await bot.add_cog(Movement(bot))
 
 class Movement(commands.Cog):
     def __init__(self, bot):
@@ -22,7 +21,7 @@ class Movement(commands.Cog):
 
         self.msg_links = {}
 
-    def sim(self, input, player = None):
+    def sim(self, input: str, player: Player = None):
 
         if not player:
             player = Player()
@@ -46,7 +45,7 @@ class Movement(commands.Cog):
         
         return player
     
-    async def genericsim(self, ctx, input, continuation = None, edit = None, history = False):
+    async def genericsim(self, ctx: commands.Context, input, continuation = None, edit = None, history = False):
         if continuation:
             parent = self.msg_links[continuation]
             player = parent.player.softcopy()
@@ -79,21 +78,21 @@ class Movement(commands.Cog):
             if continuation:
                 parent.children.append(ctx.message.id)
     
-    async def cog_check(self, ctx):
+    async def cog_check(self, ctx: commands.Context):
         if ctx.guild.id == 793172726767550484 and ctx.channel.id not in (793172726767550487, 794029948972826704, 880636448678764544):
             return False
         return True
 
     @commands.command(aliases=['sim', 's'])
-    async def simulate(self, ctx, *, text):
+    async def simulate(self, ctx: commands.Context, *, text: str):
         await self.genericsim(ctx, text)
 
     @commands.command(aliases=['his', 'h'])
-    async def history(self, ctx, *, text):
+    async def history(self, ctx: commands.Context, *, text: str):
         await self.genericsim(ctx, text, history=True)
     
     @commands.command(aliases=['t'])
-    async def then(self, ctx, *, text):
+    async def then(self, ctx: commands.Context, *, text: str):
         if ctx.message.reference is None or ctx.message.reference.message_id not in self.msg_links:
             await ctx.send("You must reply to a simulation command")
             return
@@ -102,7 +101,7 @@ class Movement(commands.Cog):
         await self.genericsim(ctx, text, continuation = srcid)
     
     @commands.command(aliases=['th'])
-    async def thenh(self, ctx, *, text):
+    async def thenh(self, ctx: commands.Context, *, text: str):
         if ctx.message.reference is None or ctx.message.reference.message_id not in self.msg_links:
             await ctx.send("You must reply to a simulation command")
             return
@@ -111,7 +110,7 @@ class Movement(commands.Cog):
         await self.genericsim(ctx, text, continuation = srcid, history = True)
 
     @commands.Cog.listener()
-    async def on_message_edit(self, before, after):
+    async def on_message_edit(self, before: discord.Message, after: discord.Message):
         if after.id not in self.msg_links:
             return
         
