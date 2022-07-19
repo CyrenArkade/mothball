@@ -10,7 +10,7 @@ class Mothball(commands.Bot):
 
         if os.path.isfile('restart.json'):
             with open('restart.json', 'r') as restart:
-                info = json.load(restart.read())
+                info = json.load(restart)
                 channel = await self.fetch_channel(info['channel'])
                 msg = await channel.fetch_message(info['msg'])
                 await msg.edit(content='Restarting...   Restarted!')
