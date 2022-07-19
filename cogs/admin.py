@@ -30,7 +30,7 @@ class Admin(commands.Cog):
         
         if text == 'u':
             await ctx.send('Running `git pull`...')
-            task = subprocess.run(text , shell=True, text=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            task = subprocess.run('git pull' , shell=True, text=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             await ctx.send(f'```{task.stdout}```')
 
         msg = await ctx.send('Restarting...')
