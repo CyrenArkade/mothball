@@ -37,7 +37,7 @@ class Admin(commands.Cog):
         with open('restart.json', 'w') as restart:
             restart.write(json.dumps({'channel': msg.channel.id, 'msg': msg.id}))
         
-        self.bot.close()
+        await self.bot.close()
 
     @commands.command()
     async def py(self, ctx: commands.Context, *, text: str):
