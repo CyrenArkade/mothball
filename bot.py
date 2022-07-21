@@ -23,7 +23,7 @@ def command_prefix(bot, msg: discord.Message):
     return bot.params['prefix']
 
 intents = discord.Intents.all()
-bot = Mothball(command_prefix=command_prefix, intents=intents, help_command=None, logging=logging.INFO)
+bot = Mothball(command_prefix=command_prefix, intents=intents, help_command=None, log_handler=logging.INFO)
 
 @bot.command()
 async def help(ctx):
