@@ -1,9 +1,7 @@
-import asyncio
 import discord
 from discord.ext import commands
 import json
 import os
-import logging
 
 class Mothball(commands.Bot):
     async def setup_hook(self):
@@ -23,15 +21,11 @@ def command_prefix(bot, msg: discord.Message):
     return bot.params['prefix']
 
 intents = discord.Intents.all()
-bot = Mothball(command_prefix=command_prefix, intents=intents, help_command=None, log_handler=logging.INFO)
+bot = Mothball(command_prefix=command_prefix, intents=intents, help_command=None)
 
 @bot.command()
 async def help(ctx):
     await ctx.send('Read the readme!\n<https://github.com/CyrenArkade/mothball>')
-
-async def main():
-    async with bot:
-        await bot.start(bot.params['token'])
 
 if __name__ == '__main__':
 
@@ -39,4 +33,4 @@ if __name__ == '__main__':
         params = json.load(input)
     bot.params = params
 
-    asyncio.run(main())
+    bot.run(bot.params['token'])
