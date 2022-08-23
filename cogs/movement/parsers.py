@@ -1,6 +1,6 @@
 from re import match
-from ast import arg, literal_eval
-import cogs.movement.commandmanager as cmdmgr
+from cogs.movement.functions import aliases, types_by_command
+
 
 def separate_commands(text):
     
@@ -76,41 +76,37 @@ def argumentatize_command(command):
 
     return comamnds_args
 
-def dictize_args(command_args, positional_args):
+def dictize_args(command, str_args):
     out = {}
 
+    command_types = list(types_by_command[command].keys())
+
     positional_index = 0
-    mathbot_updates = []
-    for arg in command_args:
-        if match(r'^[\w_\|]* ?=', arg): # if arg assigns
+    for arg in str_args:
+        if match(r'^[\w_\|]* ?=', arg): # if keyworded arg
             divider = arg.index('=')
             arg_name = arg[:divider].strip()
             arg_name = dealias_arg_name(arg_name)
-            arg_val = convert(arg[divider + 1:].strip())
-        elif not positional_index >= len(positional_args): # if arg is positional
-            arg_name = positional_args[positional_index]
-            arg_name = dealias_arg_name(arg_name)
-            if match(r'^mb\(.*\)$', arg_name) or match(r'^mathbot\(.*\)$', arg_name):
-                arg_val = None
-                #update = lambda x: out.update({arg_name: convert(x)}) # CHANGE THIS
-                #mathbot_updates.append(update)
-                pass
-            else:
-                arg_val = convert(arg)
+            arg_val = convert(command, arg_name, arg[divider + 1:].strip())
+        elif positional_index < len(command_types): # if positional arg
+            arg_name = command_types[positional_index]
+            # arg_name = dealias_arg_name(arg_name)
+            # if match(r'^mb\(.*\)$', arg_name) or match(r'^mathbot\(.*\)$', arg_name):
+            #     arg_val = None
+            # else:
+            arg_val = convert(command, arg_name, arg)
             positional_index += 1
         else:
             continue
 
         out.update({arg_name: arg_val})
     
-    return out, mathbot_updates
+    return out
 
 def dealias_arg_name(arg_name):
     arg_name = arg_name.lower()
-    return cmdmgr.get_player_arg_aliases().get(arg_name, arg_name)
+    return aliases.get(arg_name, arg_name)
 
-def convert(n):
-    val = literal_eval(n)
-    if isinstance(val, int) or (isinstance(val, float) and val.is_integer()):
-        return int(val)
-    return val
+def convert(command, arg_name, val):
+    type = types_by_command[command][arg_name]
+    return type(val)

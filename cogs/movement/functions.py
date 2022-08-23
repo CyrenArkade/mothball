@@ -1,293 +1,285 @@
 import math
-from cogs.movement.commandmanager import player_command
+from numpy import float32 as fl
+from inspect import signature, Parameter
+from functools import wraps
 
-# Valid arguments: direction, facing, slip, airborne, mov_mult, eff_mult, sprintjumptick
-def move(player, args):
-    if args.get('airborne'):
-        slip = 1
-    else:
-        slip = args.get('slip', player.ground_slip)
-    
-    if player.prev_slip is None:
-        player.prev_slip = slip
-    
-    if 'slowness' in args or 'speed' in args:
-        args.setdefault('slowness', 0)
-        args.setdefault('speed', 0)
-        args['eff_mult'] = max(0, (1 + 0.2 * args['speed']) * (1 - (0.15 * args['slowness'])))
-    
-    airborne = args.get('airborne', False)
-    facing = args.get('facing', player.default_facing)
-    direction = args.get('direction', facing)
-    mov_mult = args.get('mov_mult', 1)
-    eff_mult = args.get('eff_mult', player.eff_mult)
-    sprintjumptick = args.get('sprintjumptick', False)
-    angles = args.get('angles', player.angles)
-    soulsand = args.get('soulsand', player.soulsand)
+commands_by_name = {}
+types_by_command = {}
+aliases = {}
 
-    facing += player.facing_offset
-    direction += player.facing_offset
+add_alias = lambda arg, newaliases: [aliases.update({alias: arg}) for alias in newaliases]
 
-    if args.get('duration', 0) < 0 or 'reverse' in args:
-        mov_mult  *= -1
-    
-    
-    # Moves the player
-    player.x += player.vx
-    player.z += player.vz
-    
-    # Updates momentum
-    player.vx = player.vx * player.prev_slip * 0.91
-    player.vz = player.vz * player.prev_slip * 0.91
+add_alias('duration', ['dur', 't'])
+add_alias('rotation', ['rot', 'r'])
+add_alias('slip', ['s'])
+add_alias('airborne', ['air'])
+add_alias('mov_mult', ['movmult', 'mov', 'm'])
+add_alias('eff_mult', ['effmult', 'eff', 'e'])
+add_alias('sprinting', ['sprint'])
+add_alias('sneaking', ['sneak', 'sn'])
+add_alias('jumping', ['jump'])
+add_alias('speed', ['sp', 'spd'])
+add_alias('slowness', ['slow', 'sl'])
 
-    # Inertia threshold
-    if abs(player.vx) < player.inertia_threshold:
-        player.vx = 0
-    if abs(player.vz) < player.inertia_threshold:
-        player.vz = 0
+def command(name=None, aliases=[]):
+    def inner(f):
+        nonlocal name, aliases
 
-    # Applies acceleration
-    if airborne:
-        player.vx += 0.02 * mov_mult * -mcsin(direction, angles)
-        player.vz += 0.02 * mov_mult * mccos(direction, angles)
-    else:
-        player.vx += 0.1 * mov_mult * eff_mult * (0.6 / slip) ** 3 * -mcsin(direction, angles)
-        player.vz += 0.1 * mov_mult * eff_mult * (0.6 / slip) ** 3 * mccos(direction, angles)
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            args = list(args)
+            for k, v in f._defaults.items():
+                if v == None:
+                    continue
+                args[1].setdefault(k, v)
+                args.append(args[1].get(k))
+            return f(*args, **kwargs)
+
+        params = signature(wrapper).parameters
+        defaults = []
+        arg_types = []
+        for k, v in list(params.items())[2:]:
+            defaults.append((k, v.default))
+            arg_types.append((k, v.annotation if v.default is None else type(v.default)))
+        f._defaults = dict(defaults)
+        types_by_command.update({wrapper: dict(arg_types)})
         
-        if sprintjumptick:
-            player.vx += 0.2 * -mcsin(facing, angles)
-            player.vz += 0.2 * mccos(facing, angles)
+        if name is None:
+            name = wrapper.__name__
+        commands_by_name.update({name: wrapper})
+        for alias in aliases:
+            commands_by_name.update({alias: wrapper})
+        
+        return wrapper
+    return inner
+
+
+def move(player, args):
+    for _ in range(abs(args['duration'])):
+        player.move(args)
+
+def jump(player, args, after_jump_tick = lambda: None):
     
-    #Soulsand
-    player.vx *= 0.4 ** soulsand
-    player.vz *= 0.4 ** soulsand
+    args['jumping'] = True
+    player.move(args)
+    args['jumping'] = False
 
-    player.prev_slip = slip
-    player.log()
-
-def mcsin(deg, angles):
-    if angles == -1:
-        return math.sin(math.radians(deg))
-
-    rad = math.radians(deg)
-    index = int(1 / (2 * math.pi) * angles * rad) & (angles - 1)
-    return math.sin(index * math.pi * 2.0 / angles)
-
-def mccos(deg, angles):
-    if angles == -1:
-        return math.cos(math.radians(deg))
-
-    rad = math.radians(deg)
-    index = int(1 / (2 * math.pi) * angles * rad + angles / 4) & (angles - 1)
-    return math.sin(index * math.pi * 2.0 / angles)
+    after_jump_tick()
+    
+    args.setdefault('airborne', True)
+    for i in range(abs(args['duration']) - 1):
+        player.move(args)
 
 
-def basic_move(player, args):
-    args.setdefault('duration', 1)
-    for i in range(abs(args['duration'])):
-        move(player, args)
-
-def jump(player, args, apply=lambda:None):
-    args.setdefault('duration', 1)
+@command(aliases=['sn'])
+def sneak(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('sneaking', True)
     move(player, args)
 
-    args.setdefault('airborne', True) 
-    args.pop('sprintjumptick', None)
+@command(aliases=['w'])
+def walk(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    move(player, args)
 
-    apply()
+@command(aliases=['s'])
+def sprint(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('sprinting', True)
+    move(player, args)
+
+@command(aliases=['sn45'])
+def sneak45(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('sneaking', True)
+    args.setdefault('strafe', fl(1))
+    args['function_offset'] = fl(45)
+    move(player, args)
+
+@command(aliases=['w45'])
+def walk45(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('strafe', fl(1))
+    args['function_offset'] = fl(45)
+    move(player, args)
+
+@command(aliases=['s45'])
+def sprint45(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('sprinting', True)
+    args.setdefault('strafe', fl(1))
+    args['function_offset'] = fl(45)
+    move(player, args)
+
+@command(aliases=['sna'])
+def sneakair(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('sneaking', True)
+    args.setdefault('airborne', True)
+    move(player, args)
+
+@command(aliases=['wa'])
+def walkair(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('airborne', True)
+    move(player, args)
+
+@command(aliases=['sa'])
+def sprintair(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('sprinting', True)
+    args.setdefault('airborne', True)
+    move(player, args)
+
+@command(aliases=['sneakair45', 'sn45a', 'sna45'])
+def sneak45air(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('sneaking', True)
+    args.setdefault('strafe', fl(1))
+    args['function_offset'] = fl(45)
+    args.setdefault('airborne', True)
+    move(player, args)
+
+@command(aliases=['walkair45', 'w45a', 'wa45'])
+def walk45air(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('strafe', fl(1))
+    args['function_offset'] = fl(45)
+    args.setdefault('airborne', True)
+    move(player, args)
+
+@command(aliases=['sprintair45', 's45a', 'sa45'])
+def sprint45air(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('sprinting', True)
+    args.setdefault('strafe', fl(1))
+    args['function_offset'] = fl(45)
+    args.setdefault('airborne', True)
+    move(player, args)
+
+@command(aliases=['snj'])
+def sneakjump(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('sneaking', True)
+    jump(player, args)
+
+@command(aliases=['wj'])
+def walkjump(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    jump(player, args)
+
+@command(aliases=['lwj'])
+def lwalkjump(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('strafe', fl(1))
+
+    def update():
+        args['strafe'] = fl(0)
+
+    jump(player, args, after_jump_tick = update)
+
+@command(aliases=['rwj'])
+def rwalkjump(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('strafe', fl(-1))
+
+    def update():
+        args['strafe'] = fl(0)
+
+    jump(player, args, after_jump_tick = update)
+
+@command(aliases=['sj'])
+def sprintjump(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('sprinting', True)
+    jump(player, args)
+
+@command(aliases=['lsj'])
+def lsprintjump(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('strafe', fl(1))
+    args.setdefault('sprinting', True)
+
+    def update():
+        args['strafe'] = fl(0)
+
+    jump(player, args, after_jump_tick = update)
+
+@command(aliases=['rsj'])
+def rsprintjump(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('strafe', fl(-1))
+    args.setdefault('sprinting', True)
+
+    def update():
+        args['strafe'] = fl(0)
+
+    jump(player, args, after_jump_tick = update)
+
+@command(aliases=['snj45'])
+def sneakjump45(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('sneaking', True)
+    args.setdefault('strafe', fl(1))
+    args['function_offset'] = fl(45)
+    jump(player, args)
+
+@command(aliases=['wj45'])
+def walkjump45(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('strafe', fl(1))
+    args['function_offset'] = fl(45)
+    jump(player, args)
+
+@command(aliases=['sj45'])
+def sprintjump45(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('strafe', fl(-1))
+    args.setdefault('sprinting', True)
     
-    for i in range(abs(args['duration']) - 1):
-        move(player, args)
-
-@player_command(aliases=['w'], arguments=['duration', 'facing'])
-def walk(player, args):
-    args.setdefault('mov_mult', 0.98)
-    basic_move(player, args)
-
-@player_command(aliases=['s'], arguments=['duration', 'facing'])
-def sprint(player, args):
-    args.setdefault('mov_mult', 1.274)
-    basic_move(player, args)
-
-@player_command(aliases=['sn'], arguments=['duration', 'facing'])
-def sneak(player, args):
-    args.setdefault('mov_mult', 0.294)
-    basic_move(player, args)
-
-@player_command(aliases=['w45'], arguments=['duration', 'facing'])
-def walk45(player, args):
-    args.setdefault('mov_mult', 1)
-    basic_move(player, args)
-
-@player_command(aliases=['s45'], arguments=['duration', 'facing'])
-def sprint45(player, args):
-    args.setdefault('mov_mult', 1.3)
-    basic_move(player, args)
-
-@player_command(aliases=['sn45'], arguments=['duration', 'facing'])
-def sneak45(player, args):
-    args.setdefault('mov_mult', 0.294 * math.sqrt(2))
-    basic_move(player, args)
-
-@player_command(aliases=['sna'], arguments=['duration', 'facing'])
-def sneakair(player, args):
-    args.setdefault('mov_mult', 0.294)
-    args.setdefault('airborne', True)
-    basic_move(player, args)
-
-@player_command(aliases=['wa'], arguments=['duration', 'facing'])
-def walkair(player, args):
-    args.setdefault('mov_mult', 0.98)
-    args.setdefault('airborne', True)
-    basic_move(player, args)
-
-@player_command(aliases=['sa'], arguments=['duration', 'facing'])
-def sprintair(player, args):
-    args.setdefault('mov_mult', 1.274)
-    args.setdefault('airborne', True)
-    basic_move(player, args)
-
-@player_command(aliases=['sn45a'], arguments=['duration', 'facing'])
-def sneak45air(player, args):
-    args.setdefault('mov_mult', 0.294 * math.sqrt(2))
-    args.setdefault('airborne', True)
-    basic_move(player, args)
-
-@player_command(aliases=['w45a'], arguments=['duration', 'facing'])
-def walk45air(player, args):
-    args.setdefault('mov_mult', 1)
-    args.setdefault('airborne', True)
-    basic_move(player, args)
-
-@player_command(aliases=['s45a'], arguments=['duration', 'facing'])
-def sprint45air(player, args):
-    args.setdefault('mov_mult', 1.3)
-    args.setdefault('airborne', True)
-    basic_move(player, args)
-
-@player_command(aliases=['snj'], arguments=['duration', 'facing'])
-def sneakjump(player, args):
-    args.setdefault('mov_mult', 0.3)
-    jump(player, args)
-
-@player_command(aliases=['wj'], arguments=['duration', 'facing'])
-def walkjump(player, args):
-    args.setdefault('mov_mult', 0.98)
-    jump(player, args)
-
-@player_command(aliases=['lwj'], arguments=['duration', 'facing'])
-def lwalkjump(player, args):
-    args.setdefault('mov_mult', 1)
-    args.update({'facing': args.get('facing', player.default_facing) - 45})
     def update():
-        args.update({'facing': args['facing'] + 45})
-        args.update({'mov_mult': args.get('mov_mult') * 0.98})
-    jump(player, args, apply = update)
+        args.setdefault('strafe', fl(1))
+        args['function_offset'] = fl(45)
+    
+    jump(player, args, after_jump_tick = update)
 
-@player_command(aliases=['rwj'], arguments=['duration', 'facing'])
-def rwalkjump(player, args):
-    args.setdefault('mov_mult', 1)
-    args.update({'facing': args.get('facing', player.default_facing) + 45})
-    def update():
-        args.update({'facing': args['facing'] - 45})
-        args.update({'mov_mult': args.get('mov_mult') * 0.98})
-    jump(player, args, apply = update)
-
-@player_command(aliases=['sj'], arguments=['duration', 'facing'])
-def sprintjump(player, args):
-    args.setdefault('mov_mult', 1.274)
-    args.setdefault('sprintjumptick', True)
+@command(aliases=['lsj45'])
+def lsprintjump45(player, args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('strafe', fl(1))
+    args.setdefault('sprinting', True)
+    
+    args['function_offset'] = fl(-45)
+    
     jump(player, args)
 
-@player_command(aliases=['lsj'], arguments=['duration', 'facing'])
-def lsprintjump(player, args):
-    args.setdefault('mov_mult', 1.3)
-    args.setdefault('sprintjumptick', True)
-    args.update({'direction': args.get('facing', player.default_facing) - 45})
-    def update():
-        args.pop('direction')
-        args.update({'mov_mult': args.get('mov_mult') * 0.98})
-    jump(player, args, apply = update)
-
-@player_command(aliases=['rsj'], arguments=['duration', 'facing'])
-def rsprintjump(player, args):
-    args.setdefault('mov_mult', 1.3)
-    args.setdefault('sprintjumptick', True)
-    args.update({'direction': args.get('facing', player.default_facing) + 45})
-    def update():
-        args.pop('direction')
-        args.update({'mov_mult': args.get('mov_mult') * 0.98})
-    jump(player, args, apply = update)
-
-@player_command(aliases=['wj45'], arguments=['duration', 'facing'])
-def walkjump45(player, args):
-    args.setdefault('mov_mult', 1)
-    jump(player, args)
-
-@player_command(aliases=['lwj45'], arguments=['duration', 'facing'])
-def lwalkjump45(player, args):
-    args.setdefault('mov_mult', 1)
-    args.update({'facing': args.get('facing', player.default_facing) - 45})
-    update = lambda: args.update({'facing': args['facing'] + 45})
-    jump(player, args, apply = update)
-
-@player_command(aliases=['rwj45'], arguments=['duration', 'facing'])
-def rwalkjump45(player, args):
-    args.setdefault('mov_mult', 1)
-    args.update({'facing': args.get('facing', player.default_facing) + 45})
-    update = lambda: args.update({'facing': args['facing'] - 45})
-    jump(player, args, apply = update)
-
-@player_command(aliases=['sj45'], arguments=['duration', 'facing'])
-def sprintjump45(player, args):
-    args.setdefault('mov_mult', 1.274)
-    args.setdefault('sprintjumptick', True)
-    update = lambda: args.update({'mov_mult': args.get('mov_mult') / 0.98})
-    jump(player, args, apply = update)
-
-@player_command(aliases=['lsj45'], arguments=['duration', 'facing'])
-def lsprintjump45(player, args):
-    args.setdefault('mov_mult', 1.3)
-    args.setdefault('sprintjumptick', True)
-    args.setdefault('direction', args.get('facing', player.default_facing) - 45)
-    args.setdefault('facing', args.get('direction') + 45)
-    jump(player, args)
-
-@player_command(aliases=['rsj45'], arguments=['duration', 'facing'])
-def rsprintjump45(player, args):
+@command(aliases=['rsj45'])
+def rsprintjump45(player, args, duration = 1, rotation: fl = None):
     args.setdefault('mov_mult', 1.3)
     args.setdefault('sprintjumptick', True)
     args.setdefault('direction', args.get('facing', player.default_facing) + 45)
     args.setdefault('facing', args.get('direction') - 45)
     jump(player, args)
 
-@player_command(aliases=['snj45'], arguments=['duration', 'facing'])
-def sneakjump45(player, args):
-    args.setdefault('mov_mult', 0.294 * math.sqrt(2))
-    jump(player, args)
+@command(aliases=['st'])
+def stop(player, args, duration = 1):
+    move(player, args)
 
-@player_command(aliases=['st'], arguments=['duration'])
-def stop(player, args):
-    args.setdefault('mov_mult', 0)
-    basic_move(player, args)
-
-@player_command(aliases=['sta'], arguments=['duration'])
-def stopair(player, args):
-    args.setdefault('mov_mult', 0)
+@command(aliases=['sta'])
+def stopair(player, args, duration = 1):
     args.setdefault('airborne', True)
-    basic_move(player, args)
+    move(player, args)
 
-@player_command(aliases=['stj'], arguments=['duration'])
-def stopjump(player, args):
-    args.setdefault('mov_mult', 0)
+@command(aliases=['stj'])
+def stopjump(player, args, duration = 1):
     jump(player, args)
 
-@player_command(name='|')
+@command(name='|')
 def reset_position(player, args):
     player.x = 0
     player.z = 0
 
-@player_command(name='b')
+@command(name='b')
 def mm_to_blocks(player, args):
     if player.x > 0:
         player.x += 0.6
@@ -299,7 +291,7 @@ def mm_to_blocks(player, args):
     elif player.z < 0:
         player.z -= 0.6
 
-@player_command(name='mm')
+@command(name='mm')
 def blocks_to_mm(player, args):
     if player.x > 0:
         player.x -= 0.6
@@ -311,72 +303,57 @@ def blocks_to_mm(player, args):
     elif player.z < 0:
         player.z += 0.6
 
-@player_command(aliases = ['v'], arguments=['vx', 'vz'])
-def setv(player, args):
-    player.vx = args.get('vx', 0)
-    player.vz = args.get('vz', 0)
+@command(aliases = ['v'])
+def setv(player, args, vx = 0.0, vz = 0.0):
+    player.vx = vx
+    player.vz = vz
 
-@player_command(aliases = ['vx'], arguments=['vx'])
-def setvx(player, args):
-    player.vx = args.get('vx', 0)
+@command(aliases = ['vx'])
+def setvx(player, args, vx = 0.0):
+    player.vx = vx
 
-@player_command(aliases = ['vz'], arguments=['vz'])
-def setvz(player, args):
-    player.vz = args.get('vz', 0)
+@command(aliases = ['vz'])
+def setvz(player, args, vz = 0.0):
+    player.vz = vz
 
-@player_command(aliases = ['pos'], arguments=['x', 'z'])
-def setpos(player, args):
-    player.x = args.get('x', 0)
-    player.z = args.get('z', 0)
+@command(aliases = ['pos', 'xz'])
+def setpos(player, args, x = 0.0, z = 0.0):
+    player.x = x
+    player.z = z
 
-@player_command(aliases = ['posx', 'x'], arguments=['x'])
-def setposx(player, args):
-    player.x = args.get('x', 0)
+@command(aliases = ['posx', 'x'])
+def setposx(player, args, x = 0.0):
+    player.x = x
 
-@player_command(aliases = ['posz', 'z'], arguments=['z'])
-def setposz(player, args):
-    player.z = args.get('z', 0)
+@command(aliases = ['posz', 'z'])
+def setposz(player, args, z = 0.0):
+    player.z = z
 
-@player_command(aliases = ['slip'], arguments=['slip'])
-def setslip(player, args):
-    args.setdefault('slip', 0.6)
-    player.ground_slip = args['slip']
+@command(aliases = ['slip'])
+def setslip(player, args, slip = fl(0)):
+    player.ground_slip = slip
 
-@player_command(aliases = ['eff'], arguments=['eff_mult'])
-def seteff(player, args):
-    args.setdefault('eff_mult', 1)
-    if 'slowness' in args or 'speed' in args:
-        args.setdefault('slowness', 0)
-        args.setdefault('speed', 0)
-        args['eff_mult'] = max(0, (1 + 0.2 * args['speed']) * (1 - (0.15 * args['slowness'])))
-    player.eff_mult = args['eff_mult']
+@command(aliases = ['angle', 'a'])
+def angles(player, args, angles = 0):
+    player.angles = angles
 
-@player_command(aliases = ['angle', 'a'], arguments=['angles'])
-def angles(player, args):
-    args.setdefault('angles', 65536)
-    player.angles = args['angles']
+@command()
+def inertia(player, args, inertia = 0.005):
+    player.inertia_threshold = inertia
 
-@player_command(arguments=['inertia'])
-def inertia(player, args):
-    args.setdefault('inertia', 0.005)
-    player.inertia_threshold = args['inertia']
+@command(aliases = ['pre'])
+def precision(player, args, precision = 6):
+    player.printprecision = precision
 
-@player_command(aliases = ['pre'], arguments=['precision'])
-def precision(player, args):
-    args.setdefault('precision', 6)
-    player.printprecision = args['precision']
+@command(aliases = ['facing', 'face', 'f'])
+def rotation(player, args, rotation = 0):
+    player.default_rotation = rotation
 
-@player_command(aliases = ['face', 'f'], arguments=['facing'])
-def facing(player, args):
-    args.setdefault('facing', 0)
-    player.default_facing = args['facing']
+@command(aliases = ['offrotation', 'offrot', 'orotation', 'orot', 'or',
+                    'offsetfacing', 'offfacing', 'offface', 'ofacing', 'oface', 'of'])
+def offsetrotation(player, args, rotation = 0):
+    player.rotation_offset = rotation
 
-@player_command(aliases = ['offfacing', 'offface', 'ofacing', 'oface', 'of'], arguments=['facing'])
-def offsetfacing(player, args):
-    args.setdefault('facing', 0)
-    player.facing_offset = args['facing']
-
-@player_command(aliases = ['ssand', 'ss'], arguments=['soulsand'])
-def soulsand(player, args):
-    args.setdefault('soulsand', 1)
-    player.soulsand = args['soulsand']
+@command(aliases = ['ssand', 'ss'])
+def soulsand(player, args, soulsand = 1):
+    player.soulsand = soulsand

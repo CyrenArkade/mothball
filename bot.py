@@ -15,6 +15,7 @@ class Mothball(commands.Bot):
             os.remove('restart.json')
         
         await self.load_extension('cogs.admin')
+        await self.load_extension('cogs.misc')
         await self.load_extension('cogs.movement.movement')
 
 def command_prefix(bot, msg: discord.Message):

@@ -1,13 +1,10 @@
 import discord
 from discord.ext import commands
-import importlib
-import cogs.movement.commandmanager as cmdmgr
+from cogs.movement.functions import commands_by_name
 from cogs.movement.player import Player
 import cogs.movement.parsers as parsers
-import cogs.movement.functions as functions
 from cogs.movement.simnode import SimNode
 import asyncio
-from concurrent.futures import ProcessPoolExecutor
 
 async def setup(bot):
     await bot.add_cog(Movement(bot))
@@ -15,9 +12,6 @@ async def setup(bot):
 class Movement(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.player_commands = cmdmgr.get_player_commands()
-        self.player_command_arguments = cmdmgr.get_player_command_args()
-        self.player_arg_aliases = cmdmgr.get_player_arg_aliases()
 
         self.msg_links = {}
 
@@ -30,14 +24,16 @@ class Movement(commands.Cog):
 
         commands_args = [single for command in commands for single in parsers.argumentatize_command(command)]
 
-        for command in commands_args:
-            reverse = command[0].startswith('-')
+        command: str
+        args: list[str]
+        for command, args in commands_args:
+            reverse = command.startswith('-')
             if reverse:
-                command[0] = command[0][1:]
+                command = command[1:]
             
-            command_function = self.player_commands[command[0]]
+            command_function = commands_by_name[command]
 
-            dict_args, updates = parsers.dictize_args(command[1], self.player_command_arguments[command_function])
+            dict_args = parsers.dictize_args(command_function, args)
             if reverse:
                 dict_args.update({'reverse': True})
 
@@ -63,8 +59,8 @@ class Movement(commands.Cog):
 
         except asyncio.TimeoutError:
             results = 'Simulation timed out.'
-        except:
-            results = 'Something went wrong.'
+        #except:
+        #    results = 'Something went wrong.'
         
         player.clearlogs()
         
