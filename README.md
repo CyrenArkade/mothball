@@ -21,43 +21,44 @@ Exceptions include the strafe sprintjump variants, which are prefixed with `[l, 
 
 A table of more exotic functions:
 
-| Function     | Alias(es) | Arguments                 | Result                                                                                           |
-|--------------|-----------|---------------------------|--------------------------------------------------------------------------------------------------|
-| \|           |           |                           | Resets the player's position                                                                     |
-| b            |           |                           | Adds 0.6 to the player's x/z positions                                                           |
-| mm           |           |                           | Subtracts 0.6 from the player's x/z positions                                                    |
-| setv         | v         | vx, vz                    | Sets the player's x and z velocities                                                             |
-| setvx        | vx        | vx                        | Sets the player's x velocity                                                                     |
-| setvz        | vz        | vz                        | Sets the player's z velocity                                                                     |
-| setpos       | pos       | x, z                      | Sets the player's x and z positions                                                              |
-| setposx      | posx, x   | x                         | Sets the player's x position                                                                     |
-| setposz      | posz, z   | z                         | Sets the player's z position                                                                     |
-| setslip      | slip      | slip                      | Sets the player's default ground slipperiness                                                    |
-| seteff       | eff       | eff_mult, speed, slowness | Sets the player's default effect multiplier. Will calculate effmult if speed/slowness are given. |
-| angles       | angle     | angles                    | Sets the player's default number of significant angles                                           |
-| precision    | pre       | precision                 | Sets the number of decimals in the output                                                        |
-| inertia      |           | inertia                   | Sets the player's inertia threshold                                                              |
-| facing       | face, f   | facing                    | Sets the player's default facing                                                                 |
-| offsetfacing | oface, of | facing                    | Offsets the player's facing                                                                      |
+| Function     | Alias(es) | Arguments | Result                                                 |
+|--------------|-----------|-----------|--------------------------------------------------------|
+| \|           |           |           | Resets the player's position                           |
+| b            |           |           | Adds 0.6 to the player's x/z positions                 |
+| mm           |           |           | Subtracts 0.6 from the player's x/z positions          |
+| setv         | v         | vx, vz    | Sets the player's x and z velocities                   |
+| setvx        | vx        | vx        | Sets the player's x velocity                           |
+| setvz        | vz        | vz        | Sets the player's z velocity                           |
+| setpos       | pos       | x, z      | Sets the player's x and z positions                    |
+| setposx      | posx, x   | x         | Sets the player's x position                           |
+| setposz      | posz, z   | z         | Sets the player's z position                           |
+| setslip      | slip      | slip      | Sets the player's default ground slipperiness          |
+| Speed        |           | speed     | Sets the player's speed                                |
+| Slowness     | slow      | slowness  | Sets the player's slowness                             |
+| angles       | angle     | angles    | Sets the player's default number of significant angles |
+| precision    | pre       | precision | Sets the number of decimals in the output              |
+| inertia      |           | inertia   | Sets the player's inertia threshold                    |
+| facing       | face, f   | facing    | Sets the player's default facing                       |
+| offsetfacing | oface, of | facing    | Offsets the player's facing                            |
 
 ### Arguments
+Arguments affect only the function in which they are present.
+
 Positional arguments are defined by their positions to one another. Keyworded arguments are given by `argument`​`=`​`value`.
 
-Most movement functions have the positonal args `duration, direction`, which default to 1 and the player's default facing, respectively. Many functions include default values for arguments like mov_mult that can be overriden to provide custom behavior.
+Most movement functions have the positonal args `duration, rotation`, which default to 1 and the player's default rotation, respectively. Many functions include default values for arguments like mov_mult that can be overriden to provide custom behavior.
 
-| Argument       | Alias(es)       | Effect                                                                                                  |
-|----------------|-----------------|---------------------------------------------------------------------------------------------------------|
-| duration       | dur, t          | Determines the duration of the action                                                                   |
-| direction      | dir, d          | Determines the direction of player movement                                                             |
-| facing         | face, f         | Determines the direction the player faces                                                               |
-| slip           | s               | Determines the slipperiness of the ground                                                               |
-| airborne       | air             | Determines if the player is considered midair                                                           |
-| mov_mult       | movmult, mov, m | Determines the player's movement multiplier                                                             |
-| eff_mult       | effmult, eff, e | Determines the player's effect multiplier                                                               |
-| speed          | spd             | Determines the player's speed level. Overrides eff_mult.                                                |
-| slowness       | slow            | Determines the player's slowness level. Overrides eff_mult.                                             |
-| angles         | angle           | Determines the number of significant angles trigonometry functions assume. Defaults to -1, or infinite. |
-| sprintjumptick | sprintjump      | Determines if the player is sprintjumping                                                               |
+| Argument  | Alias(es) | Effect                                     |
+|-----------|-----------|--------------------------------------------|
+| duration  | dur, t    | Duration of the action                     |
+| rotation  | rot, r    | The player's rotation                      |
+| slip      | s         | Ground slipperiness                        |
+| airborne  | air       | Determines whether the player is airborne  |
+| sprinting | sprint    | Determines whether the player is sprinting |
+| sneaking  | sneak, sn | Determines whether the player is sneaking  |
+| jumping   | jump      | Determines whether the player is jumping   |
+| speed     | spd       | Determines the player's speed level.       |
+| slowness  | slow      | Determines the player's slowness level.    |
 
 Adding arguments to functions clearly not designed for them will produce unpredictable and impossible results.
 
