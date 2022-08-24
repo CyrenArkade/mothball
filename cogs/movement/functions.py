@@ -234,7 +234,6 @@ def walkjump45(player, args, duration = 1, rotation: fl = None):
 @command(aliases=['sj45'])
 def sprintjump45(player, args, duration = 1, rotation: fl = None):
     args.setdefault('forward', fl(1))
-    args.setdefault('strafe', fl(-1))
     args.setdefault('sprinting', True)
     
     def update():
