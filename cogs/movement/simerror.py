@@ -1,0 +1,2 @@
+class SimError(Exception):
+    pass
