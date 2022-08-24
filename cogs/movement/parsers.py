@@ -1,5 +1,6 @@
 from re import match
 from cogs.movement.functions import aliases, types_by_command
+from cogs.movement.simerror import SimError
 
 
 def separate_commands(text):
@@ -109,4 +110,7 @@ def dealias_arg_name(arg_name):
 
 def convert(command, arg_name, val):
     type = types_by_command[command][arg_name]
-    return type(val)
+    try:
+        return type(val)
+    except:
+        raise SimError(f'Error in `{command.__name__}` converting `{val}` to type `{arg_name}:{type.__name__}`')

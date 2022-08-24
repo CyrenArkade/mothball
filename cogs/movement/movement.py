@@ -3,11 +3,18 @@ from discord.ext import commands
 from cogs.movement.functions import commands_by_name
 from cogs.movement.player import Player
 import cogs.movement.parsers as parsers
-from cogs.movement.simnode import SimNode
+from cogs.movement.simerror import SimError
 import asyncio
 
 async def setup(bot):
     await bot.add_cog(Movement(bot))
+
+class SimNode():
+    def __init__(self, msgid, botmsg, player):
+        self.msgid = msgid
+        self.botmsg = botmsg
+        self.player = player
+        self.children = []
 
 class Movement(commands.Cog):
     def __init__(self, bot):
@@ -31,7 +38,11 @@ class Movement(commands.Cog):
             if reverse:
                 command = command[1:]
             
-            command_function = commands_by_name[command]
+            try:
+                command_function = commands_by_name[command]
+            except:
+                raise SimError(f'Command `{command}` not found')
+
 
             dict_args = parsers.dictize_args(command_function, args)
             if reverse:
@@ -59,6 +70,8 @@ class Movement(commands.Cog):
 
         except asyncio.TimeoutError:
             results = 'Simulation timed out.'
+        except SimError as e:
+            results = str(e)
         except:
             results = 'Something went wrong.'
         
