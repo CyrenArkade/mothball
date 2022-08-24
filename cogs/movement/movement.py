@@ -59,8 +59,8 @@ class Movement(commands.Cog):
 
         except asyncio.TimeoutError:
             results = 'Simulation timed out.'
-        #except:
-        #    results = 'Something went wrong.'
+        except:
+            results = 'Something went wrong.'
         
         player.clearlogs()
         
