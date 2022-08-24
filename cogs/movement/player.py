@@ -76,9 +76,9 @@ class Player:
         sprinting = args.get('sprinting', False)
         sneaking = args.get('sneaking', False)
         jumping = args.get('jumping', False)
-        speed = args.get('speed', 0)
-        slowness = args.get('slowness', 0)
-        soulsand = args.get('soulsand', 0)
+        speed = args.get('speed', self.speed)
+        slowness = args.get('slowness', self.slowness)
+        soulsand = args.get('soulsand', self.soulsand)
 
         if airborne:
             slip = fl(1)

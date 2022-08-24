@@ -6,20 +6,25 @@ from functools import wraps
 commands_by_name = {}
 types_by_command = {}
 aliases = {}
+types_by_arg = {}
 
-add_alias = lambda arg, newaliases: [aliases.update({alias: arg}) for alias in newaliases]
+def register_arg(arg, type, new_aliases = []):
+    types_by_arg.update({arg: type})
+    for alias in new_aliases:
+        aliases.update({alias: arg})
 
-add_alias('duration', ['dur', 't'])
-add_alias('rotation', ['rot', 'r'])
-add_alias('slip', ['s'])
-add_alias('airborne', ['air'])
-add_alias('mov_mult', ['movmult', 'mov', 'm'])
-add_alias('eff_mult', ['effmult', 'eff', 'e'])
-add_alias('sprinting', ['sprint'])
-add_alias('sneaking', ['sneak', 'sn'])
-add_alias('jumping', ['jump'])
-add_alias('speed', ['sp', 'spd'])
-add_alias('slowness', ['slow', 'sl'])
+register_arg('duration', int, ['dur', 't'])
+register_arg('rotation', fl, ['rot', 'r'])
+register_arg('forward', fl)
+register_arg('strafe', fl)
+register_arg('slip', fl, ['s'])
+register_arg('airborne', bool, ['air'])
+register_arg('sprinting', bool, ['sprint'])
+register_arg('sneaking', bool, ['sneak', 'sn'])
+register_arg('jumping', bool, ['jump'])
+register_arg('speed', int, ['sp', 'spd'])
+register_arg('slowness', int, ['slow', 'sl'])
+register_arg('soulsand', int, ['ss'])
 
 def command(name=None, aliases=[]):
     def inner(f):
@@ -327,6 +332,14 @@ def setposx(player, args, x = 0.0):
 @command(aliases = ['posz', 'z'])
 def setposz(player, args, z = 0.0):
     player.z = z
+
+@command()
+def speed(player, args, speed = 0):
+    player.speed = speed
+
+@command(aliases = ['slow'])
+def slowness(player, args, slowness = 0):
+    player.slowness = slowness
 
 @command(aliases = ['slip'])
 def setslip(player, args, slip = fl(0)):

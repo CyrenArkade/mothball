@@ -1,5 +1,5 @@
 from re import match
-from cogs.movement.functions import aliases, types_by_command
+from cogs.movement.functions import aliases, types_by_command, types_by_arg
 from cogs.movement.simerror import SimError
 
 
@@ -109,7 +109,12 @@ def dealias_arg_name(arg_name):
     return aliases.get(arg_name, arg_name)
 
 def convert(command, arg_name, val):
-    type = types_by_command[command][arg_name]
+    if arg_name in types_by_command[command]:
+        type = types_by_command[command][arg_name]
+    elif arg_name in types_by_arg:
+        type = types_by_arg[arg_name]
+    else:
+        raise SimError(f'Unknown argument `{arg_name}`')
     try:
         return type(val)
     except:

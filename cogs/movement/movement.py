@@ -5,6 +5,7 @@ from cogs.movement.player import Player
 import cogs.movement.parsers as parsers
 from cogs.movement.simerror import SimError
 import asyncio
+from io import BytesIO
 
 async def setup(bot):
     await bot.add_cog(Movement(bot))
@@ -72,16 +73,29 @@ class Movement(commands.Cog):
             results = 'Simulation timed out.'
         except SimError as e:
             results = str(e)
-        except:
-            results = 'Something went wrong.'
+        #except:
+        #    results = 'Something went wrong.'
         
         player.clearlogs()
         
         if edit:
+
+            if len(results) > 1990:
+                buffer = BytesIO(results.encode("utf8"))
+                await edit.botmsg.edit(content="Uploaded output to file since output was too long.", file=discord.File(fp=buffer, filename='output.txt'))
+            else:
+                await edit.botmsg.edit(content=results)
+
             await edit.botmsg.edit(content=results)
             self.msg_links[edit.msgid].player = player.softcopy()
         else:
-            botmsg = await ctx.channel.send(results)
+
+            if len(results) > 1990:
+                buffer = BytesIO(results[3:-3].encode("utf8"))
+                botmsg = await ctx.channel.send(content="Uploaded output to file since output was too long.", file=discord.File(fp=buffer, filename='output.txt'))
+            else:
+                botmsg = await ctx.channel.send(results)
+
             node = SimNode(ctx.message.id, botmsg, player)
             self.msg_links.update({ctx.message.id: node})
             if continuation:
