@@ -333,7 +333,7 @@ def setslip(player, args, slip = fl(0)):
     player.ground_slip = slip
 
 @command(aliases = ['angle', 'a'])
-def angles(player, args, angles = 0):
+def angles(player, args, angles = -1):
     player.angles = angles
 
 @command()
