@@ -1,6 +1,6 @@
 from re import match
 from cogs.movement.functions import aliases, types_by_command, types_by_arg
-from cogs.movement.simerror import SimError
+from cogs.movement.util import SimError
 
 
 def separate_commands(text):

@@ -1,6 +1,5 @@
-import math
 from numpy import float32 as fl
-from inspect import signature, Parameter
+from inspect import signature
 from functools import wraps
 
 commands_by_name = {}
@@ -59,11 +58,11 @@ def command(name=None, aliases=[]):
     return inner
 
 
-def move(player, args):
+def move(args, player):
     for _ in range(abs(args['duration'])):
         player.move(args)
 
-def jump(player, args, after_jump_tick = lambda: None):
+def jump(args, player, after_jump_tick = lambda: None):
     
     args['jumping'] = True
     player.move(args)
@@ -80,7 +79,7 @@ def jump(player, args, after_jump_tick = lambda: None):
 def sneak(player, args, duration = 1, rotation: fl = None):
     args.setdefault('forward', fl(1))
     args.setdefault('sneaking', True)
-    move(player, args)
+    move(args, player)
 
 @command(aliases=['w'])
 def walk(player, args, duration = 1, rotation: fl = None):
@@ -253,16 +252,18 @@ def lsprintjump45(player, args, duration = 1, rotation: fl = None):
     args.setdefault('strafe', fl(1))
     args.setdefault('sprinting', True)
     
-    args['function_offset'] = fl(-45)
+    args['function_offset'] = fl(45)
     
     jump(player, args)
 
 @command(aliases=['rsj45'])
 def rsprintjump45(player, args, duration = 1, rotation: fl = None):
-    args.setdefault('mov_mult', 1.3)
-    args.setdefault('sprintjumptick', True)
-    args.setdefault('direction', args.get('facing', player.default_facing) + 45)
-    args.setdefault('facing', args.get('direction') - 45)
+    args.setdefault('forward', fl(1))
+    args.setdefault('strafe', fl(-1))
+    args.setdefault('sprinting', True)
+    
+    args['function_offset'] = fl(-45)
+    
     jump(player, args)
 
 @command(aliases=['st'])
@@ -358,12 +359,12 @@ def precision(player, args, precision = 6):
     player.printprecision = precision
 
 @command(aliases = ['facing', 'face', 'f'])
-def rotation(player, args, rotation = 0):
+def rotation(player, args, rotation = fl(0)):
     player.default_rotation = rotation
 
 @command(aliases = ['offrotation', 'offrot', 'orotation', 'orot', 'or',
                     'offsetfacing', 'offfacing', 'offface', 'ofacing', 'oface', 'of'])
-def offsetrotation(player, args, rotation = 0):
+def offsetrotation(player, args, rotation = fl(0)):
     player.rotation_offset = rotation
 
 @command(aliases = ['ssand', 'ss'])

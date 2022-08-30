@@ -3,19 +3,12 @@ from discord.ext import commands
 from cogs.movement.functions import commands_by_name
 from cogs.movement.player import Player
 import cogs.movement.parsers as parsers
-from cogs.movement.simerror import SimError
+from cogs.movement.util import SimError, SimNode
 import asyncio
 from io import BytesIO
 
 async def setup(bot):
     await bot.add_cog(Movement(bot))
-
-class SimNode():
-    def __init__(self, msgid, botmsg, player):
-        self.msgid = msgid
-        self.botmsg = botmsg
-        self.player = player
-        self.children = []
 
 class Movement(commands.Cog):
     def __init__(self, bot):
