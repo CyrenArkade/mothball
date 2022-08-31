@@ -1,7 +1,6 @@
 from numpy import float32 as fl
 from inspect import signature
 from functools import wraps
-import cogs.movement.parsers as parsers
 
 commands_by_name = {}
 types_by_command = {}
