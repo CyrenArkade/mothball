@@ -1,6 +1,7 @@
 from numpy import float32 as fl
 from inspect import signature
 from functools import wraps
+from parsers import 
 
 commands_by_name = {}
 types_by_command = {}
@@ -58,11 +59,11 @@ def command(name=None, aliases=[]):
     return inner
 
 
-def move(args, player):
+def move(player, args):
     for _ in range(abs(args['duration'])):
         player.move(args)
 
-def jump(args, player, after_jump_tick = lambda: None):
+def jump(player, args, after_jump_tick = lambda: None):
     
     args['jumping'] = True
     player.move(args)
