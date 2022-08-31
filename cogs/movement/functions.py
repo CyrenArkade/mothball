@@ -79,7 +79,7 @@ def jump(player, args, after_jump_tick = lambda: None):
 def sneak(player, args, duration = 1, rotation: fl = None):
     args.setdefault('forward', fl(1))
     args.setdefault('sneaking', True)
-    move(args, player)
+    move(player, args)
 
 @command(aliases=['w'])
 def walk(player, args, duration = 1, rotation: fl = None):

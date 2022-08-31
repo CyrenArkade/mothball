@@ -70,12 +70,14 @@ def argumentatize_command(command):
     args.append(command[start:-1].strip())
 
     if command_name in ('repeat', 'rep', 'r'):
+        print(args[0])
         commands = separate_commands(args[0])
-        comamnds_args = [single for command in commands for single in argumentatize_command(command)] * int(args[1])
+        commands_args = [single for command in commands for single in argumentatize_command(command)] * int(args[1])
     else:
-        comamnds_args = [[command_name, args]]
+        commands_args = [[command_name, args]]
+    print(commands_args)
 
-    return comamnds_args
+    return commands_args
 
 def dictize_args(command, str_args):
     out = {}

@@ -6,6 +6,7 @@ import cogs.movement.parsers as parsers
 from cogs.movement.util import SimError, SimNode
 import asyncio
 from io import BytesIO
+import logging
 
 async def setup(bot):
     await bot.add_cog(Movement(bot))
@@ -36,7 +37,6 @@ class Movement(commands.Cog):
                 command_function = commands_by_name[command]
             except:
                 raise SimError(f'Command `{command}` not found')
-
 
             dict_args = parsers.dictize_args(command_function, args)
             if reverse:
