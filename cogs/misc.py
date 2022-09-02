@@ -23,7 +23,7 @@ class Misc(commands.Cog):
         bot._filter = filt
     
     @commands.command(aliases=['d'])
-    async def duration(self, ctx, floor: float = 0.0, ceiling: float = float_info.max, jump_boost: int = 1, inertia: float = 0.005):
+    async def duration(self, ctx, floor: float = 0.0, ceiling: float = float_info.max, jump_boost: int = 0, inertia: float = 0.005):
 
         vy = 0.42 + 0.1 * jump_boost
         y = 0
@@ -43,7 +43,7 @@ class Misc(commands.Cog):
         
         await ctx.send(f'Duration of a {floor:+.1f}b{outstring} jump:\n\n**{ticks} ticks**')
 
-    async def height(self, ctx, duration: int = 12, ceiling: float = float_info.max, jump_boost: int = 1, inertia: float = 0.005):
+    async def height(self, ctx, duration: int = 12, ceiling: float = float_info.max, jump_boost: int = 0, inertia: float = 0.005):
 
         vy = 0.42 + jump_boost * 0.1
         y = 0
