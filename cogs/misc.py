@@ -4,6 +4,7 @@ from sys import float_info
 from datetime import datetime, timezone
 from random import random
 import asyncio, typing
+import math
 
 async def setup(bot):
     await bot.add_cog(Misc(bot))
@@ -15,7 +16,7 @@ class Misc(commands.Cog):
         def filt(msg):
             if msg.author.bot:
                 return False
-            if any([msg.content.lower().startswith(x) for x in ('m!', '^', '$')]):
+            if any([msg.content.lower().startswith(x) for x in ('m!', '^', '$', '<@520282851925688321>')]):
                 return False
             if len(msg.content) == 1:
                 return False
@@ -70,6 +71,29 @@ class Misc(commands.Cog):
         outstring = f' with a {ceiling}bc' if ceiling != float_info.max else ''
         
         await ctx.send(f'Height after {duration} ticks{outstring}:\n\n **{round(y, 6)}**')
+
+    @commands.command(aliases = ['ji'])
+    async def jumpinfo(self, ctx, x: float, z: float = 0.0):
+
+        format = lambda x: round(x, 6)
+        dx = x - math.copysign(0.6, x)
+        dz = z - math.copysign(0.6, z)
+        distance = math.sqrt(dx**2 + dz**2)
+        angle = math.degrees(math.atan(dz/dx))
+
+        if z == 0.0:
+            outstring = f'**{format(x)}b** jump -> **{format(dx)}** distance'
+            await ctx.send(outstring)
+            return
+
+        lines = [
+            f'A **{format(x)}b** by **{format(z)}b** block jump:',
+            f'Dimensions: **{format(dx)}** by **{format(dz)}**',
+            f'Distance: **{format(distance)}** distance -> **{format(distance+0.6)}b** jump',
+            f'Optimal Angle: **{format(angle)}°**'
+        ]
+
+        await ctx.send('\n'.join(lines))
 
     @commands.command(aliases=['q'])
     @commands.cooldown(3, 60, type=commands.BucketType.user)
