@@ -56,7 +56,7 @@ class Misc(commands.Cog):
         vy = 0.42 + jump_boost * 0.1
         y = 0
 
-        for i in range(duration - 1):
+        for i in range(duration):
             y = y + vy
             if y > ceiling - 1.8:
                 y = ceiling - 1.8
