@@ -76,8 +76,14 @@ class Misc(commands.Cog):
     async def jumpinfo(self, ctx, x: float, z: float = 0.0):
 
         format = lambda x: round(x, 6)
-        dx = x - math.copysign(0.6, x)
-        dz = z - math.copysign(0.6, z)
+        if abs(x) < 0.6:
+            dx = 0.0
+        else:
+            dx = x - math.copysign(0.6, x)
+        if abs(z) < 0.6:
+            dz = 0
+        else:
+            dz = z - math.copysign(0.6, z)
         distance = math.sqrt(dx**2 + dz**2)
         angle = math.degrees(math.atan(dz/dx))
 
