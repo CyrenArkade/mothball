@@ -41,14 +41,15 @@ class Misc(commands.Cog):
 
             if ticks > 5000:
                 await ctx.send('Simulation limit reached.')
-        
-            if vy >= 0:
-                await ctx.send('Impossible jump height. Too high.')
-                return
+    
+        if vy >= 0:
+            await ctx.send('Impossible jump height. Too high.')
+            return
 
-            ceiling = f' {ceiling}bc' if ceiling != float_info.max else ''
-            await ctx.send(f'Duration of a {floor:+.1f}b{ceiling} jump:\n**{ticks} ticks**')
+        ceiling = f' {ceiling}bc' if ceiling != float_info.max else ''
+        await ctx.send(f'Duration of a {floor:+.1f}b{ceiling} jump:\n**{ticks} ticks**')
 
+    @commands.command()
     async def height(self, ctx, duration: int = 12, ceiling: float = float_info.max, jump_boost: int = 0, inertia: float = 0.005):
 
         vy = 0.42 + jump_boost * 0.1
