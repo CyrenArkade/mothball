@@ -81,16 +81,20 @@ class Misc(commands.Cog):
         else:
             dx = x - math.copysign(0.6, x)
         if abs(z) < 0.6:
-            dz = 0
+            dz = 0.0
         else:
             dz = z - math.copysign(0.6, z)
-        distance = math.sqrt(dx**2 + dz**2)
-        angle = math.degrees(math.atan(dz/dx))
-
-        if z == 0.0:
+        
+        if dx == 0.0 and dz == 0.0:
+            await ctx.send('That\'s not a jump!')
+            return
+        elif dx == 0.0 or dz == 0.0:
             outstring = f'**{format(x)}b** jump -> **{format(dx)}** distance'
             await ctx.send(outstring)
             return
+
+        distance = math.sqrt(dx**2 + dz**2)
+        angle = math.degrees(math.atan(dz/dx))
 
         lines = [
             f'A **{format(x)}b** by **{format(z)}b** block jump:',
