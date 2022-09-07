@@ -89,7 +89,7 @@ class Misc(commands.Cog):
             await ctx.send('That\'s not a jump!')
             return
         elif dx == 0.0 or dz == 0.0:
-            outstring = f'**{format(x)}b** jump -> **{format(dx)}** distance'
+            outstring = f'**{format(max(x, z))}b** jump -> **{format(max(dx, dz))}** distance'
             await ctx.send(outstring)
             return
 
