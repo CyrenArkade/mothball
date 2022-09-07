@@ -24,7 +24,7 @@ class Misc(commands.Cog):
         bot._filter = filt
     
     @commands.command(aliases=['d'])
-    async def duration(self, ctx, floor: float = 0.0, ceiling: float = float_info.max, jump_boost: int = 0, inertia: float = 0.005):
+    async def duration(self, ctx, floor: float = 0.0, ceiling: float = float_info.max, inertia: float = 0.005, jump_boost: int = 0):
 
         vy = 0.42 + 0.1 * jump_boost
         y = 0
@@ -51,7 +51,7 @@ class Misc(commands.Cog):
         await ctx.send(f'Duration of a {floor:+.1f}b{ceiling} jump:\n**{ticks} ticks**')
 
     @commands.command()
-    async def height(self, ctx, duration: int = 12, ceiling: float = float_info.max, jump_boost: int = 0, inertia: float = 0.005):
+    async def height(self, ctx, duration: int = 12, ceiling: float = float_info.max, inertia: float = 0.005, jump_boost: int = 0):
 
         vy = 0.42 + jump_boost * 0.1
         y = 0
@@ -70,7 +70,7 @@ class Misc(commands.Cog):
         
         outstring = f' with a {ceiling}bc' if ceiling != float_info.max else ''
         
-        await ctx.send(f'Height after {duration} ticks{outstring}:\n\n **{round(y, 6)}**')
+        await ctx.send(f'Height after {duration} ticks{outstring}:\n **{round(y, 6)}**')
 
     @commands.command(aliases = ['ji'])
     async def jumpinfo(self, ctx, x: float, z: float = 0.0):
