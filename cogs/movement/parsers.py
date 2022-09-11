@@ -1,6 +1,45 @@
 from re import match
-from cogs.movement.functions import aliases, types_by_command, types_by_arg
-from cogs.movement.util import SimError
+import cogs.movement.functions as functions
+from cogs.movement.utils import SimError
+
+def execute_string(text, envs, player):
+    commands_args = string_to_args(text)
+    execute_args(commands_args, envs, player)
+    
+def string_to_args(text):
+    commands_str_list = separate_commands(text)
+    commands_args = [argumentatize_command(command) for command in commands_str_list]
+    return commands_args
+
+def execute_args(commands_args, envs, player):
+    for command, args in commands_args:
+        reverse = command.startswith('-')
+        if reverse:
+            command = command[1:]
+        
+        if command in commands_by_name: # Normal execution
+            command_function = commands_by_name[command]
+
+            dict_args = dictize_args(envs, command_function, args)
+            if reverse:
+                dict_args.update({'reverse': True})
+            dict_args.update({'player': player})
+            dict_args.update({'envs': envs})
+
+            command_function(dict_args)
+
+        else: # CommandNotFound or user-defined function
+            user_func = fetch(envs, command)
+            
+            if user_func is None:
+                raise SimError(f'Command `{command}` not found')
+            
+            new_env = dict([(var, val) for var, val in zip(user_func.arg_names, args)])
+
+            execute_args(user_func.args, envs + [new_env], player)
+
+
+
 
 
 def separate_commands(text):
@@ -51,7 +90,7 @@ def argumentatize_command(command):
     try:
         divider = command.index('(')
     except ValueError:
-        return [[command.lower(), []]]
+        return (command.lower(), [])
 
     args = []
     start = divider + 1
@@ -69,15 +108,9 @@ def argumentatize_command(command):
     command_name = command[:divider].lower()
     args.append(command[start:-1].strip())
 
-    if command_name in ('repeat', 'rep', 'r'):
-        commands = separate_commands(args[0])
-        commands_args = [single for command in commands for single in argumentatize_command(command)] * int(args[1])
-    else:
-        commands_args = [[command_name, args]]
+    return (command_name, args)
 
-    return commands_args
-
-def dictize_args(command, str_args):
+def dictize_args(envs, command, str_args):
     out = {}
 
     command_types = list(types_by_command[command].keys())
@@ -88,17 +121,16 @@ def dictize_args(command, str_args):
             divider = arg.index('=')
             arg_name = arg[:divider].strip()
             arg_name = dealias_arg_name(arg_name)
-            arg_val = convert(command, arg_name, arg[divider + 1:].strip())
+            arg_val = convert(envs, command, arg_name, arg[divider + 1:].strip())
+
         elif positional_index < len(command_types): # if positional arg
             arg_name = command_types[positional_index]
-            # arg_name = dealias_arg_name(arg_name)
-            # if match(r'^mb\(.*\)$', arg_name) or match(r'^mathbot\(.*\)$', arg_name):
-            #     arg_val = None
-            # else:
-            arg_val = convert(command, arg_name, arg)
+            arg_val = convert(envs, command, arg_name, arg)
             positional_index += 1
-        else:
-            continue
+
+        else: # extra positional args
+            out.setdefault('pos_args', [])
+            out['pos_args'].append(arg)
 
         out.update({arg_name: arg_val})
     
@@ -108,14 +140,28 @@ def dealias_arg_name(arg_name):
     arg_name = arg_name.lower()
     return aliases.get(arg_name, arg_name)
 
-def convert(command, arg_name, val):
-    if arg_name in types_by_command[command]:
+def convert(envs, command, arg_name, val):
+    if arg_name in types_by_command[command]: # if positionial arg
         type = types_by_command[command][arg_name]
-    elif arg_name in types_by_arg:
+    elif arg_name in types_by_arg: # if keyworded arg
         type = types_by_arg[arg_name]
     else:
         raise SimError(f'Unknown argument `{arg_name}`')
     try:
-        return type(val)
+        return type(val) # if normal value
     except:
-        raise SimError(f'Error in `{command.__name__}` converting `{val}` to type `{arg_name}:{type.__name__}`')
+        try:
+            val = fetch(envs, val)
+            return type(val) # if variable
+        except:
+            raise SimError(f'Error in `{command.__name__}` converting `{val}` to type `{arg_name}:{type.__name__}`')
+
+def fetch(envs, name):
+    for env in envs[::-1]:
+        if name in env:
+            return env[name]
+
+aliases = functions.aliases
+commands_by_name = functions.commands_by_name
+types_by_command = functions.types_by_command
+types_by_arg = functions.types_by_arg
