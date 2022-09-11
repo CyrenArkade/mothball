@@ -25,13 +25,16 @@ class Player:
         self.printprecision = 6
 
     def __str__(self) -> str:
-        zstr = str(round(self.z, self.printprecision))
-        xstr = str(round(self.x, self.printprecision))
-        max_length = max(len(zstr), len(xstr))
+        if any([n != 0 for n in (self.x, self.z, self.vx, self.vz)]):
+            xstr = str(round(self.x, self.printprecision))
+            zstr = str(round(self.z, self.printprecision))
+            max_length = max(len(xstr), len(zstr))
 
-        out = f'X = {xstr.ljust(max_length + 5, " ")}Vx = {round(self.vx, self.printprecision)}\n'
-        out +=  f'Z = {zstr.ljust(max_length + 5, " ")}Vz = {round(self.vz, self.printprecision)}'
-        return out
+            out =  f'X = {xstr.ljust(max_length + 5, " ")}Vx = {round(self.vx, self.printprecision)}\n'
+            out += f'Z = {zstr.ljust(max_length + 5, " ")}Vz = {round(self.vz, self.printprecision)}'
+            return out
+        else:
+            return '​\U0001f44d'
     
     def log(self):
         self.history.append((self.x, self.z, self.vx, self.vz))
