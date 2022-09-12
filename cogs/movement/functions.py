@@ -334,7 +334,7 @@ def blocks_to_mm(args):
     elif args['player'].z < 0:
         args['player'].modz += 0.6
 
-@command()
+@command(aliases=['$'])
 def zero(args):
     args['player'].modx -= args['player'].x
     args['player'].modz -= args['player'].z
