@@ -33,8 +33,8 @@ A table of more exotic functions:
 | setposx      | posx, x   | x         | Sets the player's x position                           |
 | setposz      | posz, z   | z         | Sets the player's z position                           |
 | setslip      | slip      | slip      | Sets the player's default ground slipperiness          |
-| Speed        |           | speed     | Sets the player's speed                                |
-| Slowness     | slow      | slowness  | Sets the player's slowness                             |
+| speed        |           | speed     | Sets the player's speed                                |
+| slowness     | slow      | slowness  | Sets the player's slowness                             |
 | angles       | angle     | angles    | Sets the player's default number of significant angles |
 | precision    | pre       | precision | Sets the number of decimals in the output              |
 | inertia      |           | inertia   | Sets the player's inertia threshold                    |
@@ -64,3 +64,11 @@ Adding arguments to functions clearly not designed for them will produce unpredi
 
 ### The repeat function
 The repeat function lets you repeat a function or a series of functions multiple times. An example: `repeat(sprintjump(12), 2)`
+
+## User-Defined Variables and Functions
+
+Custom variables can be defined with the syntax `var(name, val)`. For example, you could define t=12 with `var(t, 12)`, then use the variable with `sprintjump(t)`.
+
+Custom functions can be defined with the syntax `def(name, inputs, *args)`. For example, you could define `def(angled_3bc, -wj(duration, angle) -w(1, angle) | sj(duration, angle), duration, angle)`. You could then call this function with `angled_3bc(11, 0.0054)`
+
+Functions and variables will persist across channels and servers until Mothball restarts.
