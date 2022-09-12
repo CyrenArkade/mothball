@@ -148,11 +148,33 @@ def convert(envs, command, arg_name, val):
     try:
         return type(val) # if normal value
     except:
-        try:
-            val = fetch(envs, val)
-            return type(val) # if variable
-        except:
-            raise SimError(f'Error in `{command.__name__}` converting `{val}` to type `{arg_name}:{type.__name__}`')
+        fetched = fetch(envs, val)
+        
+        if fetched is not None:
+            return type(fetched) # if variable
+
+        # THIS IS AN AWFUL SOLUTION PLEASE CHANGE LATER
+        # EVERYTHING ABOUT THIS IS TERRIBLE BUT I'M LAZY
+        if arg_name == 'rotation' and match(r'^([ws]?[ad]?){1,2}$', val):
+            print(val)
+            if val == 'w':
+                return type(0.0)
+            elif val == 'a':
+                return type(-90.0)
+            elif val == 's':
+                return type(180.0)
+            elif val == 'd':
+                return type(90.0)
+            elif 'w' in val and 'd' in val:
+                return type(45.0)
+            elif 'w' in val and 'a' in val:
+                return type(-45.0)
+            elif 's' in val and 'd' in val:
+                return type(135.0)
+            elif 's' in val and 'a' in val:
+                return type(-135.0)
+
+        raise SimError(f'Error in `{command.__name__}` converting `{val}` to type `{arg_name}:{type.__name__}`')
 
 def fetch(envs, name):
     for env in envs[::-1]:
