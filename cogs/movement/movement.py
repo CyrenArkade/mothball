@@ -8,6 +8,7 @@ from io import BytesIO
 
 async def setup(bot):
     bot.env = {}
+
     await bot.add_cog(Movement(bot))
 
 class Movement(commands.Cog):

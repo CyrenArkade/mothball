@@ -1,6 +1,7 @@
 from xml.sax.saxutils import prepare_input_source
 from numpy import float32 as fl
 import math
+from cogs.movement.utils import fastmath_sin_table
 
 class Player:
 
@@ -170,6 +171,9 @@ class Player:
     def mcsin(self, rad):
         if self.angles == -1:
             return math.sin(rad)
+        elif self.angles == 4096:
+            index = int(rad * fl(651.8986)) & 4095
+            return fastmath_sin_table[index]
         elif self.angles == 65536:
             index = int(rad * fl(10430.378)) & 65535
         else:
@@ -179,6 +183,9 @@ class Player:
     def mccos(self, rad):
         if self.angles == -1:
             return math.cos(rad)
+        elif self.angles == 4096:
+            index = int((rad + fl(Player.pi) / fl(2)) * fl(651.8986)) & 4095
+            return fastmath_sin_table[index]
         elif self.angles == 65536:
             index = int(rad * fl(10430.378) + fl(16384.0)) & 65535
         else:
