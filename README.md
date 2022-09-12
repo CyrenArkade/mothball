@@ -14,7 +14,7 @@ A Discord bot for simulating Minecraft movement.
 Functions must be separated by spaces. They consist of the function name, optionally followed by arguments in parenthesis. Args must be separated by commas.
 
 ### Functions
-Movement names are generally of the format `[stop, sneak, walk, sprint]`​`[air, jump]`​`[45]`. Only the first component is required.
+Movement names are generally of the format `[stop, sneak, walk, sprint]`​`[air, jump]`​`[45]`.  
 These can be shortened down to `[st, sn, w, s]`​`[a, j]`​`[45]`.
 
 Exceptions include the strafe sprintjump variants, which are prefixed with `[l, r]`.
@@ -33,8 +33,8 @@ A table of more exotic functions:
 | setposx      | posx, x   | x         | Sets the player's x position                           |
 | setposz      | posz, z   | z         | Sets the player's z position                           |
 | setslip      | slip      | slip      | Sets the player's default ground slipperiness          |
-| Speed        |           | speed     | Sets the player's speed                                |
-| Slowness     | slow      | slowness  | Sets the player's slowness                             |
+| speed        |           | speed     | Sets the player's speed                                |
+| slowness     | slow      | slowness  | Sets the player's slowness                             |
 | angles       | angle     | angles    | Sets the player's default number of significant angles |
 | precision    | pre       | precision | Sets the number of decimals in the output              |
 | inertia      |           | inertia   | Sets the player's inertia threshold                    |
@@ -46,7 +46,7 @@ Arguments affect only the function in which they are present.
 
 Positional arguments are defined by their positions to one another. Keyworded arguments are given by `argument`​`=`​`value`.
 
-Most movement functions have the positonal args `duration, rotation`, which default to 1 and the player's default rotation, respectively. Many functions include default values for arguments like mov_mult that can be overriden to provide custom behavior.
+Most movement functions have the positonal args `duration, rotation`, which default to 1 and the player's default rotation, respectively. Many functions include default values for arguments like inertia that can be overriden to provide custom behavior.
 
 | Argument  | Alias(es) | Effect                                     |
 |-----------|-----------|--------------------------------------------|
@@ -64,3 +64,14 @@ Adding arguments to functions clearly not designed for them will produce unpredi
 
 ### The repeat function
 The repeat function lets you repeat a function or a series of functions multiple times. An example: `repeat(sprintjump(12), 2)`
+
+## User-Defined Variables and Functions
+
+Custom variables can be defined with the syntax `var(name, val)`.  
+For example, you could define t=12 with `var(t, 12)`, then use the variable with `sprintjump(t)`.
+
+Custom functions can be defined with the syntax `def(name, inputs, *args)`.  
+For example, you could define `def(angled_3bc, -wj(duration, angle) -w(1, angle) | sj(duration, angle), duration, angle)`.  
+You could then call this function with `angled_3bc(11, 0.0054)`
+
+Functions and variables will persist across channels and servers until Mothball restarts.
