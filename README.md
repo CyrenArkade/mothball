@@ -14,7 +14,7 @@ A Discord bot for simulating Minecraft movement.
 Functions must be separated by spaces. They consist of the function name, optionally followed by arguments in parenthesis. Args must be separated by commas.
 
 ### Functions
-Movement names are generally of the format `[stop, sneak, walk, sprint]`​`[air, jump]`​`[45]`. Only the first component is required.
+Movement names are generally of the format `[stop, sneak, walk, sprint]`​`[air, jump]`​`[45]`.  
 These can be shortened down to `[st, sn, w, s]`​`[a, j]`​`[45]`.
 
 Exceptions include the strafe sprintjump variants, which are prefixed with `[l, r]`.
@@ -46,7 +46,7 @@ Arguments affect only the function in which they are present.
 
 Positional arguments are defined by their positions to one another. Keyworded arguments are given by `argument`​`=`​`value`.
 
-Most movement functions have the positonal args `duration, rotation`, which default to 1 and the player's default rotation, respectively. Many functions include default values for arguments like mov_mult that can be overriden to provide custom behavior.
+Most movement functions have the positonal args `duration, rotation`, which default to 1 and the player's default rotation, respectively. Many functions include default values for arguments like inertia that can be overriden to provide custom behavior.
 
 | Argument  | Alias(es) | Effect                                     |
 |-----------|-----------|--------------------------------------------|
@@ -67,8 +67,11 @@ The repeat function lets you repeat a function or a series of functions multiple
 
 ## User-Defined Variables and Functions
 
-Custom variables can be defined with the syntax `var(name, val)`. For example, you could define t=12 with `var(t, 12)`, then use the variable with `sprintjump(t)`.
+Custom variables can be defined with the syntax `var(name, val)`.  
+For example, you could define t=12 with `var(t, 12)`, then use the variable with `sprintjump(t)`.
 
-Custom functions can be defined with the syntax `def(name, inputs, *args)`. For example, you could define `def(angled_3bc, -wj(duration, angle) -w(1, angle) | sj(duration, angle), duration, angle)`. You could then call this function with `angled_3bc(11, 0.0054)`
+Custom functions can be defined with the syntax `def(name, inputs, *args)`.  
+For example, you could define `def(angled_3bc, -wj(duration, angle) -w(1, angle) | sj(duration, angle), duration, angle)`.  
+You could then call this function with `angled_3bc(11, 0.0054)`
 
 Functions and variables will persist across channels and servers until Mothball restarts.
