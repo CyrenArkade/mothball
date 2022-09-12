@@ -306,31 +306,46 @@ def stopjump(args, duration = 1):
 @command(name='|')
 def reset_position(args):
     args['player'].x = 0
+    args['player'].modx = 0
     args['player'].z = 0
+    args['player'].modz = 0
 
 @command(name='b')
 def mm_to_blocks(args):
     if args['player'].x > 0:
-        args['player'].x += 0.6
+        args['player'].modx += 0.6
     elif args['player'].x < 0:
-        args['player'].x -= 0.6
+        args['player'].modx -= 0.6
 
     if args['player'].z > 0:
-        args['player'].z += 0.6
+        args['player'].modz += 0.6
     elif args['player'].z < 0:
-        args['player'].z -= 0.6
+        args['player'].modz -= 0.6
 
 @command(name='mm')
 def blocks_to_mm(args):
     if args['player'].x > 0:
-        args['player'].x -= 0.6
+        args['player'].modx -= 0.6
     elif args['player'].x < 0:
-        args['player'].x += 0.6
+        args['player'].modx += 0.6
 
     if args['player'].z > 0:
-        args['player'].z -= 0.6
+        args['player'].modz -= 0.6
     elif args['player'].z < 0:
-        args['player'].z += 0.6
+        args['player'].modz += 0.6
+
+@command()
+def zero(args):
+    args['player'].modx -= args['player'].x
+    args['player'].modz -= args['player'].z
+
+@command()
+def zerox(args):
+    args['player'].modx -= args['player'].x
+
+@command()
+def zeroz(args):
+    args['player'].modz -= args['player'].z
 
 @command(aliases = ['v'])
 def setv(args, vx = 0.0, vz = 0.0):

@@ -12,6 +12,8 @@ class Player:
         self.z = 0.0
         self.vx = 0.0
         self.vz = 0.0
+        self.modx = 0.0
+        self.modz = 0.0
         self.prev_slip = None
         self.ground_slip = fl(0.6)
         self.angles = 65536
@@ -27,8 +29,8 @@ class Player:
 
     def __str__(self) -> str:
         if any([n != 0 for n in (self.x, self.z, self.vx, self.vz)]):
-            xstr = str(round(self.x, self.printprecision))
-            zstr = str(round(self.z, self.printprecision))
+            xstr = str(round(self.x + self.modx, self.printprecision))
+            zstr = str(round(self.z + self.modz, self.printprecision))
             max_length = max(len(xstr), len(zstr))
 
             out =  f'X = {xstr.ljust(max_length + 5, " ")}Vx = {round(self.vx, self.printprecision)}\n'
@@ -46,7 +48,7 @@ class Player:
     def history_string(self):
         history = ''
         for tick in self.history:
-            history += (f'x/z:({round(tick[0], self.printprecision)}, {round(tick[1], self.printprecision)})'.ljust(15 + 2 * self.printprecision))
+            history += (f'x/z:({round(tick[0]+self.modx, self.printprecision)}, {round(tick[1]+self.modz, self.printprecision)})'.ljust(15 + 2 * self.printprecision))
             history += f'vx/vz:({round(tick[2], self.printprecision)}, {round(tick[3], self.printprecision)})\n'
         return '```' + history + '```'
 
