@@ -48,7 +48,7 @@ class Misc(commands.Cog):
             return
 
         ceiling = f' {ceiling}bc' if ceiling != float_info.max else ''
-        await ctx.send(f'Duration of a {floor:+.1f}b{ceiling} jump:\n**{ticks} ticks**')
+        await ctx.send(f'Duration of a {floor}b{ceiling} jump:\n**{ticks} ticks**')
 
     @commands.command()
     async def height(self, ctx, duration: int = 12, ceiling: float = float_info.max, inertia: float = 0.005, jump_boost: int = 0):
