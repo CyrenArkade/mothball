@@ -17,7 +17,7 @@ class Movement(commands.Cog):
 
         self.msg_links = {}
 
-    def sim(self, input: str, player: Player = None):
+    def sim(self, input: str, player: Player):
 
         execute_string(input, [self.bot.env], player)
         
@@ -43,8 +43,8 @@ class Movement(commands.Cog):
             results = 'Simulation timed out.'
         except SimError as e:
             results = str(e)
-        #except:
-        #    results = 'Something went wrong.'
+        except:
+            results = 'Something went wrong.'
         
         player.clearlogs()
         
