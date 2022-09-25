@@ -1,6 +1,7 @@
-from re import match
+from re import match, search
 import cogs.movement.functions as functions
 from cogs.movement.utils import SimError
+from numpy import float32 as fl
 
 def execute_string(text, envs, player):
     commands_args = string_to_args(text)
@@ -13,16 +14,35 @@ def string_to_args(text):
 
 def execute_args(commands_args, envs, player):
     for command, args in commands_args:
-        reverse = command.startswith('-')
-        if reverse:
+
+
+        # Handle command modifiers
+        modifiers = {}
+        if command.startswith('-'):
             command = command[1:]
+            modifiers.update({'reverse': True})
+        
+        key_modifier = search(r'\.([ws]?[ad]?){1,2}(\.|$)', command)
+        if key_modifier:
+            keys = key_modifier.group(0)[1:]
+
+            if 'w' in keys: modifiers.setdefault('forward', fl(1))
+            if 's' in keys: modifiers.setdefault('forward', fl(-1))
+            if 'a' in keys: modifiers.setdefault('strafe', fl(1))
+            if 'd' in keys: modifiers.setdefault('strafe', fl(-1))
+
+            modifiers.setdefault('forward', fl(0))
+            modifiers.setdefault('strafe', fl(0))
+
+            command = command.replace(key_modifier.group(0), '', 1)
+        # End handling command modifiers
+
         
         if command in commands_by_name: # Normal execution
             command_function = commands_by_name[command]
 
             dict_args = dictize_args(envs, command_function, args)
-            if reverse:
-                dict_args.update({'reverse': True})
+            dict_args.update(modifiers)
             dict_args.update({'player': player})
             dict_args.update({'envs': envs})
 
@@ -56,7 +76,7 @@ def separate_commands(text):
         char = text[i]
 
         if state == 0:
-            if match(r'[\w_\|-]', char):
+            if match(r'[\w_\|\-\.]', char):
                 start = i
                 state = 1
 
@@ -64,7 +84,7 @@ def separate_commands(text):
             if char == '(':
                 depth = 1
                 state = 2
-            elif not match(r'[\w_\|-]', char):
+            elif not match(r'[\w_\|\-\.]', char):
                 player_commands.append(text[start:i])
                 state = 0
 
@@ -152,27 +172,6 @@ def convert(envs, command, arg_name, val):
         
         if fetched is not None:
             return type(fetched) # if variable
-
-        # THIS IS AN AWFUL SOLUTION PLEASE CHANGE LATER
-        # EVERYTHING ABOUT THIS IS TERRIBLE BUT I'M LAZY
-        if arg_name == 'rotation' and match(r'^([ws]?[ad]?){1,2}$', val):
-            print(val)
-            if val == 'w':
-                return type(0.0)
-            elif val == 'a':
-                return type(-90.0)
-            elif val == 's':
-                return type(180.0)
-            elif val == 'd':
-                return type(90.0)
-            elif 'w' in val and 'd' in val:
-                return type(45.0)
-            elif 'w' in val and 'a' in val:
-                return type(-45.0)
-            elif 's' in val and 'd' in val:
-                return type(135.0)
-            elif 's' in val and 'a' in val:
-                return type(-135.0)
 
         raise SimError(f'Error in `{command.__name__}` converting `{val}` to type `{arg_name}:{type.__name__}`')
 
