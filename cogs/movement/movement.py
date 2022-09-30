@@ -70,11 +70,6 @@ class Movement(commands.Cog):
             self.msg_links.update({ctx.message.id: node})
             if continuation:
                 parent.children.append(ctx.message.id)
-    
-    async def cog_check(self, ctx: commands.Context):
-        if ctx.guild.id == 793172726767550484 and ctx.channel.id not in (793172726767550487, 794029948972826704, 880636448678764544):
-            return False
-        return True
 
     @commands.command(aliases=['sim', 's'])
     async def simulate(self, ctx: commands.Context, *, text: str):
