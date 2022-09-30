@@ -75,7 +75,7 @@ class Misc(commands.Cog):
     @commands.command(aliases = ['ji'])
     async def jumpinfo(self, ctx, x: float, z: float = 0.0):
 
-        format = lambda x: round(x, 6)
+        format = lambda x, p = 6: round(x, p)
         if abs(x) < 0.6:
             dx = 0.0
         else:
@@ -100,7 +100,7 @@ class Misc(commands.Cog):
             f'A **{format(x)}b** by **{format(z)}b** block jump:',
             f'Dimensions: **{format(dx)}** by **{format(dz)}**',
             f'Distance: **{format(distance)}** distance -> **{format(distance+0.6)}b** jump',
-            f'Optimal Angle: **{format(angle)}°**'
+            f'Optimal Angle: **{round(angle, 3)}°**'
         ]
 
         await ctx.send('\n'.join(lines))
