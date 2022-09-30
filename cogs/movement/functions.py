@@ -105,6 +105,13 @@ def sneak(args, duration = 1, rotation: fl = None):
     args.setdefault('sneaking', True)
     move(args)
 
+@command(aliases=['sns'])
+def sneaksprint(args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('sneaking', True)
+    args.setdefault('sprinting', True)
+    move(args)
+
 @command(aliases=['w'])
 def walk(args, duration = 1, rotation: fl = None):
     args.setdefault('forward', fl(1))
@@ -120,6 +127,15 @@ def sprint(args, duration = 1, rotation: fl = None):
 def sneak45(args, duration = 1, rotation: fl = None):
     args.setdefault('forward', fl(1))
     args.setdefault('sneaking', True)
+    args.setdefault('strafe', fl(1))
+    args['function_offset'] = fl(45)
+    move(args)
+
+@command(aliases=['sns45'])
+def sneaksprint45(args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('sneaking', True)
+    args.setdefault('sprinting', True)
     args.setdefault('strafe', fl(1))
     args['function_offset'] = fl(45)
     move(args)
@@ -146,6 +162,14 @@ def sneakair(args, duration = 1, rotation: fl = None):
     args.setdefault('airborne', True)
     move(args)
 
+@command(aliases=['snsa'])
+def sneaksprintair(args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('sneaking', True)
+    args.setdefault('sprinting', True)
+    args.setdefault('airborne', True)
+    move(args)
+
 @command(aliases=['wa'])
 def walkair(args, duration = 1, rotation: fl = None):
     args.setdefault('forward', fl(1))
@@ -161,6 +185,15 @@ def sprintair(args, duration = 1, rotation: fl = None):
 
 @command(aliases=['sneakair45', 'sn45a', 'sna45'])
 def sneak45air(args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('sneaking', True)
+    args.setdefault('strafe', fl(1))
+    args['function_offset'] = fl(45)
+    args.setdefault('airborne', True)
+    move(args)
+
+@command(aliases=['sneaksprintair45', 'sns45a', 'snsa45'])
+def sneaksprint45air(args, duration = 1, rotation: fl = None):
     args.setdefault('forward', fl(1))
     args.setdefault('sneaking', True)
     args.setdefault('strafe', fl(1))
@@ -189,6 +222,13 @@ def sprint45air(args, duration = 1, rotation: fl = None):
 def sneakjump(args, duration = 1, rotation: fl = None):
     args.setdefault('forward', fl(1))
     args.setdefault('sneaking', True)
+    jump(args)
+
+@command(aliases=['snsj'])
+def sneaksprintjump(args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('sneaking', True)
+    args.setdefault('sprinting', True)
     jump(args)
 
 @command(aliases=['wj'])
@@ -248,6 +288,15 @@ def rsprintjump(args, duration = 1, rotation: fl = None):
 def sneakjump45(args, duration = 1, rotation: fl = None):
     args.setdefault('forward', fl(1))
     args.setdefault('sneaking', True)
+    args.setdefault('strafe', fl(1))
+    args['function_offset'] = fl(45)
+    jump(args)
+
+@command(aliases=['snsj45'])
+def sneaksprintjump45(args, duration = 1, rotation: fl = None):
+    args.setdefault('forward', fl(1))
+    args.setdefault('sneaking', True)
+    args.setdefault('sprinting', True)
     args.setdefault('strafe', fl(1))
     args['function_offset'] = fl(45)
     jump(args)
