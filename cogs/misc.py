@@ -100,7 +100,7 @@ class Misc(commands.Cog):
             f'A **{format(x)}b** by **{format(z)}b** block jump:',
             f'Dimensions: **{format(dx)}** by **{format(dz)}**',
             f'Distance: **{format(distance)}** distance -> **{format(distance+0.6)}b** jump',
-            f'Optimal Angle: **{round(angle, 3)}°**'
+            f'Optimal Angle: **{angle:.3f}°**'
         ]
 
         await ctx.send('\n'.join(lines))
