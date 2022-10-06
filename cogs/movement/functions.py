@@ -458,3 +458,7 @@ def offsetrotation(args, rotation = fl(0)):
 @command(aliases = ['ssand', 'ss'])
 def soulsand(args, soulsand = 1):
     args['player'].soulsand = soulsand
+
+@command()
+def macro(args, name = 'macro'):
+    args['player'].macro = name

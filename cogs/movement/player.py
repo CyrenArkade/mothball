@@ -24,6 +24,9 @@ class Player:
         self.speed = 0
         self.slowness = 0
 
+        self.macro = None
+        self.input_history = []
+        self.prev_rotation = None
         self.history = []
         self.printprecision = 6
 
@@ -39,9 +42,6 @@ class Player:
         else:
             return '​\U0001f44d'
     
-    def log(self):
-        self.history.append((self.x, self.z, self.vx, self.vz))
-    
     def clearlogs(self):
         self.history = []
     
@@ -51,6 +51,10 @@ class Player:
             history += (f'x/z:({round(tick[0]+self.modx, self.printprecision)}, {round(tick[1]+self.modz, self.printprecision)})'.ljust(15 + 2 * self.printprecision))
             history += f'vx/vz:({round(tick[2], self.printprecision)}, {round(tick[3], self.printprecision)})\n'
         return '```' + history + '```'
+    
+    def macro_csv(self):
+        top = 'X,Y,Z,YAW,PITCH,ANGLE_X,ANGLE_Y,W,A,S,D,SPRINT,SNEAK,JUMP,LMB,RMB,VEL_X,VEL_Y,VEL_Z'
+        return '\n'.join([top] + self.input_history)
 
     def softcopy(self):
         other = Player()
@@ -168,7 +172,21 @@ class Player:
         # end of arcane fuckery
 
         self.prev_slip = slip
-        self.log()
+        self.history.append((self.x, self.z, self.vx, self.vz))
+        
+        w = a = s = d = 'false'
+        if forward > 0: w = 'true'
+        if forward < 0: s = 'true'
+        if strafe > 0: a = 'true'
+        if strafe < 0: d = 'true'
+        input_str = f'{w},{a},{s},{d},{str(sprinting).lower()},{str(sneaking).lower()},{str(jumping).lower()}'
+
+        if self.prev_rotation is None:
+            turn = 0
+        else:
+            turn = rotation - self.prev_rotation
+        self.input_history.append(f'0.0,0.0,0.0,0.0,0.0,{turn},0.0,{input_str},false,false, 0.0, 0.0, 0.0')
+        self.prev_rotation = rotation
 
     def mcsin(self, rad):
         if self.angles == -1:

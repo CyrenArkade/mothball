@@ -47,24 +47,21 @@ class Movement(commands.Cog):
             results = 'Something went wrong.'
         
         player.clearlogs()
+
+        if player.macro:
+            buffer = BytesIO(player.macro_csv().encode('utf8'))
+            kwargs = {'content': results, 'file': discord.File(fp=buffer, filename=f'{player.macro}.csv')}
+        elif len(results) > 1990:
+            buffer = BytesIO(results.encode('utf8'))
+            kwargs = {'content': 'Uploaded output to file since output was too long.', 'file': discord.File(fp=buffer, filename='output.txt')}
+        else:
+            kwargs = {'content': results}
         
         if edit:
-
-            if len(results) > 1990:
-                buffer = BytesIO(results.encode("utf8"))
-                await edit.botmsg.edit(content="Uploaded output to file since output was too long.", file=discord.File(fp=buffer, filename='output.txt'))
-            else:
-                await edit.botmsg.edit(content=results)
-
-            await edit.botmsg.edit(content=results)
+            await edit.botmsg.edit(**kwargs)
             self.msg_links[edit.msgid].player = player.softcopy()
         else:
-
-            if len(results) > 1990:
-                buffer = BytesIO(results[3:-3].encode("utf8"))
-                botmsg = await ctx.channel.send(content="Uploaded output to file since output was too long.", file=discord.File(fp=buffer, filename='output.txt'))
-            else:
-                botmsg = await ctx.channel.send(results)
+            botmsg = await ctx.channel.send(**kwargs)
 
             node = SimNode(ctx.message.id, botmsg, player)
             self.msg_links.update({ctx.message.id: node})
