@@ -44,6 +44,7 @@ class Player:
     
     def clearlogs(self):
         self.history = []
+        self.input_history = []
     
     def history_string(self):
         history = ''

@@ -30,6 +30,7 @@ class Movement(commands.Cog):
         else:
             player = Player()
         
+        errored = True
         try:
             task = asyncio.to_thread(self.sim, input, player)
             player = await asyncio.wait_for(task, timeout=self.bot.params['sim_timeout'])
@@ -38,6 +39,8 @@ class Movement(commands.Cog):
                 results = player.history_string()
             else:
                 results = str(player)
+
+            errored = False
 
         except asyncio.TimeoutError:
             results = 'Simulation timed out.'
@@ -56,6 +59,9 @@ class Movement(commands.Cog):
             kwargs = {'content': 'Uploaded output to file since output was too long.', 'file': discord.File(fp=buffer, filename='output.txt')}
         else:
             kwargs = {'content': results}
+
+        if errored:
+            kwargs.pop('file', None)
         
         if edit:
             await edit.botmsg.edit(**kwargs)
