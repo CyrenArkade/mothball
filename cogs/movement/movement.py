@@ -48,8 +48,6 @@ class Movement(commands.Cog):
             results = str(e)
         except:
             results = 'Something went wrong.'
-        
-        player.clearlogs()
 
         if player.macro:
             buffer = BytesIO(player.macro_csv().encode('utf8'))
@@ -73,6 +71,8 @@ class Movement(commands.Cog):
             self.msg_links.update({ctx.message.id: node})
             if continuation:
                 parent.children.append(ctx.message.id)
+        
+        player.clearlogs()
 
     @commands.command(aliases=['sim', 's'])
     async def simulate(self, ctx: commands.Context, *, text: str):
