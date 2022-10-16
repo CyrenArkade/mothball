@@ -21,6 +21,8 @@ class Mothball(commands.Bot):
     async def on_message(self, msg: discord.Message):
         if msg.author.id in self.params['banned']:
             return
+        elif isinstance(msg.channel, discord.DMChannel):
+            return
         await self.process_commands(msg)
 
 def command_prefix(bot, msg: discord.Message):
