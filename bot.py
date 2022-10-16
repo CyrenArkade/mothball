@@ -17,6 +17,11 @@ class Mothball(commands.Bot):
         await self.load_extension('cogs.admin')
         await self.load_extension('cogs.misc')
         await self.load_extension('cogs.movement.movement')
+    
+    async def on_message(self, msg: discord.Message):
+        if msg.author.id in self.params['banned']:
+            return
+        await self.process_commands(msg)
 
 def command_prefix(bot, msg: discord.Message):
     return bot.params['prefix']
