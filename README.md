@@ -75,3 +75,16 @@ For example, you could define `def(angled_3bc, -wj(duration, angle) -w(1, angle)
 You could then call this function with `angled_3bc(11, 0.0054)`
 
 Functions and variables will persist across channels and servers until Mothball restarts.
+
+## Input-based Functions
+
+You may modify a movement function's keypresses with the syntax `function`​`keys`.  
+For example, `sprint(4, 10).wd` would sprint with WD for 4 ticks facing 10.
+
+## Macros
+
+MPK Mod macros can be made by adding the argumentless macro function anywhere in a command.  
+For example `wj.sd(12, 35) w.sd(1, 35) sj.wa(1, 35) s45a(11) | sj45(14) b macro`
+You may also provide the macro function a name with macro(name)
+
+Macros will not account for sprinting in air starting a tick late.
