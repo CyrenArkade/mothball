@@ -79,7 +79,7 @@ Functions and variables will persist across channels and servers until Mothball 
 ## Input-based Functions
 
 You may modify a movement function's keypresses with the syntax `function`​`keys`.  
-For example, `sprint(4, 10).wd` would sprint with WD for 4 ticks facing 10.
+For example, `sprint.wd(4, 10)` would sprint with WD for 4 ticks facing 10.
 
 ## Macros
 
