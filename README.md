@@ -84,7 +84,7 @@ For example, `sprint.wd(4, 10)` would sprint with WD for 4 ticks facing 10.
 ## Macros
 
 MPK Mod macros can be made by adding the argumentless macro function anywhere in a command.  
-For example `wj.sd(12, 35) w.sd(1, 35) sj.wa(1, 35) s45a(11) | sj45(14) b macro`
+For example, this simulates 1bm 5-1: `wj.sd(12, 35) w.sd(1, 35) sj.wa(1, 35) s45a(11) | sj45(14) b macro`  
 You may also provide the macro function a name with macro(name)
 
 Macros will not account for sprinting in air starting a tick late.
