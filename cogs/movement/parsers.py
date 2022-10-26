@@ -100,7 +100,9 @@ def separate_commands(text):
     # Handle unfinished parsing of argumentless commands
     if state == 1:
         player_commands.append(text[start:])
-    
+    elif state == 2:
+        raise SimError('Unmatched parenthesis')
+
     return player_commands
 
 def argumentatize_command(command):
