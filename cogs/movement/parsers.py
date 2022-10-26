@@ -132,6 +132,7 @@ def argumentatize_command(command):
 
 def dictize_args(envs, command, str_args):
     out = {}
+    out.setdefault('pos_args', [])
 
     command_types = list(types_by_command[command].keys())
 
@@ -149,7 +150,6 @@ def dictize_args(envs, command, str_args):
             positional_index += 1
 
         else: # extra positional args
-            out.setdefault('pos_args', [])
             out['pos_args'].append(arg)
 
         out.update({arg_name: arg_val})
