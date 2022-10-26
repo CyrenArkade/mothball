@@ -101,7 +101,7 @@ def separate_commands(text):
     if state == 1:
         player_commands.append(text[start:])
     elif state == 2:
-        raise SimError('Unmatched parenthesis')
+        raise SimError('Unexpected EOF (Unmatched opening parenthesis)')
 
     return player_commands
 
