@@ -1,5 +1,5 @@
 from xml.sax.saxutils import prepare_input_source
-from numpy import float32 as fl
+from numpy import float32 as fl, format_float_positional
 import math
 from cogs.movement.utils import fastmath_sin_table
 
@@ -30,14 +30,18 @@ class Player:
         self.history = []
         self.printprecision = 6
 
+    def format(self, num):
+        return format_float_positional(num, trim='-', precision=self.printprecision)
+
     def __str__(self) -> str:
+
         if any([n != 0 for n in (self.x, self.z, self.vx, self.vz)]):
-            xstr = str(round(self.x + self.modx, self.printprecision))
-            zstr = str(round(self.z + self.modz, self.printprecision))
+            xstr = self.format(self.x + self.modx)
+            zstr = self.format(self.z + self.modz)
             max_length = max(len(xstr), len(zstr))
 
-            out =  f'X = {xstr.ljust(max_length + 5, " ")}Vx = {round(self.vx, self.printprecision)}\n'
-            out += f'Z = {zstr.ljust(max_length + 5, " ")}Vz = {round(self.vz, self.printprecision)}'
+            out =  f'X = {xstr.ljust(max_length + 5, " ")}Vx = {self.format(self.vx)}\n'
+            out += f'Z = {zstr.ljust(max_length + 5, " ")}Vz = {self.format(self.vz)}'
             return out
         else:
             return '​\U0001f44d'
@@ -49,8 +53,8 @@ class Player:
     def history_string(self):
         history = ''
         for tick in self.history:
-            history += (f'x/z:({round(tick[0]+self.modx, self.printprecision)}, {round(tick[1]+self.modz, self.printprecision)})'.ljust(15 + 2 * self.printprecision))
-            history += f'vx/vz:({round(tick[2], self.printprecision)}, {round(tick[3], self.printprecision)})\n'
+            history += (f'x/z:({self.format(tick[0]+self.modx)}, {self.format(tick[1]+self.modz)})'.ljust(15 + 2 * self.printprecision))
+            history += f'vx/vz:({self.format(tick[2])}, {self.format(tick[3])})\n'
         return '```' + history + '```'
     
     def macro_csv(self):
