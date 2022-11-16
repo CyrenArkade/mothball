@@ -23,6 +23,10 @@ class Mothball(commands.Bot):
             return
         elif isinstance(msg.channel, discord.DMChannel):
             return
+        
+        if msg.content.startswith(';;'):
+            msg.content = msg.content[:2] + ' ' + msg.content[2:]
+
         await self.process_commands(msg)
 
 def command_prefix(bot, msg: discord.Message):
