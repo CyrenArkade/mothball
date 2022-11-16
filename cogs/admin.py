@@ -39,7 +39,7 @@ class Admin(commands.Cog):
         
         await self.bot.close()
 
-    @commands.command()
+    @commands.command(aliases=[';'])
     async def py(self, ctx: commands.Context, *, text: str):
 
         env = {
