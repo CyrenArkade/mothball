@@ -16,7 +16,7 @@ class Misc(commands.Cog):
         def filt(msg):
             if msg.author.bot:
                 return False
-            if any([msg.content.lower().startswith(x) for x in ('m!', '^', '$', '<@520282851925688321>')]):
+            if any([msg.content.lower().startswith(x) for x in ('m!', 'p!', '^', '$', '<@520282851925688321>')]):
                 return False
             if len(msg.content) == 1:
                 return False
