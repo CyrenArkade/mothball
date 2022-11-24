@@ -42,6 +42,7 @@ class Misc(commands.Cog):
 
             if ticks > 5000:
                 await ctx.send('Simulation limit reached.')
+                return
     
         if vy >= 0:
             await ctx.send('Impossible jump height. Too high.')
@@ -67,6 +68,7 @@ class Misc(commands.Cog):
 
             if i > 5000:
                 await ctx.send('Simulation limit reached.')
+                return
         
         outstring = f' with a {ceiling}bc' if ceiling != float_info.max else ''
         
@@ -83,6 +85,7 @@ class Misc(commands.Cog):
         jump_ys = [init_height]
         max_heights = []
         vy_prev = 0
+        i = 0
 
         while blips_done < blips or vy > 0:
 
@@ -100,7 +103,12 @@ class Misc(commands.Cog):
             if vy_prev > 0 and vy <= 0:
                 max_heights.append(y)
 
+            if i > 5000:
+                await ctx.send('Simulation limit reached.')
+                return
+
             vy_prev = vy
+            i += 1
 
         out = '\n'.join([
             f'Blips: {blips}',
