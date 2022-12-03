@@ -121,7 +121,7 @@ class Misc(commands.Cog):
         out = '\n'.join([
             f'Blips: {blips_done}',
             f'Blip height: {blip_height:.6f}',
-            f'Initial y: {y:.6f}',
+            f'Initial y: {init_height:.6f}',
             f'Initial vy: {init_vy:.6f}',
             f'```Blip | Jumped From | Max Height'
         ])
