@@ -95,13 +95,13 @@ class Misc(commands.Cog):
             vy = (vy - 0.08) * 0.98
 
             if y + vy < blip_height:
-                
-                jump_ys.append(y)
 
                 if y + vy > 0:
                     max_heights.append('Fail')
+                    jump_ys.append(y + vy)
                     break
                 
+                jump_ys.append(y)
                 vy = 0.42
                 blips_done += 1
             
