@@ -75,9 +75,11 @@ class Misc(commands.Cog):
         await ctx.send(f'Height after {duration} ticks{outstring}:\n **{round(y, 6)}**')
 
     @commands.command()
-    async def blip(self, ctx, blips = 1, blip_height = 0.0625, init_height = None, init_vy = 0.42):
+    async def blip(self, ctx, blips: int = 1, blip_height: int = 0.0625, init_height: float = None, init_vy: float = None, inertia: float = 0.005, jump_boost: int = 0):
         if init_height is None:
             init_height = blip_height
+        if init_vy is None:
+            init_vy = 0.42 + 0.1 * jump_boost
         
         blips_done = 0
         vy = init_vy
@@ -93,11 +95,17 @@ class Misc(commands.Cog):
             vy = (vy - 0.08) * 0.98
 
             if y + vy < blip_height:
-                vy = 0.42
+                
                 jump_ys.append(y)
+
+                if y + vy > 0:
+                    max_heights.append('Fail')
+                    break
+                
+                vy = 0.42
                 blips_done += 1
             
-            if abs(vy) < 0.005:
+            if abs(vy) < inertia:
                 vy = 0
 
             if vy_prev > 0 and vy <= 0:
@@ -111,7 +119,7 @@ class Misc(commands.Cog):
             i += 1
 
         out = '\n'.join([
-            f'Blips: {blips}',
+            f'Blips: {blips_done}',
             f'Blip height: {blip_height:.6f}',
             f'Initial y: {y:.6f}',
             f'Initial vy: {init_vy:.6f}',
@@ -119,10 +127,10 @@ class Misc(commands.Cog):
         ])
 
         num_col_width = len(str(blips))
-        for i in range(0, blips+1):
+        for i in range(0, len(jump_ys)):
             num = f'{i:0{num_col_width}}'.ljust(4)
             jumped_from = f'{jump_ys[i]:<11.6f}'
-            max_height = f'{max_heights[i]:<10.6f}'
+            max_height = f'{max_heights[i]:<10.6f}' if type(max_heights[i]) == float else max_heights[i]
             out += (f'\n{num} | {jumped_from} | {max_height}')
         out += '```'
         
