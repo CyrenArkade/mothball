@@ -75,7 +75,7 @@ class Misc(commands.Cog):
         await ctx.send(f'Height after {duration} ticks{outstring}:\n **{round(y, 6)}**')
 
     @commands.command()
-    async def blip(self, ctx, blips: int = 1, blip_height: int = 0.0625, init_height: float = None, init_vy: float = None, inertia: float = 0.005, jump_boost: int = 0):
+    async def blip(self, ctx, blips: int = 1, blip_height: float = 0.0625, init_height: float = None, init_vy: float = None, inertia: float = 0.005, jump_boost: int = 0):
         if init_height is None:
             init_height = blip_height
         if init_vy is None:
@@ -120,9 +120,9 @@ class Misc(commands.Cog):
 
         out = '\n'.join([
             f'Blips: {blips_done}',
-            f'Blip height: {blip_height:.6f}',
-            f'Initial y: {init_height:.6f}',
-            f'Initial vy: {init_vy:.6f}',
+            f'Blip height: {round(blip_height, 6)}',
+            f'Initial y: {round(init_height, 6)}',
+            f'Initial vy: {round(init_vy, 6)}',
             f'```Blip | Jumped From | Max Height'
         ])
 
