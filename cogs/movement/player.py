@@ -150,7 +150,7 @@ class Player:
             self.vx -= self.mcsin(facing) * fl(0.2)
             self.vz += self.mccos(facing) * fl(0.2)
 
-        # arcane fuckery
+        # Applies sneaking
         if sneaking:
             forward = fl(float(forward) * 0.3)
             strafe = fl(float(strafe) * 0.3)
@@ -160,21 +160,24 @@ class Player:
 
         distance = fl(strafe * strafe + forward * forward)
 
+        # The if avoids division by zero 
         if distance >= fl(0.0001):
 
+            # Normalizes distance vector only if above 1
             distance = fl(math.sqrt(float(distance)))
             if distance < fl(1.0):
                 distance = fl(1.0)
 
+            # Modifies strafe and forward to account for movement
             distance = movement / distance
             strafe = strafe * distance
             forward = forward * distance
 
+            # Adds rotated vectors to velocity
             sin_yaw = fl(self.mcsin(rotation * fl(Player.pi) / fl(180.0)))
             cos_yaw = fl(self.mccos(rotation * fl(Player.pi) / fl(180.0)))
             self.vx += float(strafe * cos_yaw - forward * sin_yaw)
             self.vz += float(forward * cos_yaw + strafe * sin_yaw)
-        # end of arcane fuckery
 
         self.prev_slip = slip
         self.history.append((self.x, self.z, self.vx, self.vz))
