@@ -208,11 +208,12 @@ class Misc(commands.Cog):
         return True
     
     def is_poll(self, msg):
-        return all([
-            msg.channel.id == 794109972609761310,
-            msg.author.id == 988081422839480351,
-            len(msg.embeds) == 1 and msg.embeds[0].title.startswith('Poll')
-        ])
+        return \
+            msg.channel.id == 794109972609761310 and \
+            msg.author.id == 988081422839480351 and \
+            len(msg.embeds) == 1 and \
+            msg.embeds[0].title is not None and \
+            msg.embeds[0].title.startswith('Poll')
 
     async def asyncsearch(self, ctx, channel, target, list):
         if not isinstance(channel, discord.TextChannel) or not channel.permissions_for(ctx.guild.me).read_message_history:
