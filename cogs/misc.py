@@ -12,16 +12,6 @@ async def setup(bot):
 class Misc(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-        def filt(msg):
-            if msg.author.bot:
-                return False
-            if any([msg.content.lower().startswith(x) for x in ('m!', 'p!', '^', '$', '<@520282851925688321>')]):
-                return False
-            if len(msg.content) == 1:
-                return False
-            return True
-        bot._filter = filt
     
     @commands.command(aliases=['d'])
     async def duration(self, ctx, floor: float = 0.0, ceiling: float = float_info.max, inertia: float = 0.005, jump_boost: int = 0):
@@ -183,13 +173,20 @@ class Misc(commands.Cog):
                 tasks.append(self.asyncsearch(ctx, channel, target, messages))
             await asyncio.gather(*tasks)
 
-            messages = filter(self.bot._filter, messages)
+            messages = filter(self.quote_filter, messages)
             msg = min(messages, key=lambda x: abs(target - x.created_at))
 
-        em = discord.Embed(description=f"{msg.content}", timestamp=msg.created_at, color=msg.author.color)
-        em.set_author(name=msg.author.display_name, icon_url=msg.author.display_avatar.url)
-        em.description += f"\n\n[Jump to message]({msg.jump_url})"
-        em.set_footer(text="#" + msg.channel.name)
+        if self.is_poll(msg):
+            src_em = msg.embeds[0]
+            em = discord.Embed(description=src_em.description, timestamp=msg.created_at, color=src_em.color)
+            em.set_author(name=src_em.author.name, icon_url=src_em.author.icon_url)
+            em.description += f"\n\n[Jump to poll]({msg.jump_url})"
+            em.set_footer(text="#" + msg.channel.name)
+        else:
+            em = discord.Embed(description=msg.content, timestamp=msg.created_at, color=msg.author.color)
+            em.set_author(name=msg.author.display_name, icon_url=msg.author.display_avatar.url)
+            em.description += f"\n\n[Jump to message]({msg.jump_url})"
+            em.set_footer(text="#" + msg.channel.name)
 
         await ctx.send(embed=em)
 
@@ -197,7 +194,26 @@ class Misc(commands.Cog):
     async def err(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.send('wait bitch')
+        else:
+            raise error
+
+    def quote_filter(self, msg):
+        if msg.author.bot:
+            if not self.is_poll(msg):
+                return False
+        if any([msg.content.lower().startswith(x) for x in ('m!', 'p!', '^', '$', '<@520282851925688321>')]):
+            return False
+        if len(msg.content) == 1:
+            return False
+        return True
     
+    def is_poll(self, msg):
+        return all([
+            msg.channel.id == 794109972609761310,
+            msg.author.id == 988081422839480351,
+            len(msg.embeds) == 1 and msg.embeds[0].title.startswith('Poll')
+        ])
+
     async def asyncsearch(self, ctx, channel, target, list):
         if not isinstance(channel, discord.TextChannel) or not channel.permissions_for(ctx.guild.me).read_message_history:
             return
