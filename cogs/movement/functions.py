@@ -462,3 +462,7 @@ def soulsand(args, soulsand = 1):
 @command()
 def macro(args, name = 'macro'):
     args['player'].macro = name
+
+@command(aliases = ['speedvec', 'vector', 'vec'])
+def speedvector(args):
+    args['player'].vec = True
