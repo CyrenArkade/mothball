@@ -2,13 +2,15 @@
 A Discord bot for simulating Minecraft movement.
 
 ## Commands
-`;[simulate | sim | s]`​`functions` Simulates the provided functions and displays the final result.
-
-`;[history | h]`​`functions` Simulates the provided functions and displays tick by tick results.
-
-`;[then | t]`​`functions` Continues simulation from the reply and displays the final result.
-
+`;[simulate | sim | s]`​`functions` Simulates the provided functions and displays the final result.  
+`;[history | h]`​`functions` Simulates the provided functions and displays tick by tick results.  
+`;[then | t]`​`functions` Continues simulation from the reply and displays the final result.  
 `;[thenh | th]`​`functions` Continues simulation from the reply and displays tick by tick results.
+
+`;jumpinfo z, x=0`  
+`;duration floor=0, ceiling=inf, inertia=0.005, jump_boost=0`  
+`;height ticks=0, ceiling=inf, inertia=0.005, jump_boost=0`  
+`;blip num_blips=1, blip_height=0.0625, init_height=blip_height, init_vy=(0.42+jump_boost), inertia=0.005, jump_boost=0`
 
 ## Function Syntax
 Functions must be separated by spaces. They consist of the function name, optionally followed by arguments in parenthesis. Args must be separated by commas.
