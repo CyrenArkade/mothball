@@ -5,58 +5,57 @@ from numpy import float32 as fl
 
 def execute_string(text, envs, player):
     commands_args = string_to_args(text)
-    execute_args(commands_args, envs, player)
+    for command, args in commands_args:
+        execute_command(envs, player, command, args)
     
 def string_to_args(text):
     commands_str_list = separate_commands(text)
     commands_args = [argumentatize_command(command) for command in commands_str_list]
     return commands_args
 
-def execute_args(commands_args, envs, player):
-    for command, args in commands_args:
+def execute_command(envs, player, command, args):
 
+    # Handle command modifiers
+    modifiers = {}
+    if command.startswith('-'):
+        command = command[1:]
+        modifiers.update({'reverse': True})
+    
+    key_modifier = search(r'\.([ws]?[ad]?){1,2}(\.|$)', command)
+    if key_modifier:
+        keys = key_modifier.group(0)[1:]
 
-        # Handle command modifiers
-        modifiers = {}
-        if command.startswith('-'):
-            command = command[1:]
-            modifiers.update({'reverse': True})
+        if 'w' in keys: modifiers.setdefault('forward', fl(1))
+        if 's' in keys: modifiers.setdefault('forward', fl(-1))
+        if 'a' in keys: modifiers.setdefault('strafe', fl(1))
+        if 'd' in keys: modifiers.setdefault('strafe', fl(-1))
+
+        modifiers.setdefault('forward', fl(0))
+        modifiers.setdefault('strafe', fl(0))
+
+        command = command.replace(key_modifier.group(0), '', 1)
+    # End handling command modifiers
+
+    
+    if command in commands_by_name: # Normal execution
+        command_function = commands_by_name[command]
+
+        dict_args = dictize_args(envs, command_function, args)
+        dict_args.update(modifiers)
+        dict_args.update({'player': player})
+        dict_args.update({'envs': envs})
+
+        command_function(dict_args)
+
+    else: # CommandNotFound or user-defined function
+        user_func = fetch(envs, command)
         
-        key_modifier = search(r'\.([ws]?[ad]?){1,2}(\.|$)', command)
-        if key_modifier:
-            keys = key_modifier.group(0)[1:]
-
-            if 'w' in keys: modifiers.setdefault('forward', fl(1))
-            if 's' in keys: modifiers.setdefault('forward', fl(-1))
-            if 'a' in keys: modifiers.setdefault('strafe', fl(1))
-            if 'd' in keys: modifiers.setdefault('strafe', fl(-1))
-
-            modifiers.setdefault('forward', fl(0))
-            modifiers.setdefault('strafe', fl(0))
-
-            command = command.replace(key_modifier.group(0), '', 1)
-        # End handling command modifiers
-
+        if user_func is None:
+            raise SimError(f'Command `{command}` not found')
         
-        if command in commands_by_name: # Normal execution
-            command_function = commands_by_name[command]
+        new_env = dict([(var, val) for var, val in zip(user_func.arg_names, args)])
 
-            dict_args = dictize_args(envs, command_function, args)
-            dict_args.update(modifiers)
-            dict_args.update({'player': player})
-            dict_args.update({'envs': envs})
-
-            command_function(dict_args)
-
-        else: # CommandNotFound or user-defined function
-            user_func = fetch(envs, command)
-            
-            if user_func is None:
-                raise SimError(f'Command `{command}` not found')
-            
-            new_env = dict([(var, val) for var, val in zip(user_func.arg_names, args)])
-
-            execute_args(user_func.args, envs + [new_env], player)
+        execute_args(user_func.args, envs + [new_env], player)
 
 
 
@@ -168,14 +167,20 @@ def convert(envs, command, arg_name, val):
     else:
         raise SimError(f'Unknown argument `{arg_name}`')
     try:
-        return type(val) # if normal value
+        return cast(type, val) # if normal value
     except:
         fetched = fetch(envs, val)
         
         if fetched is not None:
-            return type(fetched) # if variable
+            return cast(type, fetched) # if variable
 
         raise SimError(f'Error in `{command.__name__}` converting `{val}` to type `{arg_name}:{type.__name__}`')
+
+def cast(type, val):
+    if type == bool:
+        return val.lower() not in ('f', 'false', 'no', 'n', '0')
+    else:
+        return type(val)
 
 def fetch(envs, name):
     for env in envs[::-1]:

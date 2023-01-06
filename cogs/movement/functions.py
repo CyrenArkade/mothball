@@ -2,6 +2,7 @@ from numpy import float32 as fl
 from math import atan2, degrees, sqrt
 from inspect import signature
 from functools import wraps
+from types import MethodType
 import cogs.movement.parsers as parsers
 from cogs.movement.utils import Function
 
@@ -79,11 +80,12 @@ def jump(args, after_jump_tick = lambda: None):
 
 
 @command(aliases=['rep', 'r'])
-def repeat(args, input = '', n = 1):
-    commands_args = parsers.string_to_args(input)
+def repeat(args, inputs = '', n = 1):
+    commands_args = parsers.string_to_args(inputs)
     
     for _ in range(n):
-        parsers.execute_args(commands_args, args['envs'], args['player'])
+        for command, cmd_args in commands_args:
+            parsers.execute_command(args['envs'], args['player'], command, cmd_args)
 
 @command(aliases=['def'])
 def define(args, name = '', input = ''):
@@ -386,10 +388,10 @@ def blocks_to_mm(args):
 
 @command(name='outxmm', aliases=['xmm'])
 def x_mm(args):
-    args['player'].out += f"X MM: {args['player'].format(args['player'].x + (-0.6 if args['player'].x > 0 else 0.6))}\n"
+    args['player'].out += f"X mm: {args['player'].format(args['player'].x + (-0.6 if args['player'].x > 0 else 0.6))}\n"
 @command(name='outzmm', aliases=['zmm'])
 def z_mm(args):
-    args['player'].out += f"Z MM: {args['player'].format(args['player'].z + (-0.6 if args['player'].z > 0 else 0.6))}\n"
+    args['player'].out += f"Z mm: {args['player'].format(args['player'].z + (-0.6 if args['player'].z > 0 else 0.6))}\n"
 
 @command(name='outxb', aliases=['xb'])
 def x_b(args):
@@ -484,3 +486,36 @@ def speedvector(args):
     speed = sqrt(args['player'].vx**2 + args['player'].vz**2)
     args['player'].out += f"Angle: {args['player'].format(angle)}\n"
     args['player'].out += f"Speed: {args['player'].format(speed)}"
+
+@command(aliases = ["poss"])
+def possibilities(args, inputs = '', mindistance = 0.01, offset = 0.0):
+    
+    player = args['player']
+    format = player.format
+    old_move = player.move
+
+    tick = 1
+    def move(self, args):
+        nonlocal tick, old_move
+
+        old_move(args)
+
+        player_blocks = player.z - (-0.6 if player.z > 0 else 0.6) - offset
+        jump_pixels = int(player_blocks / 0.0625)
+        jump_blocks = jump_pixels * 0.0625
+        poss_by = player_blocks - jump_blocks
+
+        if poss_by < mindistance:
+            player.out += f'Tick {tick}: {format(poss_by)} ({format(jump_blocks)}b)\n'
+        
+        tick += 1
+    
+    player.out += '```'
+    player.move = MethodType(move, player)
+    
+    commands_args = parsers.string_to_args(inputs)
+    for command, cmd_args in commands_args:
+        parsers.execute_command(args['envs'], player, command, cmd_args)
+    
+    player.out += '```'
+    player.move = old_move
