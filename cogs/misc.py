@@ -223,7 +223,7 @@ class Misc(commands.Cog):
         list.extend(msg)
 
     @commands.command()
-    async def love(ctx, user: typing.Optional[discord.User] = None, target: int = 100):
+    async def love(self, ctx, user: typing.Optional[discord.User] = None, target: int = 100):
 
         if user == None:
             user = ctx.author
