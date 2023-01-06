@@ -25,7 +25,7 @@ class Player:
         self.slowness = 0
 
         self.macro = None
-        self.vec = False
+        self.out = ''
         self.input_history = []
         self.prev_rotation = None
         self.history = []
@@ -36,27 +36,25 @@ class Player:
 
     def __str__(self) -> str:
 
-        if any([n != 0 for n in (self.x, self.z, self.vx, self.vz)]) or self.info != '':
-            xstr = self.format(self.x + self.modx)
-            zstr = self.format(self.z + self.modz)
-            max_length = max(len(xstr), len(zstr))
+        if self.out == '':
+            if any([n != 0 for n in (self.x, self.z, self.vx, self.vz)]):
+                self.out += self.default_string()
+            else:
+                self.out += '​\U0001f44d'
 
-            out =  f'X = {xstr.ljust(max_length + 5, " ")}Vx = {self.format(self.vx)}\n'
-            out += f'Z = {zstr.ljust(max_length + 5, " ")}Vz = {self.format(self.vz)}\n'
-            
-            if self.vec:
-                angle = math.degrees(math.atan2(-self.vx, self.vz))
-                speed = math.sqrt(self.vx**2 + self.vz**2)
-                out += f"Angle: {self.format(angle)}\n"
-                out += f"Speed: {self.format(speed)}"
-            
-            return out
-        else:
-            return '​\U0001f44d'
+        return self.out
     
     def clearlogs(self):
         self.history = []
         self.input_history = []
+    
+    def default_string(self):
+        xstr = self.format(self.x + self.modx)
+        zstr = self.format(self.z + self.modz)
+        max_length = max(len(xstr), len(zstr))
+        out =  f'X = {xstr.ljust(max_length + 5, " ")}Vx = {self.format(self.vx)}\n'
+        out += f'Z = {zstr.ljust(max_length + 5, " ")}Vz = {self.format(self.vz)}\n'
+        return out
     
     def history_string(self):
         history = ''

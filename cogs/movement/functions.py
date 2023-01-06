@@ -1,4 +1,5 @@
 from numpy import float32 as fl
+from math import atan2, degrees, sqrt
 from inspect import signature
 from functools import wraps
 import cogs.movement.parsers as parsers
@@ -383,6 +384,20 @@ def blocks_to_mm(args):
     elif args['player'].z < 0:
         args['player'].modz += 0.6
 
+@command(name='outxmm', aliases=['xmm'])
+def x_mm(args):
+    args['player'].out += args['player'].x + (-0.6 if args['player'].x > 0 else 0.6) + '\n'
+@command(name='outzmm', aliases=['zmm'])
+def z_mm(args):
+    args['player'].out += args['player'].format(args['player'].z + (-0.6 if args['player'].z > 0 else 0.6)) + '\n'
+
+@command(name='outxb', aliases=['xb'])
+def x_b(args):
+    args['player'].out += args['player'].x - (-0.6 if args['player'].x > 0 else 0.6) + '\n'
+@command(name='outzb', aliases=['zb'])
+def z_b(args):
+    args['player'].out += args['player'].z - (-0.6 if args['player'].z > 0 else 0.6) + '\n'
+
 @command(aliases=['$'])
 def zero(args):
     args['player'].modx -= args['player'].x
@@ -465,4 +480,7 @@ def macro(args, name = 'macro'):
 
 @command(aliases = ['speedvec', 'vector', 'vec'])
 def speedvector(args):
-    args['player'].vec = True
+    angle = degrees(atan2(-args['player'].vx, args['player'].vz))
+    speed = sqrt(args['player'].vx**2 + args['player'].vz**2)
+    args['player'].out += f"Angle: {args['player'].format(angle)}\n"
+    args['player'].out += f"Speed: {args['player'].format(speed)}"
