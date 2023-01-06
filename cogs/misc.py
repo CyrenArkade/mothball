@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from random import random
 import asyncio, typing
 import math
+import typing
 
 async def setup(bot):
     await bot.add_cog(Misc(bot))
@@ -220,3 +221,31 @@ class Misc(commands.Cog):
             return
         msg = [message async for message in channel.history(limit=3, around=target)]
         list.extend(msg)
+
+    @commands.command()
+    async def love(ctx, user: typing.Optional[discord.User] = None, target: int = 100):
+
+        if user == None:
+            user = ctx.author
+
+        base = str(user.id)
+
+        mates = []
+        a = base[len(base)-3:len(base)]
+        for mem in ctx.guild.members:
+            try:
+                b = str(mem.id)
+                b = b[len(b)-3:len(b)]
+
+                val = str(int(a) * int(b))
+                val = int(val[len(a)-2:len(a)]) + 1
+
+                if val == target:
+                    mates.append(f'<@{mem.id}> {mem.display_name}')
+            except:
+                pass
+
+        em = discord.Embed(description='\n'.join(mates))
+        em.title = f'{user.display_name}\'s matches with love {target}'
+
+        await ctx.send(embed=em)
