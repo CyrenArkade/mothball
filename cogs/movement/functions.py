@@ -488,7 +488,7 @@ def speedvector(args):
     args['player'].out += f"Speed: {args['player'].format(speed)}"
 
 @command(aliases = ["poss"])
-def possibilities(args, inputs = '', mindistance = 0.01, offset = 0.0):
+def possibilities(args, inputs = 'sj45(100)', mindistance = 0.01, offset = 0.0):
     
     player = args['player']
     format = player.format
