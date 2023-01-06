@@ -386,17 +386,17 @@ def blocks_to_mm(args):
 
 @command(name='outxmm', aliases=['xmm'])
 def x_mm(args):
-    args['player'].out += args['player'].x + (-0.6 if args['player'].x > 0 else 0.6) + '\n'
+    args['player'].out += f"X MM: {args['player'].format(args['player'].x + (-0.6 if args['player'].x > 0 else 0.6))}\n"
 @command(name='outzmm', aliases=['zmm'])
 def z_mm(args):
-    args['player'].out += args['player'].format(args['player'].z + (-0.6 if args['player'].z > 0 else 0.6)) + '\n'
+    args['player'].out += f"Z MM: {args['player'].format(args['player'].z + (-0.6 if args['player'].z > 0 else 0.6))}\n"
 
 @command(name='outxb', aliases=['xb'])
 def x_b(args):
-    args['player'].out += args['player'].x - (-0.6 if args['player'].x > 0 else 0.6) + '\n'
+    args['player'].out += f"X b: {args['player'].format(args['player'].x - (-0.6 if args['player'].x > 0 else 0.6))}\n"
 @command(name='outzb', aliases=['zb'])
 def z_b(args):
-    args['player'].out += args['player'].z - (-0.6 if args['player'].z > 0 else 0.6) + '\n'
+    args['player'].out += f"Z b: {args['player'].format(args['player'].z - (-0.6 if args['player'].z > 0 else 0.6))}\n"
 
 @command(aliases=['$'])
 def zero(args):
