@@ -255,6 +255,7 @@ class Misc(commands.Cog):
     async def reminder(self, ctx):
         if ctx.author.id in self.bot._reminders:
             self.bot._reminders[ctx.author.id].cancel()
+            self.bot._reminders.pop(ctx.author.id)
             await ctx.send('stopped reminders')
         else:
             @tasks.loop(minutes=5, seconds=30)
