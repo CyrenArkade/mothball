@@ -46,8 +46,8 @@ class Movement(commands.Cog):
             results = 'Simulation timed out.'
         except SimError as e:
             results = str(e)
-        # except:
-        #     results = 'Something went wrong.'
+        except:
+            results = 'Something went wrong.'
 
         if player.macro:
             buffer = BytesIO(player.macro_csv().encode('utf8'))

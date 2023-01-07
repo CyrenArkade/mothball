@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from sys import float_info
 from datetime import datetime, timezone
 from random import random
@@ -13,6 +13,7 @@ async def setup(bot):
 class Misc(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.bot._reminders = {}
     
     @commands.command(aliases=['d'])
     async def duration(self, ctx, floor: float = 0.0, ceiling: float = float_info.max, inertia: float = 0.005, jump_boost: int = 0):
@@ -249,3 +250,17 @@ class Misc(commands.Cog):
         em.title = f'{user.display_name}\'s matches with love {target}'
 
         await ctx.send(embed=em)
+    
+    @commands.command()
+    async def reminder(self, ctx):
+        if ctx.author.id in self.bot._reminders:
+            self.bot._reminders[ctx.author.id].cancel()
+            await ctx.send('stopped reminders')
+        else:
+            @tasks.loop(minutes=5, seconds=30)
+            async def task():
+                nonlocal ctx
+                await ctx.author.send('clowning')
+            task.start()
+            self.bot._reminders.update({ctx.author.id: task})
+            await ctx.send('started reminders')

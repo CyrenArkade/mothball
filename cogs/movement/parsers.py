@@ -55,7 +55,8 @@ def execute_command(envs, player, command, args):
         
         new_env = dict([(var, val) for var, val in zip(user_func.arg_names, args)])
 
-        execute_args(user_func.args, envs + [new_env], player)
+        for command, args in user_func.args:
+            execute_command(envs + [new_env], player, command, args)
 
 
 
@@ -100,7 +101,7 @@ def separate_commands(text):
     if state == 1:
         player_commands.append(text[start:])
     elif state == 2:
-        raise SimError('Unexpected EOF (Unmatched opening parenthesis)')
+        raise SimError('Unmatched opening parenthesis')
 
     return player_commands
 
