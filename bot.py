@@ -21,7 +21,7 @@ class Mothball(commands.Bot):
     async def on_message(self, msg: discord.Message):
         if msg.author.id in self.params['banned']:
             return
-        elif isinstance(msg.channel, discord.DMChannel):
+        elif isinstance(msg.channel, discord.DMChannel) and msg.author.id not in self.params['trusted']:
             return
         
         if msg.content.startswith(';;'):
