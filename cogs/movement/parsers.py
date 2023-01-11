@@ -66,14 +66,23 @@ def separate_commands(text):
     # 0: Looking for a function
     # 1: Scanning for the opening parenthesis or whitespace
     # 2: Scanning for the closing parenthesis
+    # 3: Looking for the end of a comment
 
     state = 0
+    comment_state = -1
     start = 0
     depth = 0
     player_commands = []
 
     for i in range(len(text)):
         char = text[i]
+
+        if char == '#':
+            if state != 3:
+                comment_state = state
+                state = 3
+            else:
+                state = comment_state
 
         if state == 0:
             if match(r'[\w_\|\-\.]', char):

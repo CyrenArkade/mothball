@@ -464,16 +464,16 @@ def precision(args, precision = 6):
     args['player'].printprecision = precision
 
 @command(aliases = ['facing', 'face', 'f'])
-def rotation(args, rotation = fl(0)):
-    args['player'].default_rotation = rotation
+def rotation(args, angle = fl(0)):
+    args['player'].default_rotation = angle
 
 @command(aliases = ['offrotation', 'or', 'offsetfacing', 'of'])
-def offsetrotation(args, rotation = fl(0)):
-    args['player'].rotation_offset = rotation
+def offsetrotation(args, angle = fl(0)):
+    args['player'].rotation_offset = angle
 
 @command(aliases = ['turn'])
-def turn(args, turn = fl(0)):
-    args['player'].default_facing += turn
+def turn(args, angle = fl(0)):
+    args['player'].default_facing += angle
 
 @command(aliases = ['ssand', 'ss'])
 def soulsand(args, soulsand = 1):
