@@ -66,7 +66,7 @@ def separate_commands(text):
     # 0: Looking for a function
     # 1: Scanning for the opening parenthesis or whitespace
     # 2: Scanning for the closing parenthesis
-    # 3: Looking for the end of a comment
+    # 3: In a comment
 
     state = 0
     comment_state = -1
@@ -83,6 +83,7 @@ def separate_commands(text):
                 state = 3
             else:
                 state = comment_state
+            continue
 
         if state == 0:
             if match(r'[\w_\|\-\.]', char):

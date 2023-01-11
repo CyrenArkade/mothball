@@ -473,7 +473,7 @@ def offsetrotation(args, angle = fl(0)):
 
 @command(aliases = ['turn'])
 def turn(args, angle = fl(0)):
-    args['player'].default_facing += angle
+    args['player'].default_rotation += angle
 
 @command(aliases = ['ssand', 'ss'])
 def soulsand(args, soulsand = 1):
