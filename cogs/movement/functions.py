@@ -511,17 +511,17 @@ def possibilities(args, inputs = 'sj45(100)', mindistance = 0.01, offset = 0.0):
 
 @command()
 def outx(args):
-    args['player'].out += f"{args['player'].format(args['player'].x)}\n"
+    args['player'].out += f"X: {args['player'].format(args['player'].x)}\n"
 @command()
 def outz(args):
-    args['player'].out += f"{args['player'].format(args['player'].z)}\n"
+    args['player'].out += f"Z: {args['player'].format(args['player'].z)}\n"
 
 @command()
 def outvx(args):
-    args['player'].out += f"{args['player'].format(args['player'].vx)}\n"
+    args['player'].out += f"Vx: {args['player'].format(args['player'].vx)}\n"
 @command()
 def outvz(args):
-    args['player'].out += f"{args['player'].format(args['player'].vz)}\n"
+    args['player'].out += f"Vz: {args['player'].format(args['player'].vz)}\n"
 
 @command(name='outxmm', aliases=['xmm'])
 def x_mm(args):
