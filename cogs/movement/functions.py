@@ -363,7 +363,7 @@ def reset_position(args):
     args['player'].modz = 0
 
 @command(name='b')
-def mm_to_blocks(args):
+def dist_to_blocks(args):
     if args['player'].x > 0:
         args['player'].modx += 0.6
     elif args['player'].x < 0:
@@ -375,7 +375,7 @@ def mm_to_blocks(args):
         args['player'].modz -= 0.6
 
 @command(name='mm')
-def blocks_to_mm(args):
+def dist_to_mm(args):
     if args['player'].x > 0:
         args['player'].modx -= 0.6
     elif args['player'].x < 0:
@@ -385,20 +385,6 @@ def blocks_to_mm(args):
         args['player'].modz -= 0.6
     elif args['player'].z < 0:
         args['player'].modz += 0.6
-
-@command(name='outxmm', aliases=['xmm'])
-def x_mm(args):
-    args['player'].out += f"X mm: {args['player'].format(args['player'].x + (-0.6 if args['player'].x > 0 else 0.6))}\n"
-@command(name='outzmm', aliases=['zmm'])
-def z_mm(args):
-    args['player'].out += f"Z mm: {args['player'].format(args['player'].z + (-0.6 if args['player'].z > 0 else 0.6))}\n"
-
-@command(name='outxb', aliases=['xb'])
-def x_b(args):
-    args['player'].out += f"X b: {args['player'].format(args['player'].x - (-0.6 if args['player'].x > 0 else 0.6))}\n"
-@command(name='outzb', aliases=['zb'])
-def z_b(args):
-    args['player'].out += f"Z b: {args['player'].format(args['player'].z - (-0.6 if args['player'].z > 0 else 0.6))}\n"
 
 @command(aliases=['$'])
 def zero(args):
@@ -522,3 +508,31 @@ def possibilities(args, inputs = 'sj45(100)', mindistance = 0.01, offset = 0.0):
     
     player.out += '```'
     player.move = old_move
+
+@command()
+def outx(args):
+    args['player'].out += f"{args['player'].format(args['player'].x)}\n"
+@command()
+def outz(args):
+    args['player'].out += f"{args['player'].format(args['player'].z)}\n"
+
+@command()
+def outvx(args):
+    args['player'].out += f"{args['player'].format(args['player'].vx)}\n"
+@command()
+def outvz(args):
+    args['player'].out += f"{args['player'].format(args['player'].vz)}\n"
+
+@command(name='outxmm', aliases=['xmm'])
+def x_mm(args):
+    args['player'].out += f"X mm: {args['player'].format(args['player'].x + (-0.6 if args['player'].x > 0 else 0.6))}\n"
+@command(name='outzmm', aliases=['zmm'])
+def z_mm(args):
+    args['player'].out += f"Z mm: {args['player'].format(args['player'].z + (-0.6 if args['player'].z > 0 else 0.6))}\n"
+
+@command(name='outxb', aliases=['xb'])
+def x_b(args):
+    args['player'].out += f"X b: {args['player'].format(args['player'].x - (-0.6 if args['player'].x > 0 else 0.6))}\n"
+@command(name='outzb', aliases=['zb'])
+def z_b(args):
+    args['player'].out += f"Z b: {args['player'].format(args['player'].z - (-0.6 if args['player'].z > 0 else 0.6))}\n"
