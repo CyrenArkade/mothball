@@ -38,6 +38,7 @@ def command(name=None, aliases=[]):
             args = list(args)
             for k, v in f._defaults.items():
                 if v == None:
+                    args.append(None)
                     continue
                 args[0].setdefault(k, v)
                 args.append(args[0].get(k))
@@ -469,6 +470,34 @@ def soulsand(args, soulsand = 1):
 def macro(args, name = 'macro'):
     args['player'].macro = name
 
+@command()
+def outx(args):
+    args['player'].out += f"X: {args['player'].format(args['player'].x)}\n"
+@command()
+def outz(args):
+    args['player'].out += f"Z: {args['player'].format(args['player'].z)}\n"
+
+@command()
+def outvx(args):
+    args['player'].out += f"Vx: {args['player'].format(args['player'].vx)}\n"
+@command()
+def outvz(args):
+    args['player'].out += f"Vz: {args['player'].format(args['player'].vz)}\n"
+
+@command(name='outxmm', aliases=['xmm'])
+def x_mm(args):
+    args['player'].out += f"X mm: {args['player'].format(args['player'].x + (-0.6 if args['player'].x > 0 else 0.6))}\n"
+@command(name='outzmm', aliases=['zmm'])
+def z_mm(args):
+    args['player'].out += f"Z mm: {args['player'].format(args['player'].z + (-0.6 if args['player'].z > 0 else 0.6))}\n"
+
+@command(name='outxb', aliases=['xb'])
+def x_b(args):
+    args['player'].out += f"X b: {args['player'].format(args['player'].x - (-0.6 if args['player'].x > 0 else 0.6))}\n"
+@command(name='outzb', aliases=['zb'])
+def z_b(args):
+    args['player'].out += f"Z b: {args['player'].format(args['player'].z - (-0.6 if args['player'].z > 0 else 0.6))}\n"
+    
 @command(aliases = ['speedvec', 'vector', 'vec'])
 def speedvector(args):
     angle = degrees(atan2(-args['player'].vx, args['player'].vz))
@@ -510,29 +539,120 @@ def possibilities(args, inputs = 'sj45(100)', mindistance = 0.01, offset = 0.0):
     player.move = old_move
 
 @command()
-def outx(args):
-    args['player'].out += f"X: {args['player'].format(args['player'].x)}\n"
-@command()
-def outz(args):
-    args['player'].out += f"Z: {args['player'].format(args['player'].z)}\n"
+def duration(args, floor = 0.0, ceiling = 0.0, inertia = 0.005, jump_boost = 0):
+
+    print('==========')
+    print(args, floor, ceiling, inertia, jump_boost, sep='\n')
+
+    player = args['player']
+    vy = 0.42 + 0.1 * jump_boost
+    y = 0
+    ticks = 0
+
+    while y > floor or vy > 0:
+        y = y + vy
+        if ceiling != 0.0 and y > ceiling - 1.8:
+            y = ceiling - 1.8
+            vy = 0
+        vy = (vy - 0.08) * 0.98
+        if abs(vy) < inertia:
+            vy = 0
+        ticks += 1
+
+        if ticks > 5000:
+            player.out += 'Simulation limit reached.'
+            return
+
+    if vy >= 0:
+        player.out += 'Impossible jump height. Too high.'
+        return
+
+    ceiling = f' {ceiling}bc' if ceiling != 0.0 else ''
+    player.out += f'Duration of a {floor}b{ceiling} jump:\n**{ticks} ticks**'
 
 @command()
-def outvx(args):
-    args['player'].out += f"Vx: {args['player'].format(args['player'].vx)}\n"
+def height(args, duration = 12, ceiling = 0.0, inertia = 0.005, jump_boost = 0):
+
+    player = args['player']
+    vy = 0.42 + jump_boost * 0.1
+    y = 0
+
+    for i in range(duration):
+        y = y + vy
+        if ceiling != 0.0 and y > ceiling - 1.8:
+            y = ceiling - 1.8
+            vy = 0
+        vy = (vy - 0.08) * 0.98
+        if abs(vy) < inertia:
+            vy = 0
+
+        if i > 5000:
+            player.out += ('Simulation limit reached.')
+            return
+    
+    ceiling = f' with a {ceiling}bc' if ceiling != 0.0 else ''
+    player.out += (f'Height after {duration} ticks{ceiling}:\n **{round(y, 6)}**')
+
 @command()
-def outvz(args):
-    args['player'].out += f"Vz: {args['player'].format(args['player'].vz)}\n"
+def blip(args, blips = 1, blip_height = 0.0625, init_height: float = None, init_vy: float = None, inertia = 0.005, jump_boost = 0):
 
-@command(name='outxmm', aliases=['xmm'])
-def x_mm(args):
-    args['player'].out += f"X mm: {args['player'].format(args['player'].x + (-0.6 if args['player'].x > 0 else 0.6))}\n"
-@command(name='outzmm', aliases=['zmm'])
-def z_mm(args):
-    args['player'].out += f"Z mm: {args['player'].format(args['player'].z + (-0.6 if args['player'].z > 0 else 0.6))}\n"
+    if init_height is None:
+        init_height = blip_height
+    if init_vy is None:
+        init_vy = 0.42 + 0.1 * jump_boost
+    
+    player = player = args['player']
+    blips_done = 0
+    vy = init_vy
+    y = init_height
+    jump_ys = [init_height]
+    max_heights = []
+    vy_prev = 0
+    i = 0
 
-@command(name='outxb', aliases=['xb'])
-def x_b(args):
-    args['player'].out += f"X b: {args['player'].format(args['player'].x - (-0.6 if args['player'].x > 0 else 0.6))}\n"
-@command(name='outzb', aliases=['zb'])
-def z_b(args):
-    args['player'].out += f"Z b: {args['player'].format(args['player'].z - (-0.6 if args['player'].z > 0 else 0.6))}\n"
+    while blips_done < blips or vy > 0:
+
+        y += vy
+        vy = (vy - 0.08) * 0.98
+
+        if y + vy < blip_height:
+
+            if y + vy > 0:
+                max_heights.append('Fail')
+                jump_ys.append(y + vy)
+                break
+            
+            jump_ys.append(y)
+            vy = 0.42
+            blips_done += 1
+        
+        if abs(vy) < inertia:
+            vy = 0
+
+        if vy_prev > 0 and vy <= 0:
+            max_heights.append(y)
+
+        if i > 5000:
+            player.out += 'Simulation limit reached.'
+            return
+
+        vy_prev = vy
+        i += 1
+
+    out = '\n'.join([
+        f'Blips: {blips_done}',
+        f'Blip height: {round(blip_height, 6)}',
+        f'Initial y: {round(init_height, 6)}',
+        f'Initial vy: {round(init_vy, 6)}',
+        f'```Blip | Jumped From | Max Height'
+    ])
+
+    num_col_width = len(str(blips))
+    for i in range(0, len(jump_ys)):
+        num = f'{i:0{num_col_width}}'.ljust(4)
+        jumped_from = f'{jump_ys[i]:<11.6f}'
+        max_height = f'{max_heights[i]:<10.6f}' if type(max_heights[i]) == float else max_heights[i]
+        out += (f'\n{num} | {jumped_from} | {max_height}')
+    out += '```'
+    
+    player.out += out
