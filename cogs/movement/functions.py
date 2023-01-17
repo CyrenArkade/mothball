@@ -591,7 +591,7 @@ def height(args, duration = 12, ceiling = 0.0, inertia = 0.005, jump_boost = 0):
             return
     
     ceiling = f' with a {ceiling}bc' if ceiling != 0.0 else ''
-    player.out += (f'Height after {duration} ticks{ceiling}:\n **{round(y, 6)}**')
+    player.out += (f'Height after {duration} ticks{ceiling}:\n**{round(y, 6)}**')
 
 @command()
 def blip(args, blips = 1, blip_height = 0.0625, init_height: float = None, init_vy: float = None, inertia = 0.005, jump_boost = 0):

@@ -2,6 +2,7 @@ from re import match, search
 import cogs.movement.functions as functions
 from cogs.movement.utils import SimError
 from numpy import float32 as fl
+from numexpr import evaluate
 
 def execute_string(text, envs, player):
     commands_args = string_to_args(text)
@@ -190,6 +191,8 @@ def convert(envs, command, arg_name, val):
 def cast(type, val):
     if type == bool:
         return val.lower() not in ('f', 'false', 'no', 'n', '0')
+    if type in (int, float, fl):
+        return type(evaluate(val))
     else:
         return type(val)
 
