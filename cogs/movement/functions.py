@@ -3,6 +3,7 @@ from math import atan2, degrees, sqrt
 from inspect import signature
 from functools import wraps
 from types import MethodType
+from numexpr import evaluate
 import cogs.movement.parsers as parsers
 from cogs.movement.utils import Function
 
@@ -100,6 +101,13 @@ def define(args, name = '', input = ''):
 @command()
 def var(args, name = '', input = ''):
     lowest_env = args['envs'][-1]
+    try:
+        local_env = {}
+        for env in args['envs']:
+            local_env.update(env)
+        input = evaluate(input, local_dict=local_env)
+    except:
+        pass
     lowest_env.update({name: input})
 
 

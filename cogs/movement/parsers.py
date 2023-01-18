@@ -1,7 +1,7 @@
 from re import match, search
 import cogs.movement.functions as functions
 from cogs.movement.utils import SimError
-from numpy import float32 as fl, ndarray
+from numpy import float32 as fl
 from numexpr import evaluate
 
 def execute_string(text, envs, player):
@@ -179,20 +179,24 @@ def convert(envs, command, arg_name, val):
     else:
         raise SimError(f'Unknown argument `{arg_name}`')
     try:
-        return cast(type, val) # if normal value
+        return cast(envs, type, val) # if normal value
     except:
         fetched = fetch(envs, val)
         
         if fetched is not None:
-            return cast(type, fetched) # if variable
+            return cast(envs, type, fetched) # if variable
 
         raise SimError(f'Error in `{command.__name__}` converting `{val}` to type `{arg_name}:{type.__name__}`')
 
-def cast(type, val):
+def cast(envs, type, val):
     if type == bool:
         return val.lower() not in ('f', 'false', 'no', 'n', '0')
     if type in (int, float, fl):
-        return type(evaluate(val.replace('^', '**')))
+        local_env = {}
+        for env in envs:
+            local_env.update(env)
+        print(local_env)
+        return type(evaluate(val.replace('^', '**'), local_dict=local_env))
     else:
         return type(val)
 
