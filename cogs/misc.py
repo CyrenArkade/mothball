@@ -251,14 +251,14 @@ class Misc(commands.Cog):
 
         await ctx.send(embed=em)
     
-    @commands.command()
-    async def reminder(self, ctx):
+    @commands.command(aliases=['remind'])
+    async def reminder(self, ctx, length: float = 5.5):
         if ctx.author.id in self.bot._reminders:
             self.bot._reminders[ctx.author.id].cancel()
             self.bot._reminders.pop(ctx.author.id)
             await ctx.send('stopped reminders')
         else:
-            @tasks.loop(minutes=5, seconds=30)
+            @tasks.loop(minutes=length)
             async def task():
                 nonlocal ctx
                 await ctx.author.send('clowning')
