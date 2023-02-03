@@ -514,7 +514,7 @@ def speedvector(args):
     args['player'].out += f"Speed: {args['player'].format(speed)}"
 
 @command(aliases = ["poss"])
-def possibilities(args, inputs = 'sj45(100)', mindistance = 0.01, offset = 0.0):
+def possibilities(args, inputs = 'sj45(100)', mindistance = 0.01, offset = 0.6):
     
     player = args['player']
     format = player.format
@@ -526,7 +526,7 @@ def possibilities(args, inputs = 'sj45(100)', mindistance = 0.01, offset = 0.0):
 
         old_move(args)
 
-        player_blocks = player.z - (-0.6 if player.z > 0 else 0.6) - offset
+        player_blocks = player.z + offset
         jump_pixels = int(player_blocks / 0.0625)
         jump_blocks = jump_pixels * 0.0625
         poss_by = player_blocks - jump_blocks
@@ -548,9 +548,6 @@ def possibilities(args, inputs = 'sj45(100)', mindistance = 0.01, offset = 0.0):
 
 @command()
 def duration(args, floor = 0.0, ceiling = 0.0, inertia = 0.005, jump_boost = 0):
-
-    print('==========')
-    print(args, floor, ceiling, inertia, jump_boost, sep='\n')
 
     player = args['player']
     vy = 0.42 + 0.1 * jump_boost

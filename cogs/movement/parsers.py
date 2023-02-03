@@ -195,7 +195,6 @@ def cast(envs, type, val):
         local_env = {}
         for env in envs:
             local_env.update(env)
-        print(local_env)
         return type(evaluate(val.replace('^', '**'), local_dict=local_env))
     else:
         return type(val)
