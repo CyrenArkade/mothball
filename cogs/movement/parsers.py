@@ -20,7 +20,11 @@ def execute_command(envs, player, command, args):
     modifiers = {}
     if command.startswith('-'):
         command = command[1:]
-        modifiers.update({'reverse': True})
+        modifiers['reverse'] = True
+    
+    if command.endswith('.land'):
+        command = command[:-5]
+        modifiers['prev_slip'] = fl(1.0)
     
     key_modifier = search(r'\.([ws]?[ad]?){1,2}(\.|$)', command)
     if key_modifier:
@@ -43,8 +47,8 @@ def execute_command(envs, player, command, args):
 
         dict_args = dictize_args(envs, command_function, args)
         dict_args.update(modifiers)
-        dict_args.update({'player': player})
-        dict_args.update({'envs': envs})
+        dict_args['player'] = player
+        dict_args['envs'] = envs
 
         command_function(dict_args)
 
@@ -162,8 +166,9 @@ def dictize_args(envs, command, str_args):
 
         else: # extra positional args
             out['pos_args'].append(arg)
+            continue
 
-        out.update({arg_name: arg_val})
+        out[arg_name] = arg_val
     
     return out
 

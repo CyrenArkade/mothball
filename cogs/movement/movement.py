@@ -46,8 +46,8 @@ class Movement(commands.Cog):
             results = 'Simulation timed out.'
         except SimError as e:
             results = str(e)
-        except:
-            results = 'Something went wrong.'
+        # except:
+        #     results = 'Something went wrong.'
 
         if player.macro:
             buffer = BytesIO(player.macro_csv().encode('utf8'))
@@ -68,7 +68,7 @@ class Movement(commands.Cog):
             botmsg = await ctx.channel.send(**kwargs)
 
             node = SimNode(ctx.message.id, botmsg, player)
-            self.msg_links.update({ctx.message.id: node})
+            self.msg_links[ctx.message.id] = node
             if continuation:
                 parent.children.append(ctx.message.id)
         

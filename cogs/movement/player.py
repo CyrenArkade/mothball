@@ -19,6 +19,8 @@ class Player:
         self.angles = 65536
         self.default_rotation = fl(0.0)
         self.rotation_offset = fl(0.0)
+        self.rotation_queue = []
+        self.turn_queue = []
         self.inertia_threshold = 0.005
         self.soulsand = 0
         self.speed = 0
@@ -26,6 +28,7 @@ class Player:
 
         self.macro = None
         self.out = ''
+        self.pre_out = ''
         self.input_history = []
         self.prev_rotation = None
         self.history = []
@@ -42,7 +45,7 @@ class Player:
             else:
                 self.out += '​\U0001f44d'
 
-        return self.out
+        return self.pre_out + '\n' + self.out
     
     def clearlogs(self):
         self.history = []
@@ -79,6 +82,8 @@ class Player:
         other.angles = self.angles
         other.default_rotation = self.default_rotation
         other.rotation_offset = self.rotation_offset
+        other.rotation_queue = self.rotation_queue
+        other.turn_queue = self.turn_queue
         other.inertia_threshold = self.inertia_threshold
         other.soulsand = self.soulsand
         other.speed = self.speed
@@ -89,6 +94,12 @@ class Player:
     def move(self, args):
 
         # Defining variables
+
+        if len(self.rotation_queue) > 0:
+            self.default_rotation += self.rotation_queue.pop(0)
+        if len(self.turn_queue) > 0:
+            self.default_rotation += self.turn_queue.pop(0)
+
         airborne = args.get('airborne', False)
         rotation = args.get('rotation', self.default_rotation)
         function_offset = args.get('function_offset', fl(0))
@@ -106,6 +117,7 @@ class Player:
         else:
             slip = args.get('slip', self.ground_slip)
         
+        self.prev_slip = args.get('prev_slip', self.prev_slip)
         if self.prev_slip is None:
             self.prev_slip = slip
         

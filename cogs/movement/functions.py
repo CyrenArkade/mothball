@@ -5,7 +5,8 @@ from functools import wraps
 from types import MethodType
 from numexpr import evaluate
 import cogs.movement.parsers as parsers
-from cogs.movement.utils import Function
+from cogs.movement.utils import Function, SimError
+from cogs.movement.player import Player
 
 commands_by_name = {}
 types_by_command = {}
@@ -13,9 +14,9 @@ aliases = {}
 types_by_arg = {}
 
 def register_arg(arg, type, new_aliases = []):
-    types_by_arg.update({arg: type})
+    types_by_arg[arg] = type
     for alias in new_aliases:
-        aliases.update({alias: arg})
+        aliases[alias] = arg
 
 register_arg('duration', int, ['dur', 't'])
 register_arg('rotation', fl, ['rot', 'r'])
@@ -52,13 +53,13 @@ def command(name=None, aliases=[]):
             defaults.append((k, v.default))
             arg_types.append((k, v.annotation if v.default is None else type(v.default)))
         f._defaults = dict(defaults)
-        types_by_command.update({wrapper: dict(arg_types)})
+        types_by_command[wrapper] = dict(arg_types)
         
         if name is None:
             name = wrapper.__name__
-        commands_by_name.update({name: wrapper})
+        commands_by_name[name] = wrapper
         for alias in aliases:
-            commands_by_name.update({alias: wrapper})
+            commands_by_name[alias] = wrapper
         
         return wrapper
     return inner
@@ -84,7 +85,7 @@ def jump(args, after_jump_tick = lambda: None):
 @command(aliases=['rep', 'r'])
 def repeat(args, inputs = '', n = 1):
     commands_args = parsers.string_to_args(inputs)
-    
+
     for _ in range(n):
         for command, cmd_args in commands_args:
             parsers.execute_command(args['envs'], args['player'], command, cmd_args)
@@ -96,7 +97,7 @@ def define(args, name = '', input = ''):
     new_function = Function(name, dictized, args['pos_args'])
 
     lowest_env = args['envs'][-1]
-    lowest_env.update({name: new_function})
+    lowest_env[name] = new_function
 
 @command()
 def var(args, name = '', input = ''):
@@ -108,7 +109,7 @@ def var(args, name = '', input = ''):
         input = evaluate(input, local_dict=local_env)
     except:
         pass
-    lowest_env.update({name: input})
+    lowest_env[name] = input
 
 
 @command(aliases=['sn'])
@@ -474,6 +475,24 @@ def turn(args, angle = fl(0)):
 def soulsand(args, soulsand = 1):
     args['player'].soulsand = soulsand
 
+@command(aliases = ['aq', 'qa'])
+def anglequeue(args):
+    def to_float(val):
+        try:
+            return fl(val)
+        except:
+            raise SimError(f'Error in `anglequeue` converting `{val}` to type `rotation:float32`')
+    args['player'].rotation_queue.extend(map(to_float, args['pos_args']))
+
+@command(aliases = ['tq', 'qt'])
+def turnqueue(args):
+    def to_float(val):
+        try:
+            return fl(val)
+        except:
+            raise SimError(f'Error in `turnqueue` converting `{val}` to type `rotation:float32`')
+    args['player'].turn_queue.extend(map(to_float, args['pos_args']))
+
 @command()
 def macro(args, name = 'macro'):
     args['player'].macro = name
@@ -661,3 +680,24 @@ def blip(args, blips = 1, blip_height = 0.0625, init_height: float = None, init_
     out += '```'
     
     player.out += out
+
+@command()
+def bwmm(args, dist = 1, strat = 'sj45(12)'):
+    player = args['player']
+
+    p1 = player.softcopy()
+    parsers.execute_string(strat, args['envs'], p1)
+    p1_mm = p1.z + (-0.6 if p1.z > 0 else 0.6)
+
+    p2 = player.softcopy()
+    p2.vz = 1.0
+    parsers.execute_string(strat, args['envs'], p2)
+    p2_mm = p2.z + (-0.6 if p2.z > 0 else 0.6)
+
+    speed = (p1_mm - dist) / (p1_mm - p2_mm)
+    player.vz = speed
+    parsers.execute_string(strat, args['envs'], player)
+    player.pre_out += f'Speed: {player.format(speed)}\n'
+    player.pre_out += f'MM: {player.format(player.z + (-0.6 if player.z > 0 else 0.6))}\n'
+    player.z = 0.0
+    player.x = 0.0
