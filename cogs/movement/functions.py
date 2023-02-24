@@ -682,7 +682,7 @@ def blip(args, blips = 1, blip_height = 0.0625, init_height: float = None, init_
     player.out += out
 
 @command()
-def bwmm(args, dist = 1, strat = 'sj45(12)'):
+def bwmm(args, dist = 1.0, strat = 'sj45(12)'):
     player = args['player']
 
     p1 = player.softcopy()

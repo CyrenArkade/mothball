@@ -45,7 +45,7 @@ class Player:
             else:
                 self.out += '​\U0001f44d'
 
-        return self.pre_out + '\n' + self.out
+        return self.pre_out + self.out
     
     def clearlogs(self):
         self.history = []
