@@ -186,11 +186,6 @@ def convert(envs, command, arg_name, val):
     try:
         return cast(envs, type, val) # if normal value
     except:
-        fetched = fetch(envs, val)
-        
-        if fetched is not None:
-            return cast(envs, type, fetched) # if variable
-
         raise SimError(f'Error in `{command.__name__}` converting `{val}` to type `{arg_name}:{type.__name__}`')
 
 def cast(envs, type, val):
@@ -200,6 +195,11 @@ def cast(envs, type, val):
         local_env = {}
         for env in envs:
             local_env.update(env)
+        for k, v in local_env.items():
+            try:
+                local_env[k] = type(v)
+            except:
+                continue
         return type(evaluate(val.replace('^', '**'), local_dict=local_env))
     else:
         return type(val)
