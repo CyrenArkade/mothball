@@ -375,26 +375,26 @@ def reset_position(args):
 @command(name='b')
 def dist_to_blocks(args):
     if args['player'].x > 0:
-        args['player'].modx += 0.6
+        args['player'].modx += fl(0.6)
     elif args['player'].x < 0:
-        args['player'].modx -= 0.6
+        args['player'].modx -= fl(0.6)
 
     if args['player'].z > 0:
-        args['player'].modz += 0.6
+        args['player'].modz += fl(0.6)
     elif args['player'].z < 0:
-        args['player'].modz -= 0.6
+        args['player'].modz -= fl(0.6)
 
 @command(name='mm')
 def dist_to_mm(args):
     if args['player'].x > 0:
-        args['player'].modx -= 0.6
+        args['player'].modx -= fl(0.6)
     elif args['player'].x < 0:
-        args['player'].modx += 0.6
+        args['player'].modx += fl(0.6)
 
     if args['player'].z > 0:
-        args['player'].modz -= 0.6
+        args['player'].modz -= fl(0.6)
     elif args['player'].z < 0:
-        args['player'].modz += 0.6
+        args['player'].modz += fl(0.6)
 
 @command(aliases=['$'])
 def zero(args):
@@ -513,17 +513,17 @@ def outvz(args):
 
 @command(name='outxmm', aliases=['xmm'])
 def x_mm(args):
-    args['player'].out += f"X mm: {args['player'].format(args['player'].x + (-0.6 if args['player'].x > 0 else 0.6))}\n"
+    args['player'].out += f"X mm: {args['player'].format(args['player'].x + (-fl(0.6) if args['player'].x > 0 else fl(0.6)))}\n"
 @command(name='outzmm', aliases=['zmm'])
 def z_mm(args):
-    args['player'].out += f"Z mm: {args['player'].format(args['player'].z + (-0.6 if args['player'].z > 0 else 0.6))}\n"
+    args['player'].out += f"Z mm: {args['player'].format(args['player'].z + (-fl(0.6) if args['player'].z > 0 else fl(0.6)))}\n"
 
 @command(name='outxb', aliases=['xb'])
 def x_b(args):
-    args['player'].out += f"X b: {args['player'].format(args['player'].x - (-0.6 if args['player'].x > 0 else 0.6))}\n"
+    args['player'].out += f"X b: {args['player'].format(args['player'].x - (-fl(0.6) if args['player'].x > 0 else fl(0.6)))}\n"
 @command(name='outzb', aliases=['zb'])
 def z_b(args):
-    args['player'].out += f"Z b: {args['player'].format(args['player'].z - (-0.6 if args['player'].z > 0 else 0.6))}\n"
+    args['player'].out += f"Z b: {args['player'].format(args['player'].z - (-fl(0.6) if args['player'].z > 0 else fl(0.6)))}\n"
     
 @command(aliases = ['speedvec', 'vector', 'vec'])
 def speedvector(args):
@@ -533,7 +533,7 @@ def speedvector(args):
     args['player'].out += f"Speed: {args['player'].format(speed)}"
 
 @command(aliases = ["poss"])
-def possibilities(args, inputs = 'sj45(100)', mindistance = 0.01, offset = 0.6):
+def possibilities(args, inputs = 'sj45(100)', mindistance = 0.01, offset = fl(0.6)):
     
     player = args['player']
     format = player.format
@@ -687,17 +687,17 @@ def bwmm(args, dist = 1.0, strat = 'sj45(12)'):
 
     p1 = player.softcopy()
     parsers.execute_string(strat, args['envs'], p1)
-    p1_mm = p1.z + (-0.6 if p1.z > 0 else 0.6)
+    p1_mm = p1.z + (-fl(0.6) if p1.z > 0 else fl(0.6))
 
     p2 = player.softcopy()
     p2.vz = 1.0
     parsers.execute_string(strat, args['envs'], p2)
-    p2_mm = p2.z + (-0.6 if p2.z > 0 else 0.6)
+    p2_mm = p2.z + (-fl(0.6) if p2.z > 0 else fl(0.6))
 
     speed = (p1_mm - dist) / (p1_mm - p2_mm)
     player.vz = speed
     parsers.execute_string(strat, args['envs'], player)
     player.pre_out += f'Speed: {player.format(speed)}\n'
-    player.pre_out += f'MM: {player.format(player.z + (-0.6 if player.z > 0 else 0.6))}\n'
+    player.pre_out += f'MM: {player.format(player.z + (-fl(0.6) if player.z > 0 else fl(0.6)))}\n'
     player.z = 0.0
     player.x = 0.0
