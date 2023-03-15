@@ -74,7 +74,7 @@ def separate_commands(text):
     # 3: In a comment
 
     state = 0
-    comment_state = -1
+    comment_state = None
     start = 0
     depth = 0
     player_commands = []
@@ -141,7 +141,9 @@ def argumentatize_command(command):
             depth -= 1
 
     command_name = command[:divider].lower()
-    args.append(command[start:-1].strip())
+    final_arg = command[start:-1].strip()
+    if len(final_arg) > 0:
+        args.append(final_arg)
 
     return (command_name, args)
 
