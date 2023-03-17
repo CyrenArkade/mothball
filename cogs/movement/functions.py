@@ -756,6 +756,6 @@ def help(args, cmd_name = 'help'):
         out += k
         anno_type = v.annotation if v.default is None else type(v.default)
         out += f": {anno_type.__name__}"
-        out += " = " + str(v.default) if anno_type != str else f'"{v.default}"'
+        out += " = " + (str(v.default) if anno_type != str else f'"{v.default}"')
         params.append(out)
     args['player'].out += f'`{cmd_name}({", ".join(params)})`\n'
