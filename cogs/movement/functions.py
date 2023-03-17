@@ -352,7 +352,7 @@ def rsprintjump45(args, duration = 1, rotation: fl = None):
     
     jump(args)
 
-@command(aliases='snp')
+@command(aliases=['snp'])
 def sneakpessi(args, duration = 1, delay = 1, rotation: fl = None):
 
     args['duration'] = delay
@@ -364,7 +364,7 @@ def sneakpessi(args, duration = 1, delay = 1, rotation: fl = None):
     args.setdefault('airborne', True)
     move(args)
 
-@command(aliases='wp')
+@command(aliases=['wp'])
 def walkpessi(args, duration = 1, delay = 1, rotation: fl = None):
 
     args['duration'] = delay
@@ -375,7 +375,7 @@ def walkpessi(args, duration = 1, delay = 1, rotation: fl = None):
     args.setdefault('airborne', True)
     move(args)
 
-@command(aliases='wp')
+@command(aliases=['sp'])
 def sprintpessi(args, duration = 1, delay = 1, rotation: fl = None):
 
     args['duration'] = delay
