@@ -27,7 +27,7 @@ register_arg('airborne', bool, ['air'])
 register_arg('sprinting', bool, ['sprint'])
 register_arg('sneaking', bool, ['sneak', 'sn'])
 register_arg('jumping', bool, ['jump'])
-register_arg('speed', int, ['sp', 'spd'])
+register_arg('speed', int, ['spd'])
 register_arg('slowness', int, ['slow', 'sl'])
 register_arg('soulsand', int, ['ss'])
 
@@ -351,6 +351,43 @@ def rsprintjump45(args, duration = 1, rotation: fl = None):
     args['function_offset'] = fl(-45)
     
     jump(args)
+
+@command(aliases='snp')
+def sneakpessi(args, duration = 1, delay = 1, rotation: fl = None):
+
+    args['duration'] = delay
+    jump(args)
+
+    args['duration'] = duration - delay
+    args.setdefault('forward', fl(1))
+    args.setdefault('sneaking', True)
+    args.setdefault('airborne', True)
+    move(args)
+
+@command(aliases='wp')
+def walkpessi(args, duration = 1, delay = 1, rotation: fl = None):
+
+    args['duration'] = delay
+    jump(args)
+
+    args['duration'] = duration - delay
+    args.setdefault('forward', fl(1))
+    args.setdefault('airborne', True)
+    move(args)
+
+@command(aliases='wp')
+def sprintpessi(args, duration = 1, delay = 1, rotation: fl = None):
+
+    args['duration'] = delay
+    jump(args)
+
+    def update():
+        args['sprinting'] = True
+
+    args['duration'] = duration - delay
+    args.setdefault('forward', fl(1))
+    args.setdefault('airborne', True)
+    move(args)
 
 @command(aliases=['st'])
 def stop(args, duration = 1):
@@ -701,3 +738,24 @@ def bwmm(args, dist = 1.0, strat = 'sj45(12)'):
     player.pre_out += f'MM: {player.format(player.z + (-fl(0.6) if player.z > 0 else fl(0.6)))}\n'
     player.z = 0.0
     player.x = 0.0
+
+@command()
+def inv(args, goal = 1.0, strat = 'sj45(12)'):
+    bwmm(args, goal, strat)
+
+@command()
+def help(args, cmd_name = 'help'):
+    if cmd_name not in commands_by_name:
+        args['player'].out += f'`{cmd_name}` not found\n'
+        return
+
+    cmd = commands_by_name[cmd_name]
+    params = []
+    for k, v in list(signature(cmd).parameters.items())[1:]:
+        out = ''
+        out += k
+        anno_type = v.annotation if v.default is None else type(v.default)
+        out += f": {anno_type.__name__}"
+        out += " = " + str(v.default) if anno_type != str else f'"{v.default}"'
+        params.append(out)
+    args['player'].out += f'`{cmd_name}({", ".join(params)})`\n'
