@@ -32,18 +32,21 @@ register_arg('slowness', int, ['slow', 'sl'])
 register_arg('soulsand', int, ['ss'])
 
 def command(name=None, aliases=[]):
-    def inner(f):
+    def deco(f):
         nonlocal name, aliases
 
         @wraps(f)
         def wrapper(*args, **kwargs):
             args = list(args)
+            print(args)
             for k, v in f._defaults.items():
                 if v == None:
-                    args.append(None)
+                    args.append(args[0].get(k))
                     continue
                 args[0].setdefault(k, v)
                 args.append(args[0].get(k))
+            print(args)
+            print(kwargs)
             return f(*args, **kwargs)
 
         params = signature(wrapper).parameters
@@ -62,7 +65,7 @@ def command(name=None, aliases=[]):
             commands_by_name[alias] = wrapper
         
         return wrapper
-    return inner
+    return deco
 
 
 def move(args):
@@ -660,7 +663,7 @@ def blip(args, blips = 1, blip_height = 0.0625, init_height: float = None, init_
     if init_height is None:
         init_height = blip_height
     if init_vy is None:
-        init_vy = 0.42 + 0.1 * jump_boost
+        init_vy = 0.42 + 0.1 * jump_boost    
     
     player = player = args['player']
     blips_done = 0
