@@ -722,7 +722,7 @@ def blip(args, blips = 1, blip_height = 0.0625, init_height: float = None, init_
     player.out += out
 
 @command()
-def bwmm(args, dist = 1.0, strat = 'sj45(12)'):
+def bwmm(args, mm = 1.0, strat = 'sj45(12)'):
     player = args['player']
 
     p1 = player.softcopy()
@@ -734,7 +734,7 @@ def bwmm(args, dist = 1.0, strat = 'sj45(12)'):
     parsers.execute_string(strat, args['envs'], p2)
     p2_mm = p2.z + (-fl(0.6) if p2.z > 0 else fl(0.6))
 
-    speed = (p1_mm - dist) / (p1_mm - p2_mm)
+    speed = (p1_mm - mm) / (p1_mm - p2_mm)
     player.vz = speed
     parsers.execute_string(strat, args['envs'], player)
     player.pre_out += f'Speed: {player.format(speed)}\n'
@@ -755,10 +755,11 @@ def help(args, cmd_name = 'help'):
     cmd = commands_by_name[cmd_name]
     params = []
     for k, v in list(signature(cmd).parameters.items())[1:]:
-        out = ''
+        out = '  '
         out += k
         anno_type = v.annotation if v.default is None else type(v.default)
         out += f": {anno_type.__name__}"
         out += " = " + (str(v.default) if anno_type != str else f'"{v.default}"')
         params.append(out)
-    args['player'].out += f'`{cmd_name}({", ".join(params)})`\n'
+    newln = '\n'
+    args['player'].out += f'```{cmd_name} args:\n{newln.join(params)}```\n'
