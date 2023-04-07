@@ -38,15 +38,12 @@ def command(name=None, aliases=[]):
         @wraps(f)
         def wrapper(*args, **kwargs):
             args = list(args)
-            print(args)
             for k, v in f._defaults.items():
                 if v == None:
                     args.append(args[0].get(k))
                     continue
                 args[0].setdefault(k, v)
                 args.append(args[0].get(k))
-            print(args)
-            print(kwargs)
             return f(*args, **kwargs)
 
         params = signature(wrapper).parameters
@@ -61,6 +58,7 @@ def command(name=None, aliases=[]):
         if name is None:
             name = wrapper.__name__
         commands_by_name[name] = wrapper
+        wrapper._aliases = [name] + aliases
         for alias in aliases:
             commands_by_name[alias] = wrapper
         
@@ -753,6 +751,7 @@ def help(args, cmd_name = 'help'):
         return
 
     cmd = commands_by_name[cmd_name]
+    cmd_name = cmd._aliases[0]
     params = []
     for k, v in list(signature(cmd).parameters.items())[1:]:
         out = '  '
@@ -762,4 +761,7 @@ def help(args, cmd_name = 'help'):
         out += " = " + (str(v.default) if anno_type != str else f'"{v.default}"')
         params.append(out)
     newln = '\n'
-    args['player'].out += f'```{cmd_name} args:\n{newln.join(params)}```\n'
+    # args['player'].out += f'{cmd_name} Help:```\nAliases:\n{(newln+"  ").join(cmd._aliases)}\nArgs:\n{newln.join(params)}```\n'
+    args['player'].out += f'Help with {cmd_name}:```\n'
+    args['player'].out += f'Aliases:\n{newln.join(map(lambda x: "  "+x, cmd._aliases))}\n'
+    args['player'].out += f'Args:\n{newln.join(params)}```\n'
