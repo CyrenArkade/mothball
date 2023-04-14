@@ -1,5 +1,5 @@
 from numpy import float32 as fl
-from math import atan2, degrees, sqrt
+from math import atan2, degrees, sqrt, copysign, atan
 from inspect import signature
 from functools import wraps
 from types import MethodType
@@ -602,6 +602,39 @@ def possibilities(args, inputs = 'sj45(100)', mindistance = 0.01, offset = fl(0.
     
     player.out += '```'
     player.move = old_move
+
+@command(aliases=['ji'])
+def jumpinfo(args, x = 0.0, z = 0.0):
+
+    player = args['player']
+
+    if abs(x) < 0.6:
+        dx = 0.0
+    else:
+        dx = x - copysign(0.6, x)
+    if abs(z) < 0.6:
+        dz = 0.0
+    else:
+        dz = z - copysign(0.6, z)
+    
+    if dx == 0.0 and dz == 0.0:
+        player.out += 'That\'s not a jump!'
+        return
+    elif dx == 0.0 or dz == 0.0:
+        player.out +=  f'**{player.format(max(x, z))}b** jump -> **{player.format(max(dx, dz))}** distance'
+        return
+
+    distance = sqrt(dx**2 + dz**2)
+    angle = degrees(atan(dz/dx))
+
+    lines = [
+        f'A **{player.format(x)}b** by **{player.format(z)}b** block jump:',
+        f'Dimensions: **{player.format(dx)}** by **{player.format(dz)}**',
+        f'Distance: **{player.format(distance)}** distance -> **{player.format(distance+0.6)}b** jump',
+        f'Optimal Angle: **{angle:.3f}°**'
+    ]
+
+    player.out += '\n'.join(lines) + '\n'
 
 @command()
 def duration(args, floor = 0.0, ceiling = 0.0, inertia = 0.005, jump_boost = 0):
