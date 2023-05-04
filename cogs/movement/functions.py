@@ -770,12 +770,44 @@ def bwmm(args, mm = 1.0, strat = 'sj45(12)'):
     parsers.execute_string(strat, args['envs'], player)
     player.pre_out += f'Speed: {player.format(speed)}\n'
     player.pre_out += f'MM: {player.format(player.z + (-fl(0.6) if player.z > 0 else fl(0.6)))}\n'
-    player.z = 0.0
-    player.x = 0.0
 
 @command()
-def inv(args, goal = 1.0, strat = 'sj45(12)'):
-    bwmm(args, goal, strat)
+def inv(args, goal = 1.6, strat = 'sj45(12)'):
+    player = args['player']
+
+    p1 = player.softcopy()
+    parsers.execute_string(strat, args['envs'], p1)
+    p1_dist = p1.z
+
+    p2 = player.softcopy()
+    p2.vz = 1.0
+    parsers.execute_string(strat, args['envs'], p2)
+    p2_dist = p2.z
+
+    speed = (p1_dist - goal) / (p1_dist - p2_dist)
+    player.vz = speed
+    parsers.execute_string(strat, args['envs'], player)
+    player.pre_out += f'Speed: {player.format(speed)}\n'
+    player.pre_out += f'Dist: {player.format(player.z)}\n'
+
+@command()
+def speedreq(args, blocks = 5.0, strat = 'sj45(12)'):
+    player = args['player']
+
+    p1 = player.softcopy()
+    parsers.execute_string(strat, args['envs'], p1)
+    p1_blocks = p1.z + (-fl(0.6) if p1.z < 0 else fl(0.6))
+
+    p2 = player.softcopy()
+    p2.vz = 1.0
+    parsers.execute_string(strat, args['envs'], p2)
+    p2_blocks = p2.z + (-fl(0.6) if p2.z < 0 else fl(0.6))
+
+    speed = (p1_blocks - blocks) / (p1_blocks - p2_blocks)
+    player.vz = speed
+    parsers.execute_string(strat, args['envs'], player)
+    player.pre_out += f'Speed: {player.format(speed)}\n'
+    player.pre_out += f'Blocks: {player.format(player.z + (-fl(0.6) if player.z < 0 else fl(0.6)))}\n'
 
 @command()
 def help(args, cmd_name = 'help'):
