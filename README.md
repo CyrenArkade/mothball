@@ -95,6 +95,9 @@ Functions and variables will persist across channels and servers until Mothball 
 You may modify a movement function's keypresses with the syntax `function.keys`.  
 For example, `sprint.wd(4, 10)` would sprint with WD for 4 ticks facing 10.
 
+Prepending a function with `-` will invert the keypresses.  
+For example, `-w(5)` walks backwards with S for 5 ticks.
+
 ## Macros
 
 MPK Mod macros can be made by adding the argumentless macro function anywhere in a command.  
