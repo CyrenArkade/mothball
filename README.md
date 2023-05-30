@@ -7,10 +7,12 @@ A Discord bot for simulating Minecraft movement.
 `;[then | t]`​`functions` Continues simulation from the reply and displays the final result.  
 `;[thenh | th]`​`functions` Continues simulation from the reply and displays tick by tick results.
 
-`;jumpinfo z, x=0`  
-`;duration floor=0, ceiling=inf, inertia=0.005, jump_boost=0`  
-`;height ticks=0, ceiling=inf, inertia=0.005, jump_boost=0`  
-`;blip num_blips=1, blip_height=0.0625, init_height=blip_height, init_vy=(0.42+jump_boost), inertia=0.005, jump_boost=0`
+### Non-Simulation Functions
+
+`jumpinfo(z, x=0)`  
+`duration(floor=0, ceiling=inf, inertia=0.005, jump_boost=0)`  
+`height(ticks=0, ceiling=inf, inertia=0.005, jump_boost=0)`  
+`blip(num_blips=1, blip_height=0.0625, init_height=blip_height, init_vy=(0.42+jump_boost), inertia=0.005, jump_boost=0)`
 
 ## Function Syntax
 Functions must be separated by spaces. They consist of the function name, optionally followed by arguments in parenthesis. Args must be separated by commas.
@@ -76,7 +78,8 @@ Most movement functions have the positonal args `duration, rotation`, which defa
 Adding arguments to functions clearly not designed for them will produce unpredictable and impossible results.
 
 ### The repeat function
-The repeat function lets you repeat a function or a series of functions multiple times. An example: `repeat(sprintjump(12), 2)`
+The repeat function lets you repeat a function or a series of functions multiple times.  
+For example, `repeat(sprintjump(12), 3)` is equivalent to `sj(12) sj(12) sj(12)`
 
 ## User-Defined Variables and Functions
 
@@ -91,8 +94,11 @@ Functions and variables will persist across channels and servers until Mothball 
 
 ## Input-based Functions
 
-You may modify a movement function's keypresses with the syntax `function`​`keys`.  
+You may modify a movement function's keypresses with the syntax `function.keys`.  
 For example, `sprint.wd(4, 10)` would sprint with WD for 4 ticks facing 10.
+
+Prepending a function with `-` will invert the keypresses.  
+For example, `-w(5)` walks backwards with S for 5 ticks.
 
 ## Macros
 
@@ -101,3 +107,13 @@ For example, this simulates 1bm 5-1: `wj.sd(12, 35) w.sd(1, 35) sj.wa(1, 35) s45
 You may also provide the macro function a name with macro(name)
 
 Macros will not account for sprinting in air starting a tick late.
+
+## Optimization Functions
+
+There are three optimization functions: `bwmm`, `inv`, and `speedreq`.  
+They all behave similarly. First, they take a goal arg that they will optimize Z towards. Second, they take a strat to optimize. The function will find the speed required to meet the goal, then perform the strat that speed.
+
+Here are a few examples!  
+1bm 4.8175+0.5: `bwmm(1, sj45(12)) | sj45(10) zb`. This is a loop jump.  
+2bm backwalled 4.125b with 3bc: `inv(2, sj | sa(11)) | sj45(11) zb`. Note that there's a `|` after the sj forward. This is because you're still moving backward before that tick, so it must be ignored.  
+Finding the speed required for a 5 block, no 45: `sta speedreq(5, sj(12)) b`. Note the `sta` before the `speedreq`. This is to make the player start midair, since mothball usually assumes the player starts on the ground.
