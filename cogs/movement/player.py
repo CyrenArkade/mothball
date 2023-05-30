@@ -111,6 +111,7 @@ class Player:
         speed = args.get('speed', self.speed)
         slowness = args.get('slowness', self.slowness)
         soulsand = args.get('soulsand', self.soulsand)
+        sprintjump_boost = fl(0.2)
 
         if airborne:
             slip = fl(1)
@@ -126,6 +127,7 @@ class Player:
         if args.get('duration', 0) < 0 or 'reverse' in args:
             forward *= fl(-1)
             strafe *= fl(-1)
+            sprintjump_boost *= -1
         # End defining
         
         # Moving the player
@@ -165,8 +167,8 @@ class Player:
         # Applying sprintjump boost
         if sprinting and jumping:
             facing = fl(rotation * fl(0.017453292))
-            self.vx -= self.mcsin(facing) * fl(0.2)
-            self.vz += self.mccos(facing) * fl(0.2)
+            self.vx -= self.mcsin(facing) * sprintjump_boost
+            self.vz += self.mccos(facing) * sprintjump_boost
 
         # Applies sneaking
         if sneaking:

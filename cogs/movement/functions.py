@@ -758,18 +758,16 @@ def bwmm(args, mm = 1.0, strat = 'sj45(12)'):
 
     p1 = player.softcopy()
     parsers.execute_string(strat, args['envs'], p1)
-    p1_mm = p1.z + (-fl(0.6) if p1.z > 0 else fl(0.6))
 
     p2 = player.softcopy()
-    p2.vz = 1.0
+    p2.vz = 1.0 * mm
     parsers.execute_string(strat, args['envs'], p2)
-    p2_mm = p2.z + (-fl(0.6) if p2.z > 0 else fl(0.6))
 
-    speed = (p1_mm - mm) / (p1_mm - p2_mm)
+    speed = (p1.z - mm + (fl(0.6) if mm < 0 else -fl(0.6))) / (p1.z - p2.z) * mm
     player.vz = speed
     parsers.execute_string(strat, args['envs'], player)
     player.pre_out += f'Speed: {player.format(speed)}\n'
-    player.pre_out += f'MM: {player.format(player.z + (-fl(0.6) if player.z > 0 else fl(0.6)))}\n'
+    player.pre_out += f'MM: {player.format(player.z + (fl(0.6) if player.z < 0 else -fl(0.6)))}\n'
 
 @command()
 def inv(args, goal = 1.6, strat = 'sj45(12)'):
@@ -780,11 +778,11 @@ def inv(args, goal = 1.6, strat = 'sj45(12)'):
     p1_dist = p1.z
 
     p2 = player.softcopy()
-    p2.vz = 1.0
+    p2.vz = 1.0 * goal
     parsers.execute_string(strat, args['envs'], p2)
     p2_dist = p2.z
 
-    speed = (p1_dist - goal) / (p1_dist - p2_dist)
+    speed = (p1_dist - goal) / (p1_dist - p2_dist) * goal
     player.vz = speed
     parsers.execute_string(strat, args['envs'], player)
     player.pre_out += f'Speed: {player.format(speed)}\n'
@@ -796,18 +794,18 @@ def speedreq(args, blocks = 5.0, strat = 'sj45(12)'):
 
     p1 = player.softcopy()
     parsers.execute_string(strat, args['envs'], p1)
-    p1_blocks = p1.z + (-fl(0.6) if p1.z < 0 else fl(0.6))
+    p1_blocks = p1.z
 
     p2 = player.softcopy()
-    p2.vz = 1.0
+    p2.vz = 1.0 * blocks
     parsers.execute_string(strat, args['envs'], p2)
-    p2_blocks = p2.z + (-fl(0.6) if p2.z < 0 else fl(0.6))
+    p2_blocks = p2.z
 
-    speed = (p1_blocks - blocks) / (p1_blocks - p2_blocks)
+    speed = (p1_blocks - blocks + (fl(0.6) if blocks > 0 else -fl(0.6))) / (p1_blocks - p2_blocks) * blocks
     player.vz = speed
     parsers.execute_string(strat, args['envs'], player)
     player.pre_out += f'Speed: {player.format(speed)}\n'
-    player.pre_out += f'Blocks: {player.format(player.z + (-fl(0.6) if player.z < 0 else fl(0.6)))}\n'
+    player.pre_out += f'Blocks: {player.format(player.z + (fl(0.6) if player.z > 0 else -fl(0.6)))}\n'
 
 @command()
 def help(args, cmd_name = 'help'):
