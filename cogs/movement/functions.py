@@ -757,9 +757,12 @@ def bwmm(args, mm = 1.0, strat = 'sj45(12)'):
     player = args['player']
 
     p1 = player.softcopy()
+    p1.vz = 0.0
+    p1.inertia = 0.0
     parsers.execute_string(strat, args['envs'], p1)
 
     p2 = player.softcopy()
+    p2.inertia = 0.0
     p2.vz = 1.0 * mm
     parsers.execute_string(strat, args['envs'], p2)
 
@@ -774,10 +777,13 @@ def inv(args, goal = 1.6, strat = 'sj45(12)'):
     player = args['player']
 
     p1 = player.softcopy()
+    p1.inertia = 0.0
+    p1.vz = 0.0
     parsers.execute_string(strat, args['envs'], p1)
     p1_dist = p1.z
 
     p2 = player.softcopy()
+    p2.inertia = 0.0
     p2.vz = 1.0 * goal
     parsers.execute_string(strat, args['envs'], p2)
     p2_dist = p2.z
@@ -793,10 +799,13 @@ def speedreq(args, blocks = 5.0, strat = 'sj45(12)'):
     player = args['player']
 
     p1 = player.softcopy()
+    p1.inertia = 0.0
+    p1.vz = 0.0
     parsers.execute_string(strat, args['envs'], p1)
     p1_blocks = p1.z
 
     p2 = player.softcopy()
+    p2.inertia = 0.0
     p2.vz = 1.0 * blocks
     parsers.execute_string(strat, args['envs'], p2)
     p2_blocks = p2.z
