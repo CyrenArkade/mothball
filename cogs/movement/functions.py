@@ -848,7 +848,7 @@ def angleinfo(args, angle = f32(0.0), mode = 'vanilla'):
 
     format = args['player'].format
     output = [
-        [f'{angle}°', 'Sin', 'Cos', 'Normal'],
+        [f'{format(angle)}°', 'Sin', 'Cos', 'Normal'],
         ['Value', format(sin_value), format(cos_value), format(normal)],
         ['Angle', format(sin_angle), format(cos_angle), ''],
         ['Index', format(sin_index), f'{format(cos_index_adj)} ({format(cos_index)})', '']
