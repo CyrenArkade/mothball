@@ -1,12 +1,18 @@
-from numpy import float32 as fl
-from math import atan2, degrees, sqrt, copysign, atan
+from numpy import float32, int32, uint64
+from math import atan2, degrees, sqrt, copysign, atan, asin, acos, sin
 from inspect import signature
 from functools import wraps
 from types import MethodType
 from numexpr import evaluate
 import cogs.movement.parsers as parsers
-from cogs.movement.utils import Function, SimError
+from cogs.movement.utils import Function, SimError, fastmath_sin_table
 from cogs.movement.player import Player
+
+f64 = float
+f32 = float32
+i32 = int32
+u64 = uint64
+PI = 3.14159265358979323846
 
 commands_by_name = {}
 types_by_command = {}
@@ -19,10 +25,10 @@ def register_arg(arg, type, new_aliases = []):
         aliases[alias] = arg
 
 register_arg('duration', int, ['dur', 't'])
-register_arg('rotation', fl, ['rot', 'r'])
-register_arg('forward', fl)
-register_arg('strafe', fl)
-register_arg('slip', fl, ['s'])
+register_arg('rotation', f32, ['rot', 'r'])
+register_arg('forward', f32)
+register_arg('strafe', f32)
+register_arg('slip', f32, ['s'])
 register_arg('airborne', bool, ['air'])
 register_arg('sprinting', bool, ['sprint'])
 register_arg('sneaking', bool, ['sneak', 'sn'])
@@ -114,270 +120,270 @@ def var(args, name = '', input = ''):
 
 
 @command(aliases=['sn'])
-def sneak(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def sneak(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     args.setdefault('sneaking', True)
     move(args)
 
 @command(aliases=['sns'])
-def sneaksprint(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def sneaksprint(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     args.setdefault('sneaking', True)
     args.setdefault('sprinting', True)
     move(args)
 
 @command(aliases=['w'])
-def walk(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def walk(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     move(args)
 
 @command(aliases=['s'])
-def sprint(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def sprint(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     args.setdefault('sprinting', True)
     move(args)
 
 @command(aliases=['sn45'])
-def sneak45(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def sneak45(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     args.setdefault('sneaking', True)
-    args.setdefault('strafe', fl(1))
-    args['function_offset'] = fl(45)
+    args.setdefault('strafe', f32(1))
+    args['function_offset'] = f32(45)
     move(args)
 
 @command(aliases=['sns45'])
-def sneaksprint45(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def sneaksprint45(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     args.setdefault('sneaking', True)
     args.setdefault('sprinting', True)
-    args.setdefault('strafe', fl(1))
-    args['function_offset'] = fl(45)
+    args.setdefault('strafe', f32(1))
+    args['function_offset'] = f32(45)
     move(args)
 
 @command(aliases=['w45'])
-def walk45(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
-    args.setdefault('strafe', fl(1))
-    args['function_offset'] = fl(45)
+def walk45(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
+    args.setdefault('strafe', f32(1))
+    args['function_offset'] = f32(45)
     move(args)
 
 @command(aliases=['s45'])
-def sprint45(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def sprint45(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     args.setdefault('sprinting', True)
-    args.setdefault('strafe', fl(1))
-    args['function_offset'] = fl(45)
+    args.setdefault('strafe', f32(1))
+    args['function_offset'] = f32(45)
     move(args)
 
 @command(aliases=['sna'])
-def sneakair(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def sneakair(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     args.setdefault('sneaking', True)
     args.setdefault('airborne', True)
     move(args)
 
 @command(aliases=['snsa'])
-def sneaksprintair(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def sneaksprintair(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     args.setdefault('sneaking', True)
     args.setdefault('sprinting', True)
     args.setdefault('airborne', True)
     move(args)
 
 @command(aliases=['wa'])
-def walkair(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def walkair(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     args.setdefault('airborne', True)
     move(args)
 
 @command(aliases=['sa'])
-def sprintair(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def sprintair(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     args.setdefault('sprinting', True)
     args.setdefault('airborne', True)
     move(args)
 
 @command(aliases=['sneakair45', 'sn45a', 'sna45'])
-def sneak45air(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def sneak45air(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     args.setdefault('sneaking', True)
-    args.setdefault('strafe', fl(1))
-    args['function_offset'] = fl(45)
+    args.setdefault('strafe', f32(1))
+    args['function_offset'] = f32(45)
     args.setdefault('airborne', True)
     move(args)
 
 @command(aliases=['sneaksprintair45', 'sns45a', 'snsa45'])
-def sneaksprint45air(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def sneaksprint45air(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     args.setdefault('sneaking', True)
-    args.setdefault('strafe', fl(1))
-    args['function_offset'] = fl(45)
+    args.setdefault('strafe', f32(1))
+    args['function_offset'] = f32(45)
     args.setdefault('airborne', True)
     move(args)
 
 @command(aliases=['walkair45', 'w45a', 'wa45'])
-def walk45air(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
-    args.setdefault('strafe', fl(1))
-    args['function_offset'] = fl(45)
+def walk45air(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
+    args.setdefault('strafe', f32(1))
+    args['function_offset'] = f32(45)
     args.setdefault('airborne', True)
     move(args)
 
 @command(aliases=['sprintair45', 's45a', 'sa45'])
-def sprint45air(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def sprint45air(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     args.setdefault('sprinting', True)
-    args.setdefault('strafe', fl(1))
-    args['function_offset'] = fl(45)
+    args.setdefault('strafe', f32(1))
+    args['function_offset'] = f32(45)
     args.setdefault('airborne', True)
     move(args)
 
 @command(aliases=['snj'])
-def sneakjump(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def sneakjump(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     args.setdefault('sneaking', True)
     jump(args)
 
 @command(aliases=['snsj'])
-def sneaksprintjump(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def sneaksprintjump(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     args.setdefault('sneaking', True)
     args.setdefault('sprinting', True)
     jump(args)
 
 @command(aliases=['wj'])
-def walkjump(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def walkjump(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     jump(args)
 
 @command(aliases=['lwj'])
-def lwalkjump(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
-    args.setdefault('strafe', fl(1))
+def lwalkjump(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
+    args.setdefault('strafe', f32(1))
 
     def update():
-        args['strafe'] = fl(0)
+        args['strafe'] = f32(0)
 
     jump(args, after_jump_tick = update)
 
 @command(aliases=['rwj'])
-def rwalkjump(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
-    args.setdefault('strafe', fl(-1))
+def rwalkjump(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
+    args.setdefault('strafe', f32(-1))
 
     def update():
-        args['strafe'] = fl(0)
+        args['strafe'] = f32(0)
 
     jump(args, after_jump_tick = update)
 
 @command(aliases=['sj'])
-def sprintjump(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def sprintjump(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     args.setdefault('sprinting', True)
     jump(args)
 
 @command(aliases=['lsj'])
-def lsprintjump(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
-    args.setdefault('strafe', fl(1))
+def lsprintjump(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
+    args.setdefault('strafe', f32(1))
     args.setdefault('sprinting', True)
 
     def update():
-        args['strafe'] = fl(0)
+        args['strafe'] = f32(0)
 
     jump(args, after_jump_tick = update)
 
 @command(aliases=['rsj'])
-def rsprintjump(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
-    args.setdefault('strafe', fl(-1))
+def rsprintjump(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
+    args.setdefault('strafe', f32(-1))
     args.setdefault('sprinting', True)
 
     def update():
-        args['strafe'] = fl(0)
+        args['strafe'] = f32(0)
 
     jump(args, after_jump_tick = update)
 
 @command(aliases=['snj45'])
-def sneakjump45(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def sneakjump45(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     args.setdefault('sneaking', True)
-    args.setdefault('strafe', fl(1))
-    args['function_offset'] = fl(45)
+    args.setdefault('strafe', f32(1))
+    args['function_offset'] = f32(45)
     jump(args)
 
 @command(aliases=['snsj45'])
-def sneaksprintjump45(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def sneaksprintjump45(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     args.setdefault('sneaking', True)
     args.setdefault('sprinting', True)
-    args.setdefault('strafe', fl(1))
-    args['function_offset'] = fl(45)
+    args.setdefault('strafe', f32(1))
+    args['function_offset'] = f32(45)
     jump(args)
 
 @command(aliases=['wj45'])
-def walkjump45(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
-    args.setdefault('strafe', fl(1))
-    args['function_offset'] = fl(45)
+def walkjump45(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
+    args.setdefault('strafe', f32(1))
+    args['function_offset'] = f32(45)
     jump(args)
 
 @command(aliases=['sj45'])
-def sprintjump45(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
+def sprintjump45(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
     args.setdefault('sprinting', True)
     
     def update():
-        args.setdefault('strafe', fl(1))
-        args['function_offset'] = fl(45)
+        args.setdefault('strafe', f32(1))
+        args['function_offset'] = f32(45)
     
     jump(args, after_jump_tick = update)
 
 @command(aliases=['lsj45'])
-def lsprintjump45(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
-    args.setdefault('strafe', fl(1))
+def lsprintjump45(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
+    args.setdefault('strafe', f32(1))
     args.setdefault('sprinting', True)
     
-    args['function_offset'] = fl(45)
+    args['function_offset'] = f32(45)
     
     jump(args)
 
 @command(aliases=['rsj45'])
-def rsprintjump45(args, duration = 1, rotation: fl = None):
-    args.setdefault('forward', fl(1))
-    args.setdefault('strafe', fl(-1))
+def rsprintjump45(args, duration = 1, rotation: f32 = None):
+    args.setdefault('forward', f32(1))
+    args.setdefault('strafe', f32(-1))
     args.setdefault('sprinting', True)
     
-    args['function_offset'] = fl(-45)
+    args['function_offset'] = f32(-45)
     
     jump(args)
 
 @command(aliases=['snp'])
-def sneakpessi(args, duration = 1, delay = 1, rotation: fl = None):
+def sneakpessi(args, duration = 1, delay = 1, rotation: f32 = None):
 
     args['duration'] = delay
     jump(args)
 
     args['duration'] = duration - delay
-    args.setdefault('forward', fl(1))
+    args.setdefault('forward', f32(1))
     args.setdefault('sneaking', True)
     args.setdefault('airborne', True)
     move(args)
 
 @command(aliases=['wp'])
-def walkpessi(args, duration = 1, delay = 1, rotation: fl = None):
+def walkpessi(args, duration = 1, delay = 1, rotation: f32 = None):
 
     args['duration'] = delay
     jump(args)
 
     args['duration'] = duration - delay
-    args.setdefault('forward', fl(1))
+    args.setdefault('forward', f32(1))
     args.setdefault('airborne', True)
     move(args)
 
 @command(aliases=['sp'])
-def sprintpessi(args, duration = 1, delay = 1, rotation: fl = None):
+def sprintpessi(args, duration = 1, delay = 1, rotation: f32 = None):
 
     args['duration'] = delay
     jump(args)
@@ -386,7 +392,7 @@ def sprintpessi(args, duration = 1, delay = 1, rotation: fl = None):
         args['sprinting'] = True
 
     args['duration'] = duration - delay
-    args.setdefault('forward', fl(1))
+    args.setdefault('forward', f32(1))
     args.setdefault('airborne', True)
     move(args)
 
@@ -413,26 +419,26 @@ def reset_position(args):
 @command(name='b')
 def dist_to_blocks(args):
     if args['player'].x > 0:
-        args['player'].modx += fl(0.6)
+        args['player'].modx += f32(0.6)
     elif args['player'].x < 0:
-        args['player'].modx -= fl(0.6)
+        args['player'].modx -= f32(0.6)
 
     if args['player'].z > 0:
-        args['player'].modz += fl(0.6)
+        args['player'].modz += f32(0.6)
     elif args['player'].z < 0:
-        args['player'].modz -= fl(0.6)
+        args['player'].modz -= f32(0.6)
 
 @command(name='mm')
 def dist_to_mm(args):
     if args['player'].x > 0:
-        args['player'].modx -= fl(0.6)
+        args['player'].modx -= f32(0.6)
     elif args['player'].x < 0:
-        args['player'].modx += fl(0.6)
+        args['player'].modx += f32(0.6)
 
     if args['player'].z > 0:
-        args['player'].modz -= fl(0.6)
+        args['player'].modz -= f32(0.6)
     elif args['player'].z < 0:
-        args['player'].modz += fl(0.6)
+        args['player'].modz += f32(0.6)
 
 @command(aliases=['$'])
 def zero(args):
@@ -482,10 +488,10 @@ def slowness(args, slowness = 0):
     args['player'].slowness = slowness
 
 @command(aliases = ['slip'])
-def setslip(args, slip = fl(0)):
+def setslip(args, slip = f32(0)):
     args['player'].ground_slip = slip
 
-@command(aliases = ['angle', 'a'])
+@command(aliases = ['a'])
 def angles(args, angles = -1):
     args['player'].angles = angles
 
@@ -498,15 +504,15 @@ def precision(args, precision = 6):
     args['player'].printprecision = precision
 
 @command(aliases = ['facing', 'face', 'f'])
-def rotation(args, angle = fl(0)):
+def rotation(args, angle = f32(0)):
     args['player'].default_rotation = angle
 
 @command(aliases = ['offrotation', 'or', 'offsetfacing', 'of'])
-def offsetrotation(args, angle = fl(0)):
+def offsetrotation(args, angle = f32(0)):
     args['player'].rotation_offset = angle
 
 @command(aliases = ['turn'])
-def turn(args, angle = fl(0)):
+def turn(args, angle = f32(0)):
     args['player'].default_rotation += angle
 
 @command(aliases = ['ssand', 'ss'])
@@ -515,21 +521,21 @@ def soulsand(args, soulsand = 1):
 
 @command(aliases = ['aq', 'qa'])
 def anglequeue(args):
-    def to_float(val):
+    def to_f32(val):
         try:
-            return fl(val)
+            return f32(val)
         except:
             raise SimError(f'Error in `anglequeue` converting `{val}` to type `rotation:float32`')
-    args['player'].rotation_queue.extend(map(to_float, args['pos_args']))
+    args['player'].rotation_queue.extend(map(to_f32, args['pos_args']))
 
 @command(aliases = ['tq', 'qt'])
 def turnqueue(args):
-    def to_float(val):
+    def to_f32(val):
         try:
-            return fl(val)
+            return f32(val)
         except:
             raise SimError(f'Error in `turnqueue` converting `{val}` to type `rotation:float32`')
-    args['player'].turn_queue.extend(map(to_float, args['pos_args']))
+    args['player'].turn_queue.extend(map(to_f32, args['pos_args']))
 
 @command()
 def macro(args, name = 'macro'):
@@ -551,17 +557,17 @@ def outvz(args):
 
 @command(name='outxmm', aliases=['xmm'])
 def x_mm(args):
-    args['player'].out += f"X mm: {args['player'].format(args['player'].x + (-fl(0.6) if args['player'].x > 0 else fl(0.6)))}\n"
+    args['player'].out += f"X mm: {args['player'].format(args['player'].x + (-f32(0.6) if args['player'].x > 0 else f32(0.6)))}\n"
 @command(name='outzmm', aliases=['zmm'])
 def z_mm(args):
-    args['player'].out += f"Z mm: {args['player'].format(args['player'].z + (-fl(0.6) if args['player'].z > 0 else fl(0.6)))}\n"
+    args['player'].out += f"Z mm: {args['player'].format(args['player'].z + (-f32(0.6) if args['player'].z > 0 else f32(0.6)))}\n"
 
 @command(name='outxb', aliases=['xb'])
 def x_b(args):
-    args['player'].out += f"X b: {args['player'].format(args['player'].x - (-fl(0.6) if args['player'].x > 0 else fl(0.6)))}\n"
+    args['player'].out += f"X b: {args['player'].format(args['player'].x - (-f32(0.6) if args['player'].x > 0 else f32(0.6)))}\n"
 @command(name='outzb', aliases=['zb'])
 def z_b(args):
-    args['player'].out += f"Z b: {args['player'].format(args['player'].z - (-fl(0.6) if args['player'].z > 0 else fl(0.6)))}\n"
+    args['player'].out += f"Z b: {args['player'].format(args['player'].z - (-f32(0.6) if args['player'].z > 0 else f32(0.6)))}\n"
     
 @command(aliases = ['speedvec', 'vector', 'vec'])
 def speedvector(args):
@@ -571,7 +577,7 @@ def speedvector(args):
     args['player'].out += f"Speed: {args['player'].format(speed)}"
 
 @command(aliases = ["poss"])
-def possibilities(args, inputs = 'sj45(100)', mindistance = 0.01, offset = fl(0.6)):
+def possibilities(args, inputs = 'sj45(100)', mindistance = 0.01, offset = f32(0.6)):
     
     player = args['player']
     format = player.format
@@ -689,7 +695,7 @@ def height(args, duration = 12, ceiling = 0.0, inertia = 0.005, jump_boost = 0):
     player.out += (f'Height after {duration} ticks{ceiling}:\n**{round(y, 6)}**')
 
 @command()
-def blip(args, blips = 1, blip_height = 0.0625, init_height: float = None, init_vy: float = None, inertia = 0.005, jump_boost = 0):
+def blip(args, blips = 1, blip_height = 0.0625, init_height: f64 = None, init_vy: f64 = None, inertia = 0.005, jump_boost = 0):
 
     if init_height is None:
         init_height = blip_height
@@ -746,7 +752,7 @@ def blip(args, blips = 1, blip_height = 0.0625, init_height: float = None, init_
     for i in range(0, len(jump_ys)):
         num = f'{i:0{num_col_width}}'.ljust(4)
         jumped_from = f'{jump_ys[i]:<11.6f}'
-        max_height = f'{max_heights[i]:<10.6f}' if type(max_heights[i]) == float else max_heights[i]
+        max_height = f'{max_heights[i]:<10.6f}' if type(max_heights[i]) == f64 else max_heights[i]
         out += (f'\n{num} | {jumped_from} | {max_height}')
     out += '```'
     
@@ -766,11 +772,11 @@ def bwmm(args, mm = 1.0, strat = 'sj45(12)'):
     p2.vz = 1.0 * mm
     parsers.execute_string(strat, args['envs'], p2)
 
-    speed = (p1.z - mm + (fl(0.6) if mm < 0 else -fl(0.6))) / (p1.z - p2.z) * mm
+    speed = (p1.z - mm + (f32(0.6) if mm < 0 else -f32(0.6))) / (p1.z - p2.z) * mm
     player.vz = speed
     parsers.execute_string(strat, args['envs'], player)
     player.pre_out += f'Speed: {player.format(speed)}\n'
-    player.pre_out += f'MM: {player.format(player.z + (fl(0.6) if player.z < 0 else -fl(0.6)))}\n'
+    player.pre_out += f'MM: {player.format(player.z + (f32(0.6) if player.z < 0 else -f32(0.6)))}\n'
 
 @command()
 def inv(args, goal = 1.6, strat = 'sj45(12)'):
@@ -810,11 +816,55 @@ def speedreq(args, blocks = 5.0, strat = 'sj45(12)'):
     parsers.execute_string(strat, args['envs'], p2)
     p2_blocks = p2.z
 
-    speed = (p1_blocks - blocks + (fl(0.6) if blocks > 0 else -fl(0.6))) / (p1_blocks - p2_blocks) * blocks
+    speed = (p1_blocks - blocks + (f32(0.6) if blocks > 0 else -f32(0.6))) / (p1_blocks - p2_blocks) * blocks
     player.vz = speed
     parsers.execute_string(strat, args['envs'], player)
     player.pre_out += f'Speed: {player.format(speed)}\n'
-    player.pre_out += f'Blocks: {player.format(player.z + (fl(0.6) if player.z > 0 else -fl(0.6)))}\n'
+    player.pre_out += f'Blocks: {player.format(player.z + (f32(0.6) if player.z > 0 else -f32(0.6)))}\n'
+
+@command(aliases=['angle'])
+def angleinfo(args, angle = f32(0.0), mode = 'vanilla'):
+
+    angle_rad = angle * f32(PI) / f32(180)
+
+    if mode == 'vanilla':
+        sin_index = u64(i32(angle_rad * f32(10430.378)) & 65535)
+        cos_index = u64(i32(angle_rad * f32(10430.378) + 16384.0) & 65535)
+        sin_value = sin(sin_index * PI * 2.0 / 65536)
+        cos_value = sin(cos_index * PI * 2.0 / 65536)
+        cos_index_adj = (int(cos_index) - 16384) % 65536
+    elif mode == 'optifine':
+        sin_index = u64(i32(angle_rad * f32(651.8986)) & 4095)
+        cos_index = u64(i32((angle_rad + f32(1.5707964)) * 651.8986) & 4095)
+        sin_value = fastmath_sin_table[sin_index]
+        cos_value = fastmath_sin_table[cos_index]
+        cos_index_adj = (int(cos_index) - 1024) % 4096
+    else:
+        raise SimError(f'Unkown mode {mode}. Options are `vanilla`, `optifine`')
+    
+    sin_angle = degrees(asin(sin_value))
+    cos_angle = degrees(acos(cos_value))
+    normal = sqrt(sin_value**2.0 + cos_value**2.0)
+
+    format = args['player'].format
+    output = [
+        [f'{angle}°', 'Sin', 'Cos', 'Normal'],
+        ['Value', format(sin_value), format(cos_value), format(normal)],
+        ['Angle', format(sin_angle), format(cos_angle), ''],
+        ['Index', format(sin_index), f'{format(cos_index_adj)} ({format(cos_index)})', '']
+    ]
+
+    for col in output:
+        col_width = max(map(len, col)) + 2
+        for i in range(len(col)):
+            col[i] = col[i].ljust(col_width)
+
+    args['player'].out += '```'
+    for i in range(4):
+        for j in range(4):
+            args['player'].out += output[j][i]
+        args['player'].out += '\n'
+    args['player'].out += '```'
 
 @command()
 def help(args, cmd_name = 'help'):

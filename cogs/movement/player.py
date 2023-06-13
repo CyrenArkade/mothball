@@ -1,4 +1,3 @@
-from xml.sax.saxutils import prepare_input_source
 from numpy import float32 as fl, format_float_positional
 import math
 from cogs.movement.utils import fastmath_sin_table
@@ -226,7 +225,7 @@ class Player:
             index = int(rad * fl(10430.378)) & 65535
         else:
             index = int(1 / (2 * Player.pi) * self.angles * rad) & (self.acsngles - 1)
-        return fl(math.sin(index * math.pi * 2.0 / self.angles))
+        return fl(math.sin(index * self.pi * 2.0 / self.angles))
 
     def mccos(self, rad):
         if self.angles == -1:
@@ -238,4 +237,4 @@ class Player:
             index = int(rad * fl(10430.378) + fl(16384.0)) & 65535
         else:
             index = int(1 / (2 * Player.pi) * self.angles * rad + self.angles / 4) & (self.angles - 1)
-        return fl(math.sin(index * math.pi * 2.0 / self.angles))
+        return fl(math.sin(index * self.pi * 2.0 / self.angles))
