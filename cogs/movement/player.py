@@ -95,7 +95,7 @@ class Player:
         # Defining variables
 
         if len(self.rotation_queue) > 0:
-            self.default_rotation += self.rotation_queue.pop(0)
+            self.default_rotation = self.rotation_queue.pop(0)
         if len(self.turn_queue) > 0:
             self.default_rotation += self.turn_queue.pop(0)
 
