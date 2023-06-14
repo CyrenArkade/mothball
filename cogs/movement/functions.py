@@ -829,13 +829,13 @@ def angleinfo(args, angle = f32(0.0), mode = 'vanilla'):
 
     if mode == 'vanilla':
         sin_index = u64(i32(angle_rad * f32(10430.378)) & 65535)
-        cos_index = u64(i32(angle_rad * f32(10430.378) + 16384.0) & 65535)
+        cos_index = u64(i32(angle_rad * f32(10430.378) + f32(16384.0)) & 65535)
         sin_value = sin(sin_index * PI * 2.0 / 65536)
         cos_value = sin(cos_index * PI * 2.0 / 65536)
         cos_index_adj = (int(cos_index) - 16384) % 65536
     elif mode == 'optifine':
         sin_index = u64(i32(angle_rad * f32(651.8986)) & 4095)
-        cos_index = u64(i32((angle_rad + f32(1.5707964)) * 651.8986) & 4095)
+        cos_index = u64(i32((angle_rad + f32(1.5707964)) * f32(651.8986)) & 4095)
         sin_value = fastmath_sin_table[sin_index]
         cos_value = fastmath_sin_table[cos_index]
         cos_index_adj = (int(cos_index) - 1024) % 4096
