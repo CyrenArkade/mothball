@@ -159,7 +159,7 @@ class Player:
             if speed > 0:
                 movement = fl(movement * (1.0 + fl(0.2) * float(speed)))
             if slowness > 0:
-                movement = fl(movement * (1.0 + fl(-0.15) * float(slowness)))
+                movement = fl(movement * max((1.0 + fl(-0.15) * float(slowness)), 0.0))
             if sprinting:
                 movement = fl(movement * (1.0 + fl(0.3)))
         
