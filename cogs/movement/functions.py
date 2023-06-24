@@ -574,7 +574,7 @@ def speedvector(args):
     angle = degrees(atan2(-args['player'].vx, args['player'].vz))
     speed = sqrt(args['player'].vx**2 + args['player'].vz**2)
     args['player'].out += f"Angle: {args['player'].format(angle)}\n"
-    args['player'].out += f"Speed: {args['player'].format(speed)}"
+    args['player'].out += f"Speed: {args['player'].format(speed)}\n"
 
 @command(aliases = ["poss"])
 def possibilities(args, inputs = 'sj45(100)', mindistance = 0.01, offset = f32(0.6)):
