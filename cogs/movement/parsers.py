@@ -2,7 +2,10 @@ from re import match, search
 import cogs.movement.functions as functions
 from cogs.movement.utils import SimError
 from numpy import float32 as fl
-from evalidate import Expr, EvalException
+from evalidate import Expr, base_eval_model
+
+if 'USub' not in base_eval_model.nodes:
+    base_eval_model.nodes.append('USub')
 
 def execute_string(text, envs, player):
     commands_args = string_to_args(text)
@@ -212,7 +215,7 @@ def fetch(envs, name):
             return env[name]
 
 def safe_eval(val, env):
-    return Expr(val.replace('^', '**')).eval(env)
+    return Expr(val.replace('^', '**'), model=base_eval_model).eval(env)
 
 aliases = functions.aliases
 commands_by_name = functions.commands_by_name
