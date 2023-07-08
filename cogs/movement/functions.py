@@ -3,7 +3,7 @@ from math import atan2, degrees, sqrt, copysign, atan, asin, acos, sin
 from inspect import signature
 from functools import wraps
 from types import MethodType
-from numexpr import evaluate
+from evalidate import Expr, EvalException
 import cogs.movement.parsers as parsers
 from cogs.movement.utils import Function, SimError, fastmath_sin_table
 from cogs.movement.player import Player
@@ -113,7 +113,7 @@ def var(args, name = '', input = ''):
         local_env = {}
         for env in args['envs']:
             local_env.update(env)
-        input = evaluate(input, local_dict=local_env)
+        input = parsers.safe_eval(input, local_dict=local_env)
     except:
         pass
     lowest_env[name] = input

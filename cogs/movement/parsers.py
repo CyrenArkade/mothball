@@ -2,7 +2,7 @@ from re import match, search
 import cogs.movement.functions as functions
 from cogs.movement.utils import SimError
 from numpy import float32 as fl
-from numexpr import evaluate
+from evalidate import Expr, EvalException
 
 def execute_string(text, envs, player):
     commands_args = string_to_args(text)
@@ -202,7 +202,7 @@ def cast(envs, type, val):
                 local_env[k] = type(v)
             except:
                 continue
-        return type(evaluate(val.replace('^', '**'), local_dict=local_env))
+        return type(safe_eval(val, local_env))
     else:
         return type(val)
 
@@ -210,6 +210,9 @@ def fetch(envs, name):
     for env in envs[::-1]:
         if name in env:
             return env[name]
+
+def safe_eval(val, env):
+    return Expr(val.replace('^', '**')).eval(env)
 
 aliases = functions.aliases
 commands_by_name = functions.commands_by_name
