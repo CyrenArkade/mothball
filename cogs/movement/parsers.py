@@ -6,6 +6,9 @@ from evalidate import Expr, base_eval_model
 
 if 'USub' not in base_eval_model.nodes:
     base_eval_model.nodes.append('USub')
+    base_eval_model.nodes.append('UAdd')
+    base_eval_model.nodes.append('FloorDiv')
+    base_eval_model.nodes.append('Pow')
 
 def execute_string(text, envs, player):
     commands_args = string_to_args(text)
