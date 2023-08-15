@@ -206,6 +206,8 @@ class Misc(commands.Cog):
         if any([msg.content.lower().startswith(x) for x in ('m!', 'p!', '^', '$', '<@520282851925688321>')]):
             return False
         if len(msg.content) == 1:
+            if msg.content == '\'': # bacon
+                return True
             return False
         return True
     

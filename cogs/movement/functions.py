@@ -495,6 +495,10 @@ def setslip(args, slip = f32(0)):
 def angles(args, angles = -1):
     args['player'].angles = angles
 
+@command(aliases = ['a'])
+def fastmath(args):
+    args['player'].angles = 4096
+
 @command()
 def inertia(args, inertia = 0.005):
     args['player'].inertia_threshold = inertia
