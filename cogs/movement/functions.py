@@ -915,7 +915,7 @@ def help(args, cmd_name = 'help'):
     """
     Get help with a function by displaying it's name, aliases, arguments, and defaults.
     arg_name: data_type = default_value
-    
+
     Ex: help(help) help(s) help(bwmm)
     """
 
@@ -935,6 +935,6 @@ def help(args, cmd_name = 'help'):
         params.append(out)
     newln = '\n'
     args['player'].out += f'Help with {cmd_name}:'
-    args['player'].out += '' if cmd.__doc__ is None else f'```{cleandoc(cmd.__doc__)}```'
-    args['player'].out += f'```\nAliases:\n{newln.join(map(lambda x: "  "+x, cmd._aliases))}\n'
-    args['player'].out += f'Args:\n{newln.join(params)}```\n'
+    args['player'].out += '' if cmd.__doc__ is None else f'\n```{cleandoc(cmd.__doc__)}```'
+    args['player'].out += f'```\nAliases:\n{newln.join(map(lambda x: "  "+x, cmd._aliases))}'
+    args['player'].out += f'\nArgs:\n{newln.join(params)}```\n'
