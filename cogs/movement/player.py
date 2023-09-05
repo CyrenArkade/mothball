@@ -20,6 +20,8 @@ class Player:
         self.rotation_offset = fl(0.0)
         self.rotation_queue = []
         self.turn_queue = []
+        self.prev_sprint = False
+        self.air_sprint_delay = True
         self.inertia_threshold = 0.005
         self.soulsand = 0
         self.speed = 0
@@ -84,6 +86,8 @@ class Player:
         other.rotation_queue = self.rotation_queue
         other.turn_queue = self.turn_queue
         other.inertia_threshold = self.inertia_threshold
+        other.prev_sprint = self.prev_sprint
+        other.air_sprint_delay = self.air_sprint_delay
         other.soulsand = self.soulsand
         other.speed = self.speed
         other.slowness = self.slowness
@@ -151,7 +155,8 @@ class Player:
         inertia = fl(0.91) * slip
         if airborne:
             movement = fl(0.02)
-            if sprinting:
+            # Sprinting start/stop is (by default) delayed by a tick midair
+            if (self.air_sprint_delay and self.prev_sprint) or (not self.air_sprint_delay and sprinting):
                 movement = fl(movement + movement * 0.3)
         else:
             movement = fl(0.1)
@@ -199,6 +204,7 @@ class Player:
             self.vz += float(forward * cos_yaw + strafe * sin_yaw)
 
         self.prev_slip = slip
+        self.prev_sprint = sprinting
         self.history.append((self.x, self.z, self.vx, self.vz))
         
         w = a = s = d = 'false'

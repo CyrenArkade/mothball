@@ -4,6 +4,7 @@ from inspect import signature
 from functools import wraps
 from types import MethodType
 from evalidate import Expr, EvalException
+from inspect import cleandoc
 import cogs.movement.parsers as parsers
 from cogs.movement.utils import Function, SimError, fastmath_sin_table
 from cogs.movement.player import Player
@@ -495,7 +496,7 @@ def setslip(args, slip = f32(0)):
 def angles(args, angles = -1):
     args['player'].angles = angles
 
-@command(aliases = ['a'])
+@command()
 def fastmath(args):
     args['player'].angles = 4096
 
@@ -580,8 +581,23 @@ def speedvector(args):
     args['player'].out += f"Angle: {args['player'].format(angle)}\n"
     args['player'].out += f"Speed: {args['player'].format(speed)}\n"
 
+@command(aliases = ['sprintdelay', 'sdel'])
+def air_sprint_delay(args, sprint_delay = True):
+    """Change the air sprint delay, which is present in 1.19.3-"""
+    args['player'].sprint_air_delay = sprint_delay
+
 @command(aliases = ["poss"])
 def possibilities(args, inputs = 'sj45(100)', mindistance = 0.01, offset = f32(0.6)):
+    """
+    Performs `inputs` and displays ticks where z is within `mindistance` above a pixel.
+
+    Offsets:
+    Blocks = 0.6 
+    Water/Web = 0.599
+    Slime/Ladder = 0.3
+    Avoid = 0.0
+    Neo = -0.6 
+    """
     
     player = args['player']
     format = player.format
@@ -673,7 +689,7 @@ def duration(args, floor = 0.0, ceiling = 0.0, inertia = 0.005, jump_boost = 0):
         return
 
     ceiling = f' {ceiling}bc' if ceiling != 0.0 else ''
-    player.out += f'Duration of a {floor}b{ceiling} jump:\n**{ticks} ticks**'
+    player.out += f'Duration of a {floor}b{ceiling} jump:\n**{ticks} ticks**\n'
 
 @command()
 def height(args, duration = 12, ceiling = 0.0, inertia = 0.005, jump_boost = 0):
@@ -696,7 +712,7 @@ def height(args, duration = 12, ceiling = 0.0, inertia = 0.005, jump_boost = 0):
             return
     
     ceiling = f' with a {ceiling}bc' if ceiling != 0.0 else ''
-    player.out += (f'Height after {duration} ticks{ceiling}:\n**{round(y, 6)}**')
+    player.out += (f'Height after {duration} ticks{ceiling}:\n**{round(y, 6)}**\n')
 
 @command()
 def blip(args, blips = 1, blip_height = 0.0625, init_height: f64 = None, init_vy: f64 = None, inertia = 0.005, jump_boost = 0):
@@ -758,12 +774,18 @@ def blip(args, blips = 1, blip_height = 0.0625, init_height: f64 = None, init_vy
         jumped_from = f'{jump_ys[i]:<11.6f}'
         max_height = f'{max_heights[i]:<10.6f}' if type(max_heights[i]) == f64 else max_heights[i]
         out += (f'\n{num} | {jumped_from} | {max_height}')
-    out += '```'
+    out += '```\n'
     
     player.out += out
 
 @command()
 def bwmm(args, mm = 1.0, strat = 'sj45(12)'):
+    """
+    Performs `strat` with an initial speed such that `mm`bm is covered while performing it.
+
+    If the strat runs into inertia while being performed with the optimal speed, then the distance will be incorrect.
+    """
+
     player = args['player']
 
     p1 = player.softcopy()
@@ -784,6 +806,12 @@ def bwmm(args, mm = 1.0, strat = 'sj45(12)'):
 
 @command()
 def inv(args, goal = 1.6, strat = 'sj45(12)'):
+    """
+    Performs `strat` with an initial speed such that `goal` is covered while performing it.
+
+    If the strat runs into inertia while being performed with the optimal speed, then the distance will be incorrect.
+    """
+
     player = args['player']
 
     p1 = player.softcopy()
@@ -806,6 +834,13 @@ def inv(args, goal = 1.6, strat = 'sj45(12)'):
 
 @command()
 def speedreq(args, blocks = 5.0, strat = 'sj45(12)'):
+    """
+    Performs `strat` with an initial speed such that `blocks`b is covered while performing it.
+
+    If the tick before `strat` is midair, be sure to prefix `speedreq` with `sta`
+    If the strat runs into inertia while being performed with the optimal speed, then the distance will be incorrect.
+    """
+
     player = args['player']
 
     p1 = player.softcopy()
@@ -828,9 +863,14 @@ def speedreq(args, blocks = 5.0, strat = 'sj45(12)'):
 
 @command(aliases=['angle'])
 def angleinfo(args, angle = f32(0.0), mode = 'vanilla'):
+    """
+    Get the trig value, significant angle, sin table index, and normal of some angle.
+    Mode can be: ['vanilla', 'optifine']
+    """
 
     angle_rad = angle * f32(PI) / f32(180)
 
+    mode = mode.lower()
     if mode == 'vanilla':
         sin_index = u64(i32(angle_rad * f32(10430.378)) & 65535)
         cos_index = u64(i32(angle_rad * f32(10430.378) + f32(16384.0)) & 65535)
@@ -872,8 +912,15 @@ def angleinfo(args, angle = f32(0.0), mode = 'vanilla'):
 
 @command()
 def help(args, cmd_name = 'help'):
+    """
+    Get help with a function by displaying it's name, aliases, arguments, and defaults.
+    arg_name: data_type = default_value
+    
+    Ex: help(help) help(s) help(bwmm)
+    """
+
     if cmd_name not in commands_by_name:
-        args['player'].out += f'`{cmd_name}` not found\n'
+        args['player'].out += f'Command `{cmd_name}` not found\n'
         return
 
     cmd = commands_by_name[cmd_name]
@@ -887,7 +934,7 @@ def help(args, cmd_name = 'help'):
         out += " = " + (str(v.default) if anno_type != str else f'"{v.default}"')
         params.append(out)
     newln = '\n'
-    # args['player'].out += f'{cmd_name} Help:```\nAliases:\n{(newln+"  ").join(cmd._aliases)}\nArgs:\n{newln.join(params)}```\n'
-    args['player'].out += f'Help with {cmd_name}:```\n'
-    args['player'].out += f'Aliases:\n{newln.join(map(lambda x: "  "+x, cmd._aliases))}\n'
+    args['player'].out += f'Help with {cmd_name}:'
+    args['player'].out += '' if cmd.__doc__ is None else f'```{cleandoc(cmd.__doc__)}```'
+    args['player'].out += f'```\nAliases:\n{newln.join(map(lambda x: "  "+x, cmd._aliases))}\n'
     args['player'].out += f'Args:\n{newln.join(params)}```\n'
