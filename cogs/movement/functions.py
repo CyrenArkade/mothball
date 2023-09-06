@@ -584,7 +584,7 @@ def speedvector(args):
 @command(aliases = ['sprintdelay', 'sdel'])
 def air_sprint_delay(args, sprint_delay = True):
     """Change the air sprint delay, which is present in 1.19.3-"""
-    args['player'].sprint_air_delay = sprint_delay
+    args['player'].air_sprint_delay = sprint_delay
 
 @command(aliases = ["poss"])
 def possibilities(args, inputs = 'sj45(100)', mindistance = 0.01, offset = f32(0.6)):
