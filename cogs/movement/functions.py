@@ -318,9 +318,12 @@ def sneaksprintjump45(args, duration = 1, rotation: f32 = None):
     args.setdefault('forward', f32(1))
     args.setdefault('sneaking', True)
     args.setdefault('sprinting', True)
-    args.setdefault('strafe', f32(1))
-    args['function_offset'] = f32(45)
-    jump(args)
+
+    def update():
+        args.setdefault('strafe', f32(1))
+        args['function_offset'] = f32(45)
+
+    jump(args, after_jump_tick = update)
 
 @command(aliases=['wj45'])
 def walkjump45(args, duration = 1, rotation: f32 = None):
@@ -389,12 +392,77 @@ def sprintpessi(args, duration = 1, delay = 1, rotation: f32 = None):
     args['duration'] = delay
     jump(args)
 
-    def update():
-        args['sprinting'] = True
-
     args['duration'] = duration - delay
     args.setdefault('forward', f32(1))
     args.setdefault('airborne', True)
+    args.setdefault('sprinting', True)
+    move(args)
+
+@command(aliases=['snp45'])
+def sneakpessi(args, duration = 1, delay = 1, rotation: f32 = None):
+
+    args['duration'] = delay
+    jump(args)
+
+    args['duration'] = duration - delay
+    args.setdefault('forward', f32(1))
+    args.setdefault('strafe', f32(1))
+    args['function_offset'] = f32(45)
+    args.setdefault('sneaking', True)
+    args.setdefault('airborne', True)
+    move(args)
+
+@command(aliases=['wp45'])
+def walkpessi(args, duration = 1, delay = 1, rotation: f32 = None):
+
+    args['duration'] = delay
+    jump(args)
+
+    args['duration'] = duration - delay
+    args.setdefault('forward', f32(1))
+    args.setdefault('strafe', f32(1))
+    args['function_offset'] = f32(45)
+    args.setdefault('airborne', True)
+    move(args)
+
+@command(aliases=['sp45'])
+def sprintpessi45(args, duration = 1, delay = 1, rotation: f32 = None):
+
+    args['duration'] = delay
+    jump(args)
+
+    args['duration'] = duration - delay
+    args.setdefault('forward', f32(1))
+    args.setdefault('strafe', f32(1))
+    args['function_offset'] = f32(45)
+    args.setdefault('airborne', True)
+    args.setdefault('sprinting', True)
+    move(args)
+
+@command(aliases=['forcemomentum', 'fmm'])
+def force_momentum(args, duration = 1, delay = 1, rotation: f32 = None):
+
+    args['duration'] = delay
+    args.setdefault('forward', f32(1))
+    jump(args)
+
+    args['duration'] = duration - delay
+    args.setdefault('airborne', True)
+    args.setdefault('sprinting', True)
+    move(args)
+
+@command(aliases=['forcemomentum45', 'fmm45'])
+def force_momentum45(args, duration = 1, delay = 1, rotation: f32 = None):
+
+    args['duration'] = delay
+    args.setdefault('forward', f32(1))
+    args.setdefault('strafe', f32(1))
+    args['function_offset'] = f32(45)
+    jump(args)
+
+    args['duration'] = duration - delay
+    args.setdefault('airborne', True)
+    args.setdefault('sprinting', True)
     move(args)
 
 @command(aliases=['st'])
