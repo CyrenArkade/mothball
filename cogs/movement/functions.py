@@ -399,7 +399,7 @@ def sprintpessi(args, duration = 1, delay = 1, rotation: f32 = None):
     move(args)
 
 @command(aliases=['snp45'])
-def sneakpessi(args, duration = 1, delay = 1, rotation: f32 = None):
+def sneakpessi45(args, duration = 1, delay = 1, rotation: f32 = None):
 
     args['duration'] = delay
     jump(args)
@@ -413,7 +413,7 @@ def sneakpessi(args, duration = 1, delay = 1, rotation: f32 = None):
     move(args)
 
 @command(aliases=['wp45'])
-def walkpessi(args, duration = 1, delay = 1, rotation: f32 = None):
+def walkpessi45(args, duration = 1, delay = 1, rotation: f32 = None):
 
     args['duration'] = delay
     jump(args)
