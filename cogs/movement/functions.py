@@ -562,14 +562,27 @@ def setslip(args, slip = f32(0)):
 
 @command(aliases = ['a'])
 def angles(args, angles = -1):
+    """
+    Approximates how the game would behave if Minecraft had `angles` significant angles.
+    
+    Vanilla: 65536
+    Optifine: 4096
+    """
     args['player'].angles = angles
 
 @command()
 def fastmath(args):
+    """Changes the simulation to use old optifine fast math. An alias of `angles(4096)`"""
     args['player'].angles = 4096
 
 @command()
 def inertia(args, inertia = 0.005):
+    """
+    Sets the inertia threshold.
+    
+    1.8- : 0.005
+    1.9+ : 0.003
+    """
     args['player'].inertia_threshold = inertia
 
 @command(aliases = ['pre'])
@@ -644,6 +657,7 @@ def z_b(args):
     
 @command(aliases = ['speedvec', 'vector', 'vec'])
 def speedvector(args):
+    """Displays the magnitude and direction of the player's speed vector."""
     angle = degrees(atan2(-args['player'].vx, args['player'].vz))
     speed = sqrt(args['player'].vx**2 + args['player'].vz**2)
     args['player'].out += f"Angle: {args['player'].format(angle)}\n"
@@ -698,32 +712,35 @@ def possibilities(args, inputs = 'sj45(100)', mindistance = 0.01, offset = f32(0
     player.move = old_move
 
 @command(aliases=['ji'])
-def jumpinfo(args, x = 0.0, z = 0.0):
+def jumpinfo(args, z = 0.0, x = 0.0):
+    """
+    Displays the dimensions, real and block distance, and optimal angle for a distance jump.
+    """
 
     player = args['player']
 
-    if abs(x) < 0.6:
-        dx = 0.0
-    else:
-        dx = x - copysign(0.6, x)
     if abs(z) < 0.6:
         dz = 0.0
     else:
         dz = z - copysign(0.6, z)
+    if abs(x) < 0.6:
+        dx = 0.0
+    else:
+        dx = x - copysign(0.6, x)
     
-    if dx == 0.0 and dz == 0.0:
+    if dz == 0.0 and dx == 0.0:
         player.out += 'That\'s not a jump!'
         return
-    elif dx == 0.0 or dz == 0.0:
+    elif dz == 0.0 or dx == 0.0:
         player.out +=  f'**{player.format(max(x, z))}b** jump -> **{player.format(max(dx, dz))}** distance'
         return
 
     distance = sqrt(dx**2 + dz**2)
-    angle = degrees(atan(dz/dx))
+    angle = degrees(atan(dx/dz))
 
     lines = [
-        f'A **{player.format(x)}b** by **{player.format(z)}b** block jump:',
-        f'Dimensions: **{player.format(dx)}** by **{player.format(dz)}**',
+        f'A **{player.format(z)}b** by **{player.format(x)}b** block jump:',
+        f'Dimensions: **{player.format(dz)}** by **{player.format(dx)}**',
         f'Distance: **{player.format(distance)}** distance -> **{player.format(distance+0.6)}b** jump',
         f'Optimal Angle: **{angle:.3f}°**'
     ]
@@ -732,6 +749,9 @@ def jumpinfo(args, x = 0.0, z = 0.0):
 
 @command()
 def duration(args, floor = 0.0, ceiling = 0.0, inertia = 0.005, jump_boost = 0):
+    """
+    Displays the duration of a `floor` jump.
+    """
 
     player = args['player']
     vy = 0.42 + 0.1 * jump_boost
@@ -761,6 +781,9 @@ def duration(args, floor = 0.0, ceiling = 0.0, inertia = 0.005, jump_boost = 0):
 
 @command()
 def height(args, duration = 12, ceiling = 0.0, inertia = 0.005, jump_boost = 0):
+    """
+    Displays the player's height `duration` ticks after jumping.
+    """
 
     player = args['player']
     vy = 0.42 + jump_boost * 0.1
@@ -784,6 +807,11 @@ def height(args, duration = 12, ceiling = 0.0, inertia = 0.005, jump_boost = 0):
 
 @command()
 def blip(args, blips = 1, blip_height = 0.0625, init_height: f64 = None, init_vy: f64 = None, inertia = 0.005, jump_boost = 0):
+    """
+    Calculates the heights of each blip while blipping.
+
+    Shows `Fail` when trying to blip again would fail.
+    """
 
     if init_height is None:
         init_height = blip_height
