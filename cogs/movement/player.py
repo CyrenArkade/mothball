@@ -160,13 +160,13 @@ class Player:
                 movement = fl(movement + movement * 0.3)
         else:
             movement = fl(0.1)
-            movement *= fl(0.16277136) / (inertia * inertia * inertia)
             if speed > 0:
                 movement = fl(movement * (1.0 + fl(0.2) * float(speed)))
             if slowness > 0:
                 movement = fl(movement * max((1.0 + fl(-0.15) * float(slowness)), 0.0))
             if sprinting:
                 movement = fl(movement * (1.0 + fl(0.3)))
+            movement *= fl(0.16277136) / (inertia * inertia * inertia)
         
         # Applying sprintjump boost
         if sprinting and jumping:

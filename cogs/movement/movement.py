@@ -46,8 +46,10 @@ class Movement(commands.Cog):
             results = 'Simulation timed out.'
         except SimError as e:
             results = str(e)
-        # except:
-        #     results = 'Something went wrong.'
+        except Exception as e:
+            if self.bot.params['is_dev']:
+                raise e
+            results = 'Something went wrong.'
 
         if player.macro:
             buffer = BytesIO(player.macro_csv().encode('utf8'))
@@ -62,6 +64,9 @@ class Movement(commands.Cog):
             kwargs.pop('file', None)
         
         if edit:
+            if 'file' in kwargs:
+                kwargs['content'] = 'Cannot edit attachments.\n' + kwargs['content']
+                kwargs.pop('file', None)
             await edit.botmsg.edit(**kwargs)
             self.msg_links[edit.msgid].player = player.softcopy()
         else:

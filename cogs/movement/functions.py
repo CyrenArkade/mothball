@@ -628,32 +628,32 @@ def macro(args, name = 'macro'):
     args['player'].macro = name
 
 @command()
-def outx(args):
-    args['player'].out += f"X: {args['player'].format(args['player'].x)}\n"
+def outx(args, zero = 0.0):
+    args['player'].out += f"X: {args['player'].format(args['player'].x - zero)}\n"
 @command()
-def outz(args):
-    args['player'].out += f"Z: {args['player'].format(args['player'].z)}\n"
+def outz(args, zero = 0.0):
+    args['player'].out += f"Z: {args['player'].format(args['player'].z - zero)}\n"
 
 @command()
-def outvx(args):
-    args['player'].out += f"Vx: {args['player'].format(args['player'].vx)}\n"
+def outvx(args, zero = 0.0):
+    args['player'].out += f"Vx: {args['player'].format(args['player'].vx - zero)}\n"
 @command()
-def outvz(args):
-    args['player'].out += f"Vz: {args['player'].format(args['player'].vz)}\n"
+def outvz(args, zero = 0.0):
+    args['player'].out += f"Vz: {args['player'].format(args['player'].vz - zero)}\n"
 
 @command(name='outxmm', aliases=['xmm'])
-def x_mm(args):
-    args['player'].out += f"X mm: {args['player'].format(args['player'].x + (-f32(0.6) if args['player'].x > 0 else f32(0.6)))}\n"
+def x_mm(args, zero = 0.0):
+    args['player'].out += f"X mm: {args['player'].format(args['player'].x + (-f32(0.6) if args['player'].x > 0 else f32(0.6)) - zero)}\n"
 @command(name='outzmm', aliases=['zmm'])
-def z_mm(args):
-    args['player'].out += f"Z mm: {args['player'].format(args['player'].z + (-f32(0.6) if args['player'].z > 0 else f32(0.6)))}\n"
+def z_mm(args, zero = 0.0):
+    args['player'].out += f"Z mm: {args['player'].format(args['player'].z + (-f32(0.6) if args['player'].z > 0 else f32(0.6)) - zero)}\n"
 
 @command(name='outxb', aliases=['xb'])
-def x_b(args):
-    args['player'].out += f"X b: {args['player'].format(args['player'].x - (-f32(0.6) if args['player'].x > 0 else f32(0.6)))}\n"
+def x_b(args, zero = 0.0):
+    args['player'].out += f"X b: {args['player'].format(args['player'].x - (-f32(0.6) if args['player'].x > 0 else f32(0.6)) - zero)}\n"
 @command(name='outzb', aliases=['zb'])
-def z_b(args):
-    args['player'].out += f"Z b: {args['player'].format(args['player'].z - (-f32(0.6) if args['player'].z > 0 else f32(0.6)))}\n"
+def z_b(args, zero = 0.0):
+    args['player'].out += f"Z b: {args['player'].format(args['player'].z - (-f32(0.6) if args['player'].z > 0 else f32(0.6)) - zero)}\n"
     
 @command(aliases = ['speedvec', 'vector', 'vec'])
 def speedvector(args):
