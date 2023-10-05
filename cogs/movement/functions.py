@@ -891,10 +891,10 @@ def bwmm(args, mm = 1.0, strat = 'sj45(12)'):
 
     p2 = player.softcopy()
     p2.inertia = 0.0
-    p2.vz = 1.0 * mm
+    p2.vz = 1.0
     parsers.execute_string(strat, args['envs'], p2)
 
-    speed = (p1.z - mm + (f32(0.6) if mm < 0 else -f32(0.6))) / (p1.z - p2.z) * mm
+    speed = (p1.z - mm + (f32(0.6) if mm < 0 else -f32(0.6))) / (p1.z - p2.z)
     player.vz = speed
     parsers.execute_string(strat, args['envs'], player)
     player.pre_out += f'Speed: {player.format(speed)}\n'
@@ -918,11 +918,11 @@ def inv(args, goal = 1.6, strat = 'sj45(12)'):
 
     p2 = player.softcopy()
     p2.inertia = 0.0
-    p2.vz = 1.0 * goal
+    p2.vz = 1.0
     parsers.execute_string(strat, args['envs'], p2)
     p2_dist = p2.z
 
-    speed = (p1_dist - goal) / (p1_dist - p2_dist) * goal
+    speed = (p1_dist - goal) / (p1_dist - p2_dist)
     player.vz = speed
     parsers.execute_string(strat, args['envs'], player)
     player.pre_out += f'Speed: {player.format(speed)}\n'
@@ -947,11 +947,11 @@ def speedreq(args, blocks = 5.0, strat = 'sj45(12)'):
 
     p2 = player.softcopy()
     p2.inertia = 0.0
-    p2.vz = 1.0 * blocks
+    p2.vz = 1.0 
     parsers.execute_string(strat, args['envs'], p2)
     p2_blocks = p2.z
 
-    speed = (p1_blocks - blocks + (f32(0.6) if blocks > 0 else -f32(0.6))) / (p1_blocks - p2_blocks) * blocks
+    speed = (p1_blocks - blocks + (f32(0.6) if blocks > 0 else -f32(0.6))) / (p1_blocks - p2_blocks)
     player.vz = speed
     parsers.execute_string(strat, args['envs'], player)
     player.pre_out += f'Speed: {player.format(speed)}\n'
