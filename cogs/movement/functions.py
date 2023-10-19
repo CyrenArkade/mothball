@@ -572,7 +572,7 @@ def angles(args, angles = -1):
 
 @command()
 def fastmath(args):
-    """Changes the simulation to use old optifine fast math. An alias of `angles(4096)`"""
+    """Changes the simulation to use old optifine fast math. An alias of `angles(4096)`."""
     args['player'].angles = 4096
 
 @command()
@@ -886,11 +886,11 @@ def bwmm(args, mm = 1.0, strat = 'sj45(12)'):
 
     p1 = player.softcopy()
     p1.vz = 0.0
-    p1.inertia = 0.0
+    p1.inertia_threshold = 0.0
     parsers.execute_string(strat, args['envs'], p1)
 
     p2 = player.softcopy()
-    p2.inertia = 0.0
+    p2.inertia_threshold = 0.0
     p2.vz = 1.0
     parsers.execute_string(strat, args['envs'], p2)
 
@@ -911,16 +911,18 @@ def inv(args, goal = 1.6, strat = 'sj45(12)'):
     player = args['player']
 
     p1 = player.softcopy()
-    p1.inertia = 0.0
+    p1.inertia_threshold = 0.0
     p1.vz = 0.0
     parsers.execute_string(strat, args['envs'], p1)
     p1_dist = p1.z
 
     p2 = player.softcopy()
-    p2.inertia = 0.0
+    p2.inertia_threshold = 0.0
     p2.vz = 1.0
     parsers.execute_string(strat, args['envs'], p2)
     p2_dist = p2.z
+
+    print(p1.z, p2.z)
 
     speed = (p1_dist - goal) / (p1_dist - p2_dist)
     player.vz = speed
@@ -940,13 +942,13 @@ def speedreq(args, blocks = 5.0, strat = 'sj45(12)'):
     player = args['player']
 
     p1 = player.softcopy()
-    p1.inertia = 0.0
+    p1.inertia_threshold = 0.0
     p1.vz = 0.0
     parsers.execute_string(strat, args['envs'], p1)
     p1_blocks = p1.z
 
     p2 = player.softcopy()
-    p2.inertia = 0.0
+    p2.inertia_threshold = 0.0
     p2.vz = 1.0 
     parsers.execute_string(strat, args['envs'], p2)
     p2_blocks = p2.z
@@ -957,7 +959,7 @@ def speedreq(args, blocks = 5.0, strat = 'sj45(12)'):
     player.pre_out += f'Speed: {player.format(speed)}\n'
     player.pre_out += f'Blocks: {player.format(player.z + (f32(0.6) if player.z > 0 else -f32(0.6)))}\n'
 
-@command(aliases=['angle'])
+@command(aliases=['angle', 'ai'])
 def angleinfo(args, angle = f32(0.0), mode = 'vanilla'):
     """
     Get the trig value, significant angle, sin table index, and normal of some angle.

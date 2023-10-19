@@ -7,6 +7,7 @@ from evalidate import Expr, base_eval_model
 if 'USub' not in base_eval_model.nodes:
     base_eval_model.nodes.append('USub')
     base_eval_model.nodes.append('UAdd')
+    base_eval_model.nodes.append('Mult')
     base_eval_model.nodes.append('FloorDiv')
     base_eval_model.nodes.append('Pow')
 
