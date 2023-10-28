@@ -643,10 +643,10 @@ def z_mm(args, zero = 0.0):
 
 @command(name='outxb', aliases=['xb'])
 def x_b(args, zero = 0.0):
-    args['player'].out += f"X b: {args['player'].format(dist_to_b(args['player'].x) - zero - zero)}\n"
+    args['player'].out += f"X b: {args['player'].format(dist_to_b(args['player'].x) - zero)}\n"
 @command(name='outzb', aliases=['zb'])
 def z_b(args, zero = 0.0):
-    args['player'].out += f"Z b: {args['player'].format(dist_to_b(args['player'].z) - zero - zero)}\n"
+    args['player'].out += f"Z b: {args['player'].format(dist_to_b(args['player'].z) - zero)}\n"
     
 @command(aliases = ['speedvec', 'vector', 'vec'])
 def speedvector(args):
