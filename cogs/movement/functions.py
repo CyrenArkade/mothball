@@ -90,6 +90,13 @@ def jump(args, after_jump_tick = lambda: None):
         args['player'].move(args)
 
 
+dist_to_dist = lambda dist: dist
+dist_to_mm   = lambda dist: dist - f32(copysign(0.6, dist))
+dist_to_b    = lambda dist: dist + f32(copysign(0.6, dist))
+mm_to_dist   = dist_to_b
+b_to_dist    = dist_to_mm
+
+
 @command(aliases=['rep', 'r'])
 def repeat(args, inputs = '', n = 1):
     commands_args = parsers.string_to_args(inputs)
@@ -486,28 +493,14 @@ def reset_position(args):
     args['player'].modz = 0
 
 @command(name='b')
-def dist_to_blocks(args):
-    if args['player'].x > 0:
-        args['player'].modx += f32(0.6)
-    elif args['player'].x < 0:
-        args['player'].modx -= f32(0.6)
-
-    if args['player'].z > 0:
-        args['player'].modz += f32(0.6)
-    elif args['player'].z < 0:
-        args['player'].modz -= f32(0.6)
+def output_blocks(args):
+    args['player'].modx += f32(copysign(0.6, args['player'].x))
+    args['player'].modz += f32(copysign(0.6, args['player'].z))
 
 @command(name='mm')
-def dist_to_mm(args):
-    if args['player'].x > 0:
-        args['player'].modx -= f32(0.6)
-    elif args['player'].x < 0:
-        args['player'].modx += f32(0.6)
-
-    if args['player'].z > 0:
-        args['player'].modz -= f32(0.6)
-    elif args['player'].z < 0:
-        args['player'].modz += f32(0.6)
+def output_mm(args):
+    args['player'].modx -= f32(copysign(0.6, args['player'].x))
+    args['player'].modz -= f32(copysign(0.6, args['player'].z))
 
 @command(aliases=['$'])
 def zero(args):
@@ -643,17 +636,17 @@ def outvz(args, zero = 0.0):
 
 @command(name='outxmm', aliases=['xmm'])
 def x_mm(args, zero = 0.0):
-    args['player'].out += f"X mm: {args['player'].format(args['player'].x + (-f32(0.6) if args['player'].x > 0 else f32(0.6)) - zero)}\n"
+    args['player'].out += f"X mm: {args['player'].format(dist_to_mm(args['player'].x) - zero)}\n"
 @command(name='outzmm', aliases=['zmm'])
 def z_mm(args, zero = 0.0):
-    args['player'].out += f"Z mm: {args['player'].format(args['player'].z + (-f32(0.6) if args['player'].z > 0 else f32(0.6)) - zero)}\n"
+    args['player'].out += f"Z mm: {args['player'].format(dist_to_mm(args['player'].z) - zero)}\n"
 
 @command(name='outxb', aliases=['xb'])
 def x_b(args, zero = 0.0):
-    args['player'].out += f"X b: {args['player'].format(args['player'].x - (-f32(0.6) if args['player'].x > 0 else f32(0.6)) - zero)}\n"
+    args['player'].out += f"X b: {args['player'].format(dist_to_b(args['player'].x) - zero - zero)}\n"
 @command(name='outzb', aliases=['zb'])
 def z_b(args, zero = 0.0):
-    args['player'].out += f"Z b: {args['player'].format(args['player'].z - (-f32(0.6) if args['player'].z > 0 else f32(0.6)) - zero)}\n"
+    args['player'].out += f"Z b: {args['player'].format(dist_to_b(args['player'].z) - zero - zero)}\n"
     
 @command(aliases = ['speedvec', 'vector', 'vec'])
 def speedvector(args):
@@ -722,11 +715,11 @@ def jumpinfo(args, z = 0.0, x = 0.0):
     if abs(z) < 0.6:
         dz = 0.0
     else:
-        dz = z - copysign(0.6, z)
+        dz = b_to_dist(z)
     if abs(x) < 0.6:
         dx = 0.0
     else:
-        dx = x - copysign(0.6, x)
+        dx = b_to_dist(x)
     
     if dz == 0.0 and dx == 0.0:
         player.out += 'That\'s not a jump!'
@@ -874,6 +867,38 @@ def blip(args, blips = 1, blip_height = 0.0625, init_height: f64 = None, init_vy
     
     player.out += out
 
+def inv_helper(args, transform, goal_x, goal_z, strat):
+
+    player = args['player']
+
+    # Perform the first simulation
+    p1 = player.softcopy()
+    p1.inertia_threshold = 0.0
+    p1.vx = 0.0
+    p1.vz = 0.0
+    parsers.execute_string(strat, args['envs'], p1)
+
+    # Perform the second simulation
+    p2 = player.softcopy()
+    p2.inertia_threshold = 0.0
+    p2.vx = 1.0
+    p2.vz = 1.0
+    parsers.execute_string(strat, args['envs'], p2)
+
+    # Use the info to calculate the ideal vx/vz, if required
+    vx = None
+    vz = None
+    if goal_x is not None:
+        vx = (p1.x - transform(goal_x)) / (p1.x - p2.x)
+        player.vx = vx
+    if goal_z is not None:
+        vz = (p1.z - transform(goal_z)) / (p1.z - p2.z)
+        player.vz = vz
+    
+    parsers.execute_string(strat, args['envs'], player)
+
+    return vx, vz
+
 @command()
 def bwmm(args, mm = 1.0, strat = 'sj45(12)'):
     """
@@ -883,22 +908,10 @@ def bwmm(args, mm = 1.0, strat = 'sj45(12)'):
     """
 
     player = args['player']
+    vx, vz = inv_helper(args, mm_to_dist, None, mm, strat)
 
-    p1 = player.softcopy()
-    p1.vz = 0.0
-    p1.inertia_threshold = 0.0
-    parsers.execute_string(strat, args['envs'], p1)
-
-    p2 = player.softcopy()
-    p2.inertia_threshold = 0.0
-    p2.vz = 1.0
-    parsers.execute_string(strat, args['envs'], p2)
-
-    speed = (p1.z - mm + (f32(0.6) if mm < 0 else -f32(0.6))) / (p1.z - p2.z)
-    player.vz = speed
-    parsers.execute_string(strat, args['envs'], player)
-    player.pre_out += f'Speed: {player.format(speed)}\n'
-    player.pre_out += f'MM: {player.format(player.z + (f32(0.6) if player.z < 0 else -f32(0.6)))}\n'
+    player.pre_out += f'Speed: {player.format(vz)}\n'
+    player.pre_out += f'MM: {player.format(dist_to_mm(player.z))}\n'
 
 @command()
 def inv(args, goal = 1.6, strat = 'sj45(12)'):
@@ -909,25 +922,9 @@ def inv(args, goal = 1.6, strat = 'sj45(12)'):
     """
 
     player = args['player']
-
-    p1 = player.softcopy()
-    p1.inertia_threshold = 0.0
-    p1.vz = 0.0
-    parsers.execute_string(strat, args['envs'], p1)
-    p1_dist = p1.z
-
-    p2 = player.softcopy()
-    p2.inertia_threshold = 0.0
-    p2.vz = 1.0
-    parsers.execute_string(strat, args['envs'], p2)
-    p2_dist = p2.z
-
-    print(p1.z, p2.z)
-
-    speed = (p1_dist - goal) / (p1_dist - p2_dist)
-    player.vz = speed
-    parsers.execute_string(strat, args['envs'], player)
-    player.pre_out += f'Speed: {player.format(speed)}\n'
+    vx, vz = inv_helper(args, dist_to_dist, None, goal, strat)
+    
+    player.pre_out += f'Speed: {player.format(vz)}\n'
     player.pre_out += f'Dist: {player.format(player.z)}\n'
 
 @command()
@@ -940,24 +937,40 @@ def speedreq(args, blocks = 5.0, strat = 'sj45(12)'):
     """
 
     player = args['player']
+    vx, vz = inv_helper(args, b_to_dist, None, blocks, strat)
 
-    p1 = player.softcopy()
-    p1.inertia_threshold = 0.0
-    p1.vz = 0.0
-    parsers.execute_string(strat, args['envs'], p1)
-    p1_blocks = p1.z
+    player.pre_out += f'Speed: {player.format(vz)}\n'
+    player.pre_out += f'Blocks: {player.format(dist_to_b(player.z))}\n'
 
-    p2 = player.softcopy()
-    p2.inertia_threshold = 0.0
-    p2.vz = 1.0 
-    parsers.execute_string(strat, args['envs'], p2)
-    p2_blocks = p2.z
+@command(aliases=['xzbwmm'])
+def xz_bwmm(args, x_mm = 1.0, z_mm = 1.0, strat = 'sj45(12)'):
+    """A version of bwmm that optimizes both x and z."""
 
-    speed = (p1_blocks - blocks + (f32(0.6) if blocks > 0 else -f32(0.6))) / (p1_blocks - p2_blocks)
-    player.vz = speed
-    parsers.execute_string(strat, args['envs'], player)
-    player.pre_out += f'Speed: {player.format(speed)}\n'
-    player.pre_out += f'Blocks: {player.format(player.z + (f32(0.6) if player.z > 0 else -f32(0.6)))}\n'
+    player = args['player']
+    vx, vz = inv_helper(args, mm_to_dist, x_mm, z_mm, strat)
+
+    player.pre_out += f'Speed: {player.format(vx)}/{player.format(vz)}\n'
+    player.pre_out += f'MM: {player.format(dist_to_mm(player.x))}/{player.format(dist_to_mm(player.z))}\n'
+
+@command(aliases=['xzinv'])
+def xz_inv(args, x_goal = 1.6, z_goal = 1.6, strat = 'sj45(12)'):
+    """A version of inv that optimizes both x and z."""
+
+    player = args['player']
+    vx, vz = inv_helper(args, dist_to_dist, x_goal, z_goal, strat)
+    
+    player.pre_out += f'Speed: {player.format(vx)}/{player.format(vz)}\n'
+    player.pre_out += f'Dist: {player.format(player.x)}/{player.format(player.z)}\n'
+
+@command(aliases=['xzspeedreq'])
+def xz_speedreq(args, x_blocks = 3.0, z_blocks = 4.0, strat = 'sj45(12)'):
+    """A version of speedreq that optimizes both x and z."""
+
+    player = args['player']
+    vx, vz = inv_helper(args, b_to_dist, x_blocks, z_blocks, strat)
+
+    player.pre_out += f'Speed: {player.format(vx)}/{player.format(vz)}\n'
+    player.pre_out += f'Blocks: {player.format(dist_to_b(player.x))}/{player.format(dist_to_b(player.z))}\n'
 
 @command(aliases=['angle', 'ai'])
 def angleinfo(args, angle = f32(0.0), mode = 'vanilla'):

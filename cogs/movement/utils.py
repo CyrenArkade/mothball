@@ -1,5 +1,5 @@
 from math import sin
-from numpy import float32 as fl
+from numpy import float32 as f32
 
 class SimNode():
     def __init__(self, msgid, botmsg, player):
@@ -20,6 +20,6 @@ class Function():
 pi = 3.14159265358979323846
 fastmath_sin_table = [0] * 4096
 for i in range(4096):
-    fastmath_sin_table[i] = fl(sin((fl(i) + fl(0.5)) / fl(4096) * (fl(pi) * fl(2))))
+    fastmath_sin_table[i] = f32(sin((f32(i) + f32(0.5)) / f32(4096) * (f32(pi) * f32(2))))
 for i in range(4):
-    fastmath_sin_table[int(fl(i*90) * fl(11.377778)) & 4095] = fl(sin(fl(i*90) * fl(0.017453292)))
+    fastmath_sin_table[int(f32(i*90) * f32(11.377778)) & 4095] = f32(sin(f32(i*90) * f32(0.017453292)))

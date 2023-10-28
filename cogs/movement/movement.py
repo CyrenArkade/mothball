@@ -115,7 +115,10 @@ class Movement(commands.Cog):
     async def editdown(self, channel, msg):
         text = msg.content
         history = any(text.startswith(cmd) for cmd in (';history ', ';his ', ';h ', ';thenh ', ';th '))
-        text = text[text.index(' ') + 1:]
+        for i in range(len(text)):
+            if text[i].isspace():
+                text = text[i+1:]
+                break
 
         if msg.reference:
             continuation = msg.reference.message_id
