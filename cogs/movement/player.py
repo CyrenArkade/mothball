@@ -230,7 +230,7 @@ class Player:
         elif self.angles == 65536:
             index = int(rad * fl(10430.378)) & 65535
         else:
-            index = int(1 / (2 * Player.pi) * self.angles * rad) & (self.acsngles - 1)
+            index = int(1 / (2 * Player.pi) * self.angles * rad) & (self.angles - 1)
         return fl(math.sin(index * self.pi * 2.0 / self.angles))
 
     def mccos(self, rad):

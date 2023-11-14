@@ -200,6 +200,8 @@ def convert(envs, command, arg_name, val):
 def cast(envs, type, val):
     if type == bool:
         return val.lower() not in ('f', 'false', 'no', 'n', '0')
+    if val.lower() in ('none', 'null'):
+        return None
     if type in (int, float, fl):
         local_env = {}
         for env in envs:
