@@ -36,6 +36,8 @@ class Player:
         self.printprecision = 6
 
     def format(self, num):
+        if num is None:
+            return 'None'
         return format_float_positional(num, trim='-', precision=self.printprecision)
 
     def __str__(self) -> str:

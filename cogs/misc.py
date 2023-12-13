@@ -164,9 +164,9 @@ class Misc(commands.Cog):
 
     @commands.command(aliases=['q'])
     @commands.cooldown(3, 60, type=commands.BucketType.user)
-    @commands.max_concurrency(1, per=commands.BucketType.user)
+    @commands.max_concurrency(2, per=commands.BucketType.user)
     async def quote(self, ctx, msg: typing.Union[discord.Message, str] = None):
-        if msg is None:
+        if type(msg) != discord.Message:
             oldest = 1609488000
             target = datetime.fromtimestamp(oldest + random() * (datetime.now(timezone.utc).timestamp() - oldest), tz=timezone.utc)
 
@@ -200,7 +200,7 @@ class Misc(commands.Cog):
             file_url = msg.attachments[0].url
             em.add_field(name="File", value=f"[{filename}]({file_url})")
             if not msg.content:
-                em.description += f"\nThe message contains a file."
+                em.description += f"\nThis message contains a file."
 
 
         em.description += f"\n\n[Jump to message]({msg.jump_url})"
@@ -228,12 +228,13 @@ class Misc(commands.Cog):
         return True
     
     def is_poll(self, msg):
-        return \
-            msg.channel.id == 794109972609761310 and \
-            msg.author.id == 988081422839480351 and \
-            len(msg.embeds) == 1 and \
-            msg.embeds[0].title is not None and \
+        return (
+            msg.channel.id == 794109972609761310 and
+            msg.author.id == 988081422839480351 and
+            len(msg.embeds) == 1 and
+            msg.embeds[0].title is not None and
             msg.embeds[0].title.startswith('Poll')
+        )
 
     async def search_channel(self, ctx, channel, target, list):
         if not isinstance(channel, discord.TextChannel) or not channel.permissions_for(ctx.guild.me).read_message_history:

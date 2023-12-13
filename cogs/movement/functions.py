@@ -899,8 +899,8 @@ def inv_helper(args, transform, goal_x, goal_z, strat):
 
     return vx, vz
 
-@command()
-def bwmm(args, mm = 1.0, strat = 'sj45(12)'):
+@command(aliases=['zbwmm', 'bwmm'])
+def z_bwmm(args, mm = 1.0, strat = 'sj45(12)'):
     """
     Performs `strat` with an initial speed such that `mm`bm is covered while performing it.
 
@@ -913,8 +913,8 @@ def bwmm(args, mm = 1.0, strat = 'sj45(12)'):
     player.pre_out += f'Speed: {player.format(vz)}\n'
     player.pre_out += f'MM: {player.format(dist_to_mm(player.z))}\n'
 
-@command()
-def inv(args, goal = 1.6, strat = 'sj45(12)'):
+@command(aliases=['zinv', 'inv'])
+def z_inv(args, goal = 1.6, strat = 'sj45(12)'):
     """
     Performs `strat` with an initial speed such that `goal` is covered while performing it.
 
@@ -927,8 +927,8 @@ def inv(args, goal = 1.6, strat = 'sj45(12)'):
     player.pre_out += f'Speed: {player.format(vz)}\n'
     player.pre_out += f'Dist: {player.format(player.z)}\n'
 
-@command()
-def speedreq(args, blocks = 5.0, strat = 'sj45(12)'):
+@command(aliases=['zspeedreq', 'speedreq'])
+def z_speedreq(args, blocks = 5.0, strat = 'sj45(12)'):
     """
     Performs `strat` with an initial speed such that `blocks`b is covered while performing it.
 
@@ -941,6 +941,36 @@ def speedreq(args, blocks = 5.0, strat = 'sj45(12)'):
 
     player.pre_out += f'Speed: {player.format(vz)}\n'
     player.pre_out += f'Blocks: {player.format(dist_to_b(player.z))}\n'
+
+@command(aliases=['xbwmm'])
+def x_bwmm(args, mm = 1.0, strat = 'sj45(12)'):
+    """A version of bwmm that optimizes x instead of z."""
+
+    player = args['player']
+    vx, vz = inv_helper(args, mm_to_dist, mm, None, strat)
+
+    player.pre_out += f'Speed: {player.format(vx)}\n'
+    player.pre_out += f'MM: {player.format(dist_to_mm(player.x))}\n'
+
+@command(aliases=['xinv'])
+def x_inv(args, goal = 1.6, strat = 'sj45(12)'):
+    """A version of inv that optimizes x instead of z."""
+
+    player = args['player']
+    vx, vz = inv_helper(args, dist_to_dist, goal, None, strat)
+    
+    player.pre_out += f'Speed: {player.format(vx)}\n'
+    player.pre_out += f'Dist: {player.format(player.x)}\n'
+
+@command(aliases=['xspeedreq'])
+def x_speedreq(args, blocks = 5.0, strat = 'sj45(12)'):
+    """A version of speedreq that optimizes x instead of z."""
+
+    player = args['player']
+    vx, vz = inv_helper(args, b_to_dist, blocks, None, strat)
+
+    player.pre_out += f'Speed: {player.format(vx)}\n'
+    player.pre_out += f'Blocks: {player.format(dist_to_b(player.x))}\n'
 
 @command(aliases=['xzbwmm'])
 def xz_bwmm(args, x_mm = 1.0, z_mm = 1.0, strat = 'sj45(12)'):
