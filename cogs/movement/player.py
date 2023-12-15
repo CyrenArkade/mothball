@@ -1,4 +1,4 @@
-from numpy import float32 as fl, format_float_positional
+from numpy import float32 as fl
 import math
 from cogs.movement.utils import fastmath_sin_table
 
@@ -26,77 +26,9 @@ class Player:
         self.soulsand = 0
         self.speed = 0
         self.slowness = 0
-
-        self.macro = None
-        self.out = ''
-        self.pre_out = ''
-        self.input_history = []
-        self.prev_rotation = None
-        self.history = []
-        self.printprecision = 6
-
-    def format(self, num):
-        if num is None:
-            return 'None'
-        return format_float_positional(num, trim='-', precision=self.printprecision)
-
-    def __str__(self) -> str:
-
-        if self.out == '':
-            if any([n != 0 for n in (self.x, self.z, self.vx, self.vz)]):
-                self.out += self.default_string()
-            else:
-                self.out += '​\U0001f44d'
-
-        return self.pre_out + self.out
     
-    def clearlogs(self):
-        self.history = []
-        self.input_history = []
-    
-    def default_string(self):
-        xstr = self.format(self.x + self.modx)
-        zstr = self.format(self.z + self.modz)
-        max_length = max(len(xstr), len(zstr))
-        out =  f'X = {xstr.ljust(max_length + 5, " ")}Vx = {self.format(self.vx)}\n'
-        out += f'Z = {zstr.ljust(max_length + 5, " ")}Vz = {self.format(self.vz)}\n'
-        return out
-    
-    def history_string(self):
-        history = ''
-        for tick in self.history:
-            history += (f'x/z:({self.format(tick[0]+self.modx)}, {self.format(tick[1]+self.modz)})'.ljust(15 + 2 * self.printprecision))
-            history += f'vx/vz:({self.format(tick[2])}, {self.format(tick[3])})\n'
-        return '```' + history + '```'
-    
-    def macro_csv(self):
-        top = 'X,Y,Z,YAW,PITCH,ANGLE_X,ANGLE_Y,W,A,S,D,SPRINT,SNEAK,JUMP,LMB,RMB,VEL_X,VEL_Y,VEL_Z'
-        return '\n'.join([top] + self.input_history)
-
-    def softcopy(self):
-        other = Player()
-
-        other.x = self.x
-        other.z = self.z
-        other.vx = self.vx
-        other.vz = self.vz
-        other.prev_slip = self.prev_slip
-        other.ground_slip = self.ground_slip
-        other.angles = self.angles
-        other.default_rotation = self.default_rotation
-        other.rotation_offset = self.rotation_offset
-        other.rotation_queue = self.rotation_queue
-        other.turn_queue = self.turn_queue
-        other.inertia_threshold = self.inertia_threshold
-        other.prev_sprint = self.prev_sprint
-        other.air_sprint_delay = self.air_sprint_delay
-        other.soulsand = self.soulsand
-        other.speed = self.speed
-        other.slowness = self.slowness
-
-        return other
-    
-    def move(self, args):
+    def move(self, ctx):
+        args = ctx.args
 
         # Defining variables
 
@@ -207,21 +139,9 @@ class Player:
 
         self.prev_slip = slip
         self.prev_sprint = sprinting
-        self.history.append((self.x, self.z, self.vx, self.vz))
         
-        w = a = s = d = 'false'
-        if forward > 0: w = 'true'
-        if forward < 0: s = 'true'
-        if strafe > 0: a = 'true'
-        if strafe < 0: d = 'true'
-        input_str = f'{w},{a},{s},{d},{str(sprinting).lower()},{str(sneaking).lower()},{str(jumping).lower()}'
-
-        if self.prev_rotation is None:
-            turn = 0
-        else:
-            turn = rotation - self.prev_rotation
-        self.input_history.append(f'0.0,0.0,0.0,0.0,0.0,{turn},0.0,{input_str},false,false, 0.0, 0.0, 0.0')
-        self.prev_rotation = rotation
+        ctx.history.append((self.x, self.z, self.vx, self.vz))
+        ctx.input_history.append([forward, strafe, sprinting, sneaking, jumping, rotation])
 
     def mcsin(self, rad):
         if self.angles == -1:

@@ -17,6 +17,7 @@ class Function():
         self.args = args
         self.arg_names = arg_names
 
+
 pi = 3.14159265358979323846
 fastmath_sin_table = [0] * 4096
 for i in range(4096):

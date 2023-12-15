@@ -11,17 +11,34 @@ if 'USub' not in base_eval_model.nodes:
     base_eval_model.nodes.append('FloorDiv')
     base_eval_model.nodes.append('Pow')
 
-def execute_string(text, envs, player):
-    commands_args = string_to_args(text)
+def execute_string(context, text):
+
+    try:
+        commands_args = string_to_args(text)
+    except SimError:
+        raise
+    except Exception as e:
+        if context.is_dev:
+            raise
+        raise SimError('Something went wrong while parsing.')
+
     for command, args in commands_args:
-        execute_command(envs, player, command, args)
+
+        try:
+            execute_command(context, command, args)
+        except SimError:
+            raise
+        except Exception as e:
+            if context.is_dev:
+                raise
+            raise SimError(f'Something went wrong while executing `{command}`.')
     
 def string_to_args(text):
     commands_str_list = separate_commands(text)
     commands_args = [argumentatize_command(command) for command in commands_str_list]
     return commands_args
 
-def execute_command(envs, player, command, args):
+def execute_command(context, command, args):
 
     # Handle command modifiers
     modifiers = {}
@@ -52,15 +69,13 @@ def execute_command(envs, player, command, args):
     if command in commands_by_name: # Normal execution
         command_function = commands_by_name[command]
 
-        dict_args = dictize_args(envs, command_function, args)
-        dict_args.update(modifiers)
-        dict_args['player'] = player
-        dict_args['envs'] = envs
+        context.args, context.pos_args = dictize_args(context.envs, command_function, args)
+        context.args.update(modifiers)
 
-        command_function(dict_args)
+        command_function(context)
 
     else: # CommandNotFound or user-defined function
-        user_func = fetch(envs, command)
+        user_func = fetch(context.envs, command)
         
         if user_func is None:
             raise SimError(f'Command `{command}` not found')
@@ -68,7 +83,9 @@ def execute_command(envs, player, command, args):
         new_env = dict([(var, val) for var, val in zip(user_func.arg_names, args)])
 
         for command, args in user_func.args:
-            execute_command(envs + [new_env], player, command, args)
+            context.envs.append(new_env)
+            execute_command(context, command, args)
+            context.envs.pop()
 
 
 
@@ -155,8 +172,8 @@ def argumentatize_command(command):
     return (command_name, args)
 
 def dictize_args(envs, command, str_args):
-    out = {}
-    out.setdefault('pos_args', [])
+    args = {}
+    pos_args = []
 
     command_types = list(types_by_command[command].keys())
 
@@ -167,19 +184,17 @@ def dictize_args(envs, command, str_args):
             arg_name = arg[:divider].strip()
             arg_name = dealias_arg_name(arg_name)
             arg_val = convert(envs, command, arg_name, arg[divider + 1:].strip())
+            args[arg_name] = arg_val
 
         elif positional_index < len(command_types): # if positional arg
             arg_name = command_types[positional_index]
             arg_val = convert(envs, command, arg_name, arg)
             positional_index += 1
-
-        else: # extra positional args
-            out['pos_args'].append(arg)
-            continue
-
-        out[arg_name] = arg_val
+            args[arg_name] = arg_val
+        
+        pos_args.append(arg)
     
-    return out
+    return args, pos_args
 
 def dealias_arg_name(arg_name):
     arg_name = arg_name.lower()

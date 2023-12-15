@@ -1,10 +1,12 @@
 import discord
 from discord.ext import commands
+from copy import copy
+import asyncio
+from io import BytesIO
+from cogs.movement.context import Context
 from cogs.movement.player import Player
 from cogs.movement.parsers import execute_string
 from cogs.movement.utils import SimError, SimNode
-import asyncio
-from io import BytesIO
 
 async def setup(bot):
     bot.env = {}
@@ -17,28 +19,29 @@ class Movement(commands.Cog):
 
         self.msg_links = {}
 
-    def sim(self, input: str, player: Player):
+    def sim(self, context: Context, input: str):
 
-        execute_string(input, [self.bot.env], player)
+        execute_string(context, input)
         
-        return player
+        return context
     
-    async def genericsim(self, ctx: commands.Context, input, continuation = None, edit = None, history = False):
+    async def generic_sim(self, dpy_ctx: commands.Context, input, continuation = None, edit = None, history = False):
+
+        context = Context(Player(), [self.bot.env], self.bot.params['is_dev'])
+
         if continuation:
             parent = self.msg_links[continuation]
-            player = parent.player.softcopy()
-        else:
-            player = Player()
+            context.player = copy(parent.player)
         
         errored = True
         try:
-            task = asyncio.to_thread(self.sim, input, player)
-            player = await asyncio.wait_for(task, timeout=self.bot.params['sim_timeout'])
+            task = asyncio.to_thread(self.sim, context, input)
+            context = await asyncio.wait_for(task, timeout=self.bot.params['sim_timeout'])
 
             if history:
-                results = player.history_string()
+                results = context.history_string()
             else:
-                results = str(player)
+                results = context.result()
 
             errored = False
 
@@ -46,14 +49,14 @@ class Movement(commands.Cog):
             results = 'Simulation timed out.'
         except SimError as e:
             results = str(e)
-        except Exception as e:
+        except:
             if self.bot.params['is_dev']:
-                raise e
+                raise
             results = 'Something went wrong.'
 
-        if player.macro:
-            buffer = BytesIO(player.macro_csv().encode('utf8'))
-            kwargs = {'content': results, 'file': discord.File(fp=buffer, filename=f'{player.macro}.csv')}
+        if context.macro:
+            buffer = BytesIO(context.macro_csv().encode('utf8'))
+            kwargs = {'content': results, 'file': discord.File(fp=buffer, filename=f'{context.macro}.csv')}
         elif len(results) > 1990:
             buffer = BytesIO(results.encode('utf8'))
             kwargs = {'content': 'Uploaded output to file since output was too long.', 'file': discord.File(fp=buffer, filename='output.txt')}
@@ -68,24 +71,22 @@ class Movement(commands.Cog):
                 kwargs['content'] = 'Cannot edit attachments.\n' + kwargs['content']
                 kwargs.pop('file', None)
             await edit.botmsg.edit(**kwargs)
-            self.msg_links[edit.msgid].player = player.softcopy()
+            self.msg_links[edit.msgid].player = copy(context.player)
         else:
-            botmsg = await ctx.channel.send(**kwargs)
+            botmsg = await dpy_ctx.channel.send(**kwargs)
 
-            node = SimNode(ctx.message.id, botmsg, player)
-            self.msg_links[ctx.message.id] = node
+            node = SimNode(dpy_ctx.message.id, botmsg, context.player)
+            self.msg_links[dpy_ctx.message.id] = node
             if continuation:
-                parent.children.append(ctx.message.id)
+                parent.children.append(dpy_ctx.message.id)
         
-        player.clearlogs()
-
     @commands.command(aliases=['sim', 's'])
     async def simulate(self, ctx: commands.Context, *, text: str):
-        await self.genericsim(ctx, text)
+        await self.generic_sim(ctx, text)
 
     @commands.command(aliases=['his', 'h'])
     async def history(self, ctx: commands.Context, *, text: str):
-        await self.genericsim(ctx, text, history=True)
+        await self.generic_sim(ctx, text, history=True)
     
     @commands.command(aliases=['t'])
     async def then(self, ctx: commands.Context, *, text: str):
@@ -94,7 +95,7 @@ class Movement(commands.Cog):
             return
         
         srcid = ctx.message.reference.message_id
-        await self.genericsim(ctx, text, continuation = srcid)
+        await self.generic_sim(ctx, text, continuation = srcid)
     
     @commands.command(aliases=['th'])
     async def thenh(self, ctx: commands.Context, *, text: str):
@@ -103,16 +104,16 @@ class Movement(commands.Cog):
             return
         
         srcid = ctx.message.reference.message_id
-        await self.genericsim(ctx, text, continuation = srcid, history = True)
+        await self.generic_sim(ctx, text, continuation = srcid, history = True)
 
     @commands.Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
         if after.id not in self.msg_links:
             return
         
-        await self.editdown(after.channel, after)
+        await self.edit_down(after.channel, after)
     
-    async def editdown(self, channel, msg):
+    async def edit_down(self, channel, msg):
         text = msg.content
         history = any(text.startswith(cmd) for cmd in (';history ', ';his ', ';h ', ';thenh ', ';th '))
         for i in range(len(text)):
@@ -125,8 +126,8 @@ class Movement(commands.Cog):
         else:
             continuation = None
 
-        await self.genericsim(channel, text, history = history, edit = self.msg_links[msg.id], continuation = continuation)
+        await self.generic_sim(channel, text, history = history, edit = self.msg_links[msg.id], continuation = continuation)
 
-        for childid in self.msg_links[msg.id].children:
-            child = await channel.fetch_message(childid)
-            await self.editdown(channel, child)
+        for child_id in self.msg_links[msg.id].children:
+            child = await channel.fetch_message(child_id)
+            await self.edit_down(channel, child)
