@@ -865,34 +865,28 @@ def blip(ctx, blips = 1, blip_height = 0.0625, init_height: f64 = None, init_vy:
 
 def inv_helper(ctx, transform, goal_x, goal_z, strat):
 
-    player = ctx.player
-
     # Perform the first simulation
-    p1 = copy(player)
-    p1.inertia_threshold = 0.0
-    p1.vx = 0.0
-    p1.vz = 0.0
-    ctx.player = p1
-    parsers.execute_string(ctx, strat)
+    ctx1 = ctx.child()
+    ctx1.player.inertia_threshold = 0.0
+    ctx1.player.vx = 0.0
+    ctx1.player.vz = 0.0
+    parsers.execute_string(ctx1, strat)
 
     # Perform the second simulation
-    p2 = copy(player)
-    p2.inertia_threshold = 0.0
-    p2.vx = 1.0
-    p2.vz = 1.0
-    ctx.player = p2
-    parsers.execute_string(ctx, strat)
-
-    ctx.player = player
+    ctx2 = ctx.child()
+    ctx2.player.inertia_threshold = 0.0
+    ctx2.player.vx = 1.0
+    ctx2.player.vz = 1.0
+    parsers.execute_string(ctx2, strat)
 
     # Use the info to calculate the ideal vx/vz, if required
     vx = None
     vz = None
     if goal_x is not None:
-        vx = (p1.x - transform(goal_x)) / (p1.x - p2.x)
+        vx = (ctx1.player.x - transform(goal_x)) / (ctx1.player.x - ctx2.player.x)
         ctx.player.vx = vx
     if goal_z is not None:
-        vz = (p1.z - transform(goal_z)) / (p1.z - p2.z)
+        vz = (ctx1.player.z - transform(goal_z)) / (ctx1.player.z - ctx2.player.z)
         ctx.player.vz = vz
     
     parsers.execute_string(ctx, strat)

@@ -1,3 +1,4 @@
+from copy import copy
 from numpy import format_float_positional
 
 class Context():
@@ -14,6 +15,9 @@ class Context():
         self.prev_rotation = None
         self.history = []
         self.print_precision = 6
+    
+    def child(self):
+        return Context(copy(self.player), self.envs, self.is_dev)
 
     def format(self, num):
         if num is None:
