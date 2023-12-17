@@ -1,4 +1,4 @@
-from math import atan2, degrees, sqrt, copysign, atan, asin, acos, sin
+from math import atan2, degrees, radians, sqrt, copysign, atan, asin, acos, sin, cos
 from inspect import signature
 from functools import wraps
 from types import MethodType
@@ -545,6 +545,11 @@ def setposz(ctx, z = 0.0):
     ctx.player.z = z
 
 @command()
+def setvec(ctx, speed = 0.0, angle = 0.0):
+    ctx.player.vx = -speed * sin(radians(angle))
+    ctx.player.vz = speed * cos(radians(angle))
+
+@command()
 def speed(ctx, speed = 0):
     ctx.player.speed = speed
 
@@ -654,10 +659,10 @@ def z_b(ctx, zero = 0.0):
 @command(aliases = ['speedvec', 'vector', 'vec'])
 def speedvector(ctx):
     """Displays the magnitude and direction of the player's speed vector."""
-    angle = degrees(atan2(-ctx.player.vx, ctx.player.vz))
     speed = sqrt(ctx.player.vx**2 + ctx.player.vz**2)
-    ctx.out += f"Angle: {ctx.format(angle)}\n"
+    angle = degrees(atan2(-ctx.player.vx, ctx.player.vz))
     ctx.out += f"Speed: {ctx.format(speed)}\n"
+    ctx.out += f"Angle: {ctx.format(angle)}\n"
 
 @command(aliases = ['sprintdelay', 'sdel'])
 def air_sprint_delay(ctx, sprint_delay = True):
