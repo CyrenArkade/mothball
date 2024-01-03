@@ -86,7 +86,7 @@ class Player:
             self.vz = 0.0
 
         # Calculating movement multiplier
-        inertia = fl(0.91) * slip
+        drag = fl(0.91) * slip
         if airborne:
             movement = fl(0.02)
             # Sprinting start/stop is (by default) delayed by a tick midair
@@ -97,10 +97,10 @@ class Player:
             if speed > 0:
                 movement = fl(movement * (1.0 + fl(0.2) * float(speed)))
             if slowness > 0:
-                movement = fl(movement * max((1.0 + fl(-0.15) * float(slowness)), 0.0))
+                movement = fl(movement * max(1.0 + fl(-0.15) * float(slowness), 0.0))
             if sprinting:
                 movement = fl(movement * (1.0 + fl(0.3)))
-            movement *= fl(0.16277136) / (inertia * inertia * inertia)
+            movement *= fl(0.16277136) / (drag * drag * drag)
         
         # Applying sprintjump boost
         if sprinting and jumping:
@@ -128,8 +128,8 @@ class Player:
 
             # Modifies strafe and forward to account for movement
             distance = movement / distance
-            strafe = strafe * distance
             forward = forward * distance
+            strafe = strafe * distance
 
             # Adds rotated vectors to velocity
             sin_yaw = fl(self.mcsin(rotation * fl(Player.pi) / fl(180.0)))

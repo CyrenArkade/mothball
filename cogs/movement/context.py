@@ -1,4 +1,4 @@
-from copy import copy
+from copy import deepcopy
 from numpy import format_float_positional
 
 class Context():
@@ -12,12 +12,11 @@ class Context():
         self.out = ''
         self.pre_out = ''
         self.input_history = []
-        self.prev_rotation = None
         self.history = []
         self.print_precision = 6
     
     def child(self):
-        return Context(copy(self.player), self.envs, self.is_dev)
+        return Context(deepcopy(self.player), self.envs, self.is_dev)
 
     def format(self, num):
         if num is None:
@@ -66,7 +65,7 @@ class Context():
             if tick[0] > 0: w = 'true'
             if tick[0] < 0: s = 'true'
             if tick[1] > 0: a = 'true'
-            if tick[2] < 0: d = 'true'
+            if tick[1] < 0: d = 'true'
             input_str = f'{w},{a},{s},{d},{str(tick[2]).lower()},{str(tick[3]).lower()},{str(tick[4]).lower()}'
 
             if prev_rotation is None:

@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from copy import copy
+from copy import deepcopy
 import asyncio
 from io import BytesIO
 from cogs.movement.context import Context
@@ -31,7 +31,7 @@ class Movement(commands.Cog):
 
         if continuation:
             parent = self.msg_links[continuation]
-            context.player = copy(parent.player)
+            context.player = deepcopy(parent.player)
         
         errored = True
         try:
@@ -71,7 +71,7 @@ class Movement(commands.Cog):
                 kwargs['content'] = 'Cannot edit attachments.\n' + kwargs['content']
                 kwargs.pop('file', None)
             await edit.botmsg.edit(**kwargs)
-            self.msg_links[edit.msgid].player = copy(context.player)
+            self.msg_links[edit.msgid].player = deepcopy(context.player)
         else:
             botmsg = await dpy_ctx.channel.send(**kwargs)
 

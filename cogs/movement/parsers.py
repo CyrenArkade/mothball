@@ -17,7 +17,7 @@ def execute_string(context, text):
         commands_args = string_to_args(text)
     except SimError:
         raise
-    except Exception as e:
+    except Exception:
         if context.is_dev:
             raise
         raise SimError('Something went wrong while parsing.')
@@ -28,7 +28,7 @@ def execute_string(context, text):
             execute_command(context, command, args)
         except SimError:
             raise
-        except Exception as e:
+        except Exception:
             if context.is_dev:
                 raise
             raise SimError(f'Something went wrong while executing `{command}`.')
