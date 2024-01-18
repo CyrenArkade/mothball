@@ -48,11 +48,9 @@ def command(name=None, aliases=[]):
             args_list = []
 
             for param, default_val in f._defaults.items():
-                if default_val == None: # Avoid setting a potentially bad default
-                    args_list.append(context.args.get(param))
-                else:
+                if default_val is not None: # Avoid setting a potentially bad default
                     context.args.setdefault(param, default_val)
-                    args_list.append(context.args.get(param))
+                args_list.append(context.args.get(param))
     
             return f(context, *args_list)
 
@@ -628,48 +626,60 @@ def turnqueue(ctx):
 def macro(ctx, name = 'macro'):
     ctx.macro = name
 
+def zeroed_formatter(ctx, num, zero):
+    if zero is None:
+        return ctx.format(num)
+    
+    formatted_offset = ctx.format(num - zero, sign=True)
+    if any([formatted_offset.startswith(s) for s in ('+', '-')]):
+        formatted_offset = f'{formatted_offset[0:1]} {formatted_offset[1:]}'
+    else:
+        formatted_offset = f'? {formatted_offset}'
+    
+    return f'{ctx.format(zero)} {formatted_offset}'
+
 @command()
 def outx(ctx, zero = 0.0):
-    ctx.out += f"X: {ctx.format(ctx.player.x - zero)}\n"
+    ctx.out += f'X: {zeroed_formatter(ctx, ctx.player.x, zero)}\n'
 @command()
 def outz(ctx, zero = 0.0):
-    ctx.out += f"Z: {ctx.format(ctx.player.z - zero)}\n"
+    ctx.out += f'Z: {zeroed_formatter(ctx, ctx.player.z, zero)}\n'
 
 @command()
 def outvx(ctx, zero = 0.0):
-    ctx.out += f"Vx: {ctx.format(ctx.player.vx - zero)}\n"
+    ctx.out += f'Vx: {zeroed_formatter(ctx, ctx.player.vx, zero)}\n'
 @command()
 def outvz(ctx, zero = 0.0):
-    ctx.out += f"Vz: {ctx.format(ctx.player.vz - zero)}\n"
+    ctx.out += f'Vz: {zeroed_formatter(ctx, ctx.player.vz, zero)}\n'
 
 @command(name='outxmm', aliases=['xmm'])
 def x_mm(ctx, zero = 0.0):
-    ctx.out += f"X mm: {ctx.format(dist_to_mm(ctx.player.x) - zero)}\n"
+    ctx.out += f'X mm: {zeroed_formatter(ctx, dist_to_mm(ctx.player.x), zero)}\n'
 @command(name='outzmm', aliases=['zmm'])
 def z_mm(ctx, zero = 0.0):
-    ctx.out += f"Z mm: {ctx.format(dist_to_mm(ctx.player.z) - zero)}\n"
+    ctx.out += f'Z mm: {zeroed_formatter(ctx, dist_to_mm(ctx.player.z), zero)}\n'
 
 @command(name='outxb', aliases=['xb'])
 def x_b(ctx, zero = 0.0):
-    ctx.out += f"X b: {ctx.format(dist_to_b(ctx.player.x) - zero)}\n"
+    ctx.out += f'X b: {zeroed_formatter(ctx, dist_to_b(ctx.player.x), zero)}\n'
 @command(name='outzb', aliases=['zb'])
 def z_b(ctx, zero = 0.0):
-    ctx.out += f"Z b: {ctx.format(dist_to_b(ctx.player.z) - zero)}\n"
+    ctx.out += f'Z b: {zeroed_formatter(ctx, dist_to_b(ctx.player.z), zero)}\n'
     
 @command(aliases = ['speedvec', 'vector', 'vec'])
 def speedvector(ctx):
     """Displays the magnitude and direction of the player's speed vector."""
     speed = sqrt(ctx.player.vx**2 + ctx.player.vz**2)
     angle = degrees(atan2(-ctx.player.vx, ctx.player.vz))
-    ctx.out += f"Speed: {ctx.format(speed)}\n"
-    ctx.out += f"Angle: {ctx.format(angle)}\n"
+    ctx.out += f'Speed: {ctx.format(speed)}\n'
+    ctx.out += f'Angle: {ctx.format(angle)}\n'
 
 @command(aliases = ['sprintdelay', 'sdel'])
 def air_sprint_delay(ctx, sprint_delay = True):
     """Change the air sprint delay, which is present in 1.19.3-"""
     ctx.player.air_sprint_delay = sprint_delay
 
-@command(aliases = ["poss"])
+@command(aliases = ['poss'])
 def possibilities(ctx, inputs = 'sj45(100)', mindistance = 0.01, offset = f32(0.6)):
     """
     Performs `inputs` and displays ticks where z is within `mindistance` above a pixel.
@@ -1061,8 +1071,8 @@ def help(ctx, cmd_name = 'help'):
         out = '  '
         out += k
         anno_type = v.annotation if v.default is None else type(v.default)
-        out += f": {anno_type.__name__}"
-        out += " = " + (str(v.default) if anno_type != str else f'"{v.default}"')
+        out += f': {anno_type.__name__}'
+        out += ' = ' + (str(v.default) if anno_type != str else f'"{v.default}"')
         params.append(out)
     newln = '\n'
 

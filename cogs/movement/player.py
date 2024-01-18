@@ -86,7 +86,6 @@ class Player:
             self.vz = 0.0
 
         # Calculating movement multiplier
-        drag = fl(0.91) * slip
         if airborne:
             movement = fl(0.02)
             # Sprinting start/stop is (by default) delayed by a tick midair
@@ -100,6 +99,7 @@ class Player:
                 movement = fl(movement * max(1.0 + fl(-0.15) * float(slowness), 0.0))
             if sprinting:
                 movement = fl(movement * (1.0 + fl(0.3)))
+            drag = fl(0.91) * slip
             movement *= fl(0.16277136) / (drag * drag * drag)
         
         # Applying sprintjump boost

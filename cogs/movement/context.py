@@ -18,10 +18,10 @@ class Context():
     def child(self):
         return Context(deepcopy(self.player), self.envs, self.is_dev)
 
-    def format(self, num):
+    def format(self, num, sign = False):
         if num is None:
             return 'None'
-        return format_float_positional(num, trim='-', precision=self.print_precision)
+        return format_float_positional(num, trim='-', precision=self.print_precision, sign=sign)
 
     def result(self):
 
