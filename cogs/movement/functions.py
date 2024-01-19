@@ -639,31 +639,31 @@ def zeroed_formatter(ctx, num, zero):
     return f'{ctx.format(zero)} {formatted_offset}'
 
 @command()
-def outx(ctx, zero = 0.0):
+def outx(ctx, zero = None):
     ctx.out += f'X: {zeroed_formatter(ctx, ctx.player.x, zero)}\n'
 @command()
-def outz(ctx, zero = 0.0):
+def outz(ctx, zero = None):
     ctx.out += f'Z: {zeroed_formatter(ctx, ctx.player.z, zero)}\n'
 
 @command()
-def outvx(ctx, zero = 0.0):
+def outvx(ctx, zero = None):
     ctx.out += f'Vx: {zeroed_formatter(ctx, ctx.player.vx, zero)}\n'
 @command()
-def outvz(ctx, zero = 0.0):
+def outvz(ctx, zero = None):
     ctx.out += f'Vz: {zeroed_formatter(ctx, ctx.player.vz, zero)}\n'
 
 @command(name='outxmm', aliases=['xmm'])
-def x_mm(ctx, zero = 0.0):
+def x_mm(ctx, zero = None):
     ctx.out += f'X mm: {zeroed_formatter(ctx, dist_to_mm(ctx.player.x), zero)}\n'
 @command(name='outzmm', aliases=['zmm'])
-def z_mm(ctx, zero = 0.0):
+def z_mm(ctx, zero = None):
     ctx.out += f'Z mm: {zeroed_formatter(ctx, dist_to_mm(ctx.player.z), zero)}\n'
 
 @command(name='outxb', aliases=['xb'])
-def x_b(ctx, zero = 0.0):
+def x_b(ctx, zero = None):
     ctx.out += f'X b: {zeroed_formatter(ctx, dist_to_b(ctx.player.x), zero)}\n'
 @command(name='outzb', aliases=['zb'])
-def z_b(ctx, zero = 0.0):
+def z_b(ctx, zero = None):
     ctx.out += f'Z b: {zeroed_formatter(ctx, dist_to_b(ctx.player.z), zero)}\n'
     
 @command(aliases = ['speedvec', 'vector', 'vec'])
